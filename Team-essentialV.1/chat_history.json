@@ -1,0 +1,38 @@
+[
+    {
+        "user_question": "hi",
+        "bot_response": "Hello! I am the internship chatbot for UNH. How may I assist you today?",
+        "timestamp": "2025-02-17T19:56:09.801066",
+        "question_hash": "49f68a5c8493ec2c0bf489821c21fc3b"
+    },
+    {
+        "user_question": "who is the professor",
+        "bot_response": "Professor Karen Jin is the Faculty Internship Coordinator.",
+        "timestamp": "2025-02-17T21:22:17.231282",
+        "question_hash": "b3cf042a300e9d0d7cc57eda30d9ffb4"
+    },
+    {
+        "user_question": "hello",
+        "bot_response": "Hello! I am the internship chatbot for UNH. How may I assist you today?",
+        "timestamp": "2025-02-18T19:00:41.412914",
+        "question_hash": "5d41402abc4b2a76b9719d911017c592"
+    },
+    {
+        "user_question": "what is name of the class",
+        "bot_response": "The class you're asking about seems to be \"COMP 820 Database Systems and Technologies\" for the Spring 2024 term. If you need more details about this course or any other, feel free to ask!",
+        "timestamp": "2025-02-18T19:00:52.136330",
+        "question_hash": "97aacbd8443c93f87248e13050f9bb8a"
+    },
+    {
+        "user_question": "who is the main teacher of the class",
+        "bot_response": "The main instructor for COMP 820 Database Systems and Technologies for the Spring 2024 term is Professor Karen Jin. If you have any questions about the course or need further assistance, feel free to reach out to her!",
+        "timestamp": "2025-02-18T19:02:08.131486",
+        "question_hash": "38f40f4dfb4cb1be7e48087d8bff5234"
+    },
+    {
+        "user_question": "what is the purpose of the class",
+        "bot_response": "The purpose of the class, particularly COMP 820 Database Systems and Technologies, is to provide students with a comprehensive understanding of database systems, their management, and the technologies that support database functionality. This course is designed to enhance your skills in analyzing user needs and developing computing systems that effectively meet these requirements. It also incorporates elements of project management and team collaboration, using tools like Jira and Scrum workflows to simulate real-world IT project environments.",
+        "timestamp": "2025-02-18T19:31:51.448571",
+        "question_hash": "315ec1c6648db6bca8156a7a35fe1018"
+    }
+]
