@@ -136,7 +136,7 @@ def extract_texts_from_multiple_pdfs(pdf_directory):
 
 # Directory containing PDFs to be processed
 
-pdf_directory = '/Users/jaligapusaishiva/Downloads/Team-essential/data'
+pdf_directory = 'C:/Users/Punnulatha/Downloads/Team-essential/data'
 documents = extract_texts_from_multiple_pdfs(pdf_directory)
 
 # Split documents into chunks for better context management
