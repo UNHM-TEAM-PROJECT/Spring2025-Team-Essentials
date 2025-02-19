@@ -22,6 +22,7 @@ from datetime import datetime
 import hashlib
 from langchain.chat_models import ChatOpenAI
 from pymongo import MongoClient
+import fitz 
 
 # Flask app initialization
 app = Flask(__name__)
@@ -341,9 +342,33 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+    
     file = request.files['file']
-    file.save(os.path.join(UPLOAD_FOLDER, file.filename))
-    return jsonify({'success': True, 'message': 'PDF uploaded successfully'})
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(file_path)
+    
+    # Extract and print bold text from PDF
+    bold_text = extract_bold_text(file_path)
+
+    return jsonify({
+        'success': True, 
+        'message': 'PDF uploaded successfully', 
+        'bold_text': bold_text
+    })
+
+def extract_bold_text(pdf_path):
+    doc = fitz.open(pdf_path)
+    bold_items = []
+
+    for page in doc:
+        for text in page.get_text("dict")["blocks"]:
+            if "lines" in text:
+                for line in text["lines"]:
+                    for span in line["spans"]:
+                        if "bold" in span.get("font", "").lower():  # Detecting bold text
+                            bold_items.append(span["text"])
+
+    return bold_items
 
 if __name__ == '__main__':
     initialize_chat_history_file()
