@@ -1,0 +1,74 @@
+[
+    {
+        "user_question": "is this neche complient?",
+        "bot_response": "Sorry, I don\u2019t have information about that question. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-20T00:07:37.062409",
+        "question_hash": "844a7fd1bd03a4719a0457d2fda04cfc"
+    },
+    {
+        "user_question": "hi",
+        "bot_response": "Hello! I am the internship chatbot for UNH. How may I assist you today?",
+        "timestamp": "2025-02-20T11:28:00.209835",
+        "question_hash": "49f68a5c8493ec2c0bf489821c21fc3b"
+    },
+    {
+        "user_question": "can you check the basic information section of a syllabus to be neche compliant",
+        "bot_response": "Sorry, I don\u2019t have information about that question. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-20T11:28:29.415600",
+        "question_hash": "5f8154dc878b55f97b23e569f40f4c01"
+    },
+    {
+        "user_question": "what do you think of the pdf",
+        "bot_response": "I'm here to help with questions specifically about the UNH internship program! If you have any inquiries about the internship courses, registration, or any other related topics, feel free to ask!",
+        "timestamp": "2025-02-20T11:29:14.069177",
+        "question_hash": "fde818412ebdb37f0d6e4e6b8a38d150"
+    },
+    {
+        "user_question": "are you able to accept pdfs",
+        "bot_response": "For the internship courses like COMP690 or COMP890, you'll need to submit your weekly logs and final report in a PDF format through Canvas. This helps maintain a consistent and accessible record of your work. If you have any more questions about submission formats or anything else related to your internship course, feel free to ask!",
+        "timestamp": "2025-02-20T12:03:27.516710",
+        "question_hash": "54bdfc33a6157e7fc3d1f5c42a1f793e"
+    },
+    {
+        "user_question": "what majors are required to take internship courses?",
+        "bot_response": "At UNH Manchester, all computing major students are required to take internship courses. This includes undergraduate students majoring in Computer Information Systems (CIS) and Computer Science (CS), as well as graduate students in the M.S. Information Technology and M.S. Cybersecurity Engineering programs. These courses are designed to integrate academic learning with practical work experience in the field. If you need more details about specific courses or requirements, feel free to ask!",
+        "timestamp": "2025-02-20T12:23:07.433433",
+        "question_hash": "2815aeb299562e72d2469300790f16ad"
+    },
+    {
+        "user_question": "what should I do to get an internship?",
+        "bot_response": "To secure an internship, start by exploring opportunities on Handshake, which is tailored for UNH students. Additionally, check out job websites like LinkedIn, Indeed, and Hired. Don't forget to attend internship fairs at both the Manchester and Durham campuses, and network with family, friends, and faculty. The Career and Professional Success office is also a great resource for resume writing and interview coaching. Once you find an opportunity, remember to register your internship experience on Handshake as part of the course requirements for COMP690 or other relevant internship courses.",
+        "timestamp": "2025-02-20T12:27:08.418600",
+        "question_hash": "eba7ff22f64c7a79a815ec6c74be01ed"
+    },
+    {
+        "user_question": "How can I register my internship experience on Handshake?",
+        "bot_response": "To register your internship experience on Handshake, follow these steps:\n\n1. Log in to Handshake.\n2. Navigate to the top right corner, click on 'Career Center', then go to 'Experiences'.\n3. Click on \"Request an Experience\" and complete the form with the necessary details about your internship.\n\nMake sure your internship is approved by both your site supervisor and your faculty internship coordinator. If you need further assistance or have any questions, feel free to reach out!",
+        "timestamp": "2025-02-20T12:27:37.305967",
+        "question_hash": "ea397fae6e63ae8d72516ffd957d4e04"
+    },
+    {
+        "user_question": "what are the internship course options for undergrads?",
+        "bot_response": "For undergraduate students at UNH Manchester, the primary internship course option is COMP690: Internship Experience. This course offers two tracks depending on your current employment status and academic needs:\n\n1. **Applied Research Option** - Suitable if you are currently working in a tech-related job. This allows you to integrate your work experience with academic research.\n2. **Team Project Option** - Ideal for those in their last semester who need to fulfill their internship requirement through a collaborative project.\n\nBoth options are designed to provide practical experience and enhance your learning. If you have any more questions or need guidance on how to register, feel free to ask!",
+        "timestamp": "2025-02-20T12:28:08.490700",
+        "question_hash": "20ddcf86dc2b4a1a0c0320b818db5685"
+    },
+    {
+        "user_question": "what are the internship course options for graduate students?",
+        "bot_response": "For graduate students at UNH Manchester, there are several internship course options tailored to different needs:\n\n1. **COMP890: Internship and Career Planning** - This 1 credit course is designed to help you plan your internship search effectively. It's offered in both fall and spring semesters.\n\n2. **COMP891: Internship Practice** - This variable credit course (1-3 credits) is for students who secure an external internship. It's crucial for applying for CPT and is available in fall, spring, and summer.\n\n3. **COMP892: Applied Research Internship** - Also a variable credit course (1-3 credits), this is ideal if you're working part-time or full-time in tech fields. It's available throughout the year.\n\n4. **COMP893: Team Project Internship** - This course is specifically for those in their last semester needing to fulfill their internship requirements. It's offered in the fall and spring semesters.\n\nEach of these courses requires instructor permission for registration. If you need more details or help with the registration process, feel free to reach out to Prof. Karen Jin at karen.jin@unh.edu.",
+        "timestamp": "2025-02-20T12:28:44.320885",
+        "question_hash": "7d1b76defbf2de4b53285f2de998fd9c"
+    },
+    {
+        "user_question": "Tell me more about COMP690",
+        "bot_response": "COMP690, titled \"Internship Experience,\" is a 4-credit course offered to undergraduate students at UNH Manchester. It's designed to provide a practical, hands-on experience through placement in team projects, allowing students to work collaboratively on real-world IT projects with external stakeholders. This course helps students develop skills in analyzing complex computing problems, designing and implementing solutions, and effectively communicating in professional settings.\n\nThe course is available in two sections during the Fall 2024 term, meeting on Wednesdays from 9:10 am to 12 pm and 1:10 pm to 4 pm in Room P142. Professor Karen Jin oversees this course, and you can reach her via email at karen.jin@unh.edu for more details or to make an appointment.\n\nIf you have any more questions about the course structure or how to register, feel free to ask!",
+        "timestamp": "2025-02-20T12:29:27.819726",
+        "question_hash": "42bacbcc598d8dc5bf40a408707534f8"
+    },
+    {
+        "user_question": "Tell me more about COMP890?",
+        "bot_response": "COMP890, titled \"Internship and Career Planning,\" is a 1-credit course designed specifically for graduate students at UNH Manchester. This course is structured to assist students in effectively planning and preparing for their internship search. It covers strategies for identifying suitable internship opportunities, crafting professional resumes, and mastering interview techniques.\n\nThe course is offered in both the fall and spring semesters, making it accessible for students to enroll at a time that best fits their academic schedule. Professor Karen Jin, who can be reached at karen.jin@unh.edu, oversees this course. If you have any further questions about COMP890 or need assistance with the registration process, please don't hesitate to reach out!",
+        "timestamp": "2025-02-20T12:30:16.705887",
+        "question_hash": "0301d72b98d4500a4555442a6c807073"
+    }
+]

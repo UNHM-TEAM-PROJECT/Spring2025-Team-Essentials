@@ -11,8 +11,9 @@ import os
 from flask import Flask, request, jsonify, render_template
 import pdfplumber
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain.memory import ConversationBufferMemory
@@ -136,7 +137,7 @@ def extract_texts_from_multiple_pdfs(pdf_directory):
 
 # Directory containing PDFs to be processed
 
-pdf_directory = '/Users/jaligapusaishiva/Downloads/Team-essential/data'
+pdf_directory = r'D:\Spring2025-Team-Essentials\data'
 documents = extract_texts_from_multiple_pdfs(pdf_directory)
 
 # Split documents into chunks for better context management
