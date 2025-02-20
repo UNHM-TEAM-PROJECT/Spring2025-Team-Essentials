@@ -507,6 +507,7 @@ uploadButton.addEventListener('click', function () {
     fileInput.click();
 });
 
+// Handle file upload and response handling
 function handleFileUpload(file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -526,9 +527,9 @@ function handleFileUpload(file) {
         }
     })
     .then(data => {
+        // Ensure the response contains the expected fields
         if (data.success) {
-            // Once PDF is uploaded successfully, display the bold items
-            displayBoldText(data.bold_text);
+            addMessage(data.compliance_check, true);
         } else {
             addMessage('Error: Unable to upload the PDF file.', false);
         }
@@ -538,19 +539,26 @@ function handleFileUpload(file) {
         addMessage(`Error: ${error.message}`, false);
     });
 }
-
-// Function to display extracted bold text without <strong> and <br>
-    function displayBoldText(boldText) {
-    if (boldText.length > 0) {
-        // Create a message that lists the bold items, each on a new line
-        const formattedBoldText = boldText.join('\n');  // Join the bold items with newline
-        addMessage(formattedBoldText || 'No bold text found in the PDF.', false);
+// Function to display compliance check result
+function displayComplianceResult(complianceResult) {
+    if (complianceResult.compliant) {
+        addMessage('✅ Compliance check passed! All required bold items are present.', false);
     } else {
-        addMessage('No bold text found in the PDF.', false);
+        addMessage('❌ Compliance check failed! Missing the following items:', false);
+        complianceResult.missing_items.forEach(item => {
+            addMessage(`- ${item}`, false);
+        });
     }
 }
 
-
+// Function to display extracted text from the PDF
+function displayExtractedText(text) {
+    if (text.length > 0) {
+        addMessage(text || 'No text found in the PDF.', false);
+    } else {
+        addMessage('No text found in the PDF.', false);
+    }
+}
     
         // Add messages (text-based)
         function addMessage(content, isUser) {
