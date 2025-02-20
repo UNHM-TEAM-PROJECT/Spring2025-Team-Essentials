@@ -1,0 +1,22 @@
+[
+    {
+        "user": "who is the professor",
+        "assistant": "Professor Karen Jin is the Faculty Internship Coordinator."
+    },
+    {
+        "user": "hello",
+        "assistant": "Hello! I am the internship chatbot for UNH. How may I assist you today?"
+    },
+    {
+        "user": "what is name of the class",
+        "assistant": "The class you're asking about seems to be \"COMP 820 Database Systems and Technologies\" for the Spring 2024 term. If you need more details about this course or any other, feel free to ask!"
+    },
+    {
+        "user": "who is the main teacher of the class",
+        "assistant": "The main instructor for COMP 820 Database Systems and Technologies for the Spring 2024 term is Professor Karen Jin. If you have any questions about the course or need further assistance, feel free to reach out to her!"
+    },
+    {
+        "user": "what is the purpose of the class",
+        "assistant": "The purpose of the class, particularly COMP 820 Database Systems and Technologies, is to provide students with a comprehensive understanding of database systems, their management, and the technologies that support database functionality. This course is designed to enhance your skills in analyzing user needs and developing computing systems that effectively meet these requirements. It also incorporates elements of project management and team collaboration, using tools like Jira and Scrum workflows to simulate real-world IT project environments."
+    }
+]
