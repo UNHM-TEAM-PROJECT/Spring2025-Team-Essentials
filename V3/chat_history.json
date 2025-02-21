@@ -1,0 +1,50 @@
+[
+    {
+        "user_question": "hi",
+        "bot_response": "Hello! I am the internship chatbot for UNH. How may I assist you today?",
+        "timestamp": "2025-02-19T00:37:51.497977",
+        "question_hash": "49f68a5c8493ec2c0bf489821c21fc3b"
+    },
+    {
+        "user_question": "can you check for compliance?",
+        "bot_response": "Could you please specify what type of compliance you are referring to? For instance, are you asking about compliance with academic integrity, course prerequisites, or something else related to the UNH internship program? This will help me provide you with the most accurate information.",
+        "timestamp": "2025-02-21T18:19:50.086666",
+        "question_hash": "223f217dcdf5fc6c4f4427a3b484044d"
+    },
+    {
+        "user_question": "hello",
+        "bot_response": "Hello! I am the internship chatbot for UNH. How may I assist you today?",
+        "timestamp": "2025-02-21T18:26:22.596464",
+        "question_hash": "5d41402abc4b2a76b9719d911017c592"
+    },
+    {
+        "user_question": "What are the core parts of the NECHE compliance criteria for syllabi?",
+        "bot_response": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-21T18:27:24.372559",
+        "question_hash": "d39f936702dd089cf292b645b22d0edc"
+    },
+    {
+        "user_question": "How should NECHE-compliant syllabi handle student learning assessments?",
+        "bot_response": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-21T18:28:34.443515",
+        "question_hash": "5374a0a5bdcd09fdf77b938fe381a8df"
+    },
+    {
+        "user_question": "What role does accessibility play in NECHE-compliant syllabi?",
+        "bot_response": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-21T18:28:51.836770",
+        "question_hash": "2e17bab0e208c59a9273d345d0f446b0"
+    },
+    {
+        "user_question": "Why is academic integrity important in NECHE-compliant syllabi?",
+        "bot_response": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-21T18:29:07.732175",
+        "question_hash": "dfc4feaa14b4764f59c117a23bba3593"
+    },
+    {
+        "user_question": "What should NECHE-compliant syllabi include about faculty qualifications?",
+        "bot_response": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "timestamp": "2025-02-21T18:29:29.802933",
+        "question_hash": "f8539f779e4fda0e548c102b050adb21"
+    }
+]

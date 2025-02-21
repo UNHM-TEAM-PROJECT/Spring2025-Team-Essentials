@@ -1,0 +1,52 @@
+[
+    {
+        "question": "What are the core parts of the NECHE compliance criteria for syllabi?",
+        "expected_answer": "The core parts of NECHE compliance criteria include maintaining high academic quality through measurable learning outcomes, providing clear descriptions and assessment methods for quizzes, exams, and projects, and ensuring transparent communication channels for instructors.",
+        "retrieval_context": [
+            "Maintaining high academic quality is a key aspect of NECHE compliance."
+        ],
+        "actual_answer": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "relevancy_reason": "The score is 0.00 because the output statements provided are completely irrelevant, lacking information on the NECHE compliance criteria for syllabi and instead discussing unrelated topics.",
+        "faithfulness_reason": "The score is 1.00 because there are no contradictions between the actual output and the retrieval context."
+    },
+    {
+        "question": "How should NECHE-compliant syllabi handle student learning assessments?",
+        "expected_answer": "NECHE-compliant syllabi must clearly outline assessment methods such as quizzes, exams, projects, and participation. These assessments should align with the stated learning outcomes and ensure academic rigor.",
+        "retrieval_context": [
+            "NECHE compliance ensures students receive a quality education with clear evaluation criteria."
+        ],
+        "actual_answer": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "relevancy_reason": "The score is 0.50 because the response discussed the UNH internship program, which is unrelated to the question about NECHE-compliant syllabi and student learning assessments.",
+        "faithfulness_reason": "The score is 1.00 because there are no contradictions found between the actual output and the retrieval context, indicating perfect alignment."
+    },
+    {
+        "question": "What role does accessibility play in NECHE-compliant syllabi?",
+        "expected_answer": "Accessibility is a key factor in NECHE compliance, requiring syllabi to provide accommodations for students with disabilities, use universally designed materials, and ensure all course content is accessible to diverse learners.",
+        "retrieval_context": [
+            "NECHE emphasizes equity, diversity, and inclusion in academic programs."
+        ],
+        "actual_answer": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "relevancy_reason": "The score is 0.50 because the response included irrelevant information about the UNH internship program, which does not relate to the role of accessibility in NECHE-compliant syllabi, lowering its relevancy.",
+        "faithfulness_reason": "The score is 1.00 because there are no contradictions between the actual output and the retrieval context, indicating perfect alignment and faithfulness."
+    },
+    {
+        "question": "Why is academic integrity important in NECHE-compliant syllabi?",
+        "expected_answer": "Academic integrity ensures that students engage in honest and ethical learning. NECHE-compliant syllabi must include clear policies on plagiarism, cheating, and proper citation of sources.",
+        "retrieval_context": [
+            "Institutions accredited by NECHE are required to uphold ethical standards in all academic programs."
+        ],
+        "actual_answer": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "relevancy_reason": "The score is 0.00 because the actual output did not address the specific question about the importance of academic integrity in NECHE-compliant syllabi and mentioned unrelated information about the UNH internship program.",
+        "faithfulness_reason": "The score is 1.00 because there are no contradictions between the actual output and the retrieval context, indicating perfect faithfulness."
+    },
+    {
+        "question": "What should NECHE-compliant syllabi include about faculty qualifications?",
+        "expected_answer": "NECHE requires that courses be taught by qualified instructors with expertise in their subject area. Syllabi should include the instructor\u2019s name, credentials, and contact information.",
+        "retrieval_context": [
+            "NECHE accreditation ensures faculty members are appropriately qualified to teach assigned courses."
+        ],
+        "actual_answer": "Sorry, I don\u2019t have information about the NECHE compliance criteria for syllabi. Feel free to ask me anything related to the UNH internship program.",
+        "relevancy_reason": "The score is 0.50 because the response included irrelevant information about the UNH internship program, which does not pertain to faculty qualifications for NECHE-compliant syllabi.",
+        "faithfulness_reason": "The score is 1.00 because there are no contradictions between the actual output and the retrieval context, indicating perfect faithfulness."
+    }
+]
