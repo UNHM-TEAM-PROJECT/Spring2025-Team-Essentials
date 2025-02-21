@@ -22,6 +22,7 @@ from datetime import datetime
 import hashlib
 from langchain.chat_models import ChatOpenAI
 from pymongo import MongoClient
+import fitz 
 
 # Flask app initialization
 app = Flask(__name__)
@@ -136,7 +137,7 @@ def extract_texts_from_multiple_pdfs(pdf_directory):
 
 # Directory containing PDFs to be processed
 
-pdf_directory = '/Users/jaligapusaishiva/Downloads/Team-essential/data'
+pdf_directory = 'C:/Users/Punnulatha/Downloads/Team-essential/data'
 documents = extract_texts_from_multiple_pdfs(pdf_directory)
 
 # Split documents into chunks for better context management
@@ -335,15 +336,100 @@ def ask():
     return jsonify({"response": answer, "retrieval_context": retrieval_context})
 
 UPLOAD_FOLDER = 'uploads'
+
+# Make sure the upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Compliance Criteria: Key Information to Check
+required_compliance_items = {
+    "Instructor Name": [
+        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor)[:\-]?", 
+        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$" ],
+    "Title or Rank": ["title", "rank"],
+    "Department or Program Affiliation": ["department", "program affiliation"],
+    "Preferred Contact Method": ["contact method", "preferred contact", "contact information", "Office Hours"],
+    "Email Address": [r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"],
+    "Phone Number": [r"\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b", r"\(\d{3}\)\s*\d{3}[-.\s]??\d{4}"],
+    "Office Address": ["office address", "address", "Office"],
+    "Office Hours": ["office hours", "hours", "Office"],
+    "Location (Physical or Remote)": ["physical location", "remote", "by appointment", "location"]
+}
 
 @app.route('/upload-pdf', methods=['POST'])
 def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+
     file = request.files['file']
-    file.save(os.path.join(UPLOAD_FOLDER, file.filename))
-    return jsonify({'success': True, 'message': 'PDF uploaded successfully'})
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(file_path)
+
+    try:
+        # Extract all text from the uploaded PDF
+        uploaded_pdf_text = extract_all_text(file_path)
+
+        # Debugging: Print the text from the uploaded PDF
+        print("\n----- Text from Uploaded PDF -----")
+        print(uploaded_pdf_text)
+
+        # Check compliance by comparing the extracted text with the required compliance text
+        compliance_check_result = check_compliance(uploaded_pdf_text)
+
+        # Debugging: Print the result of compliance check
+        print("\n----- Compliance Check Result -----")
+        print(compliance_check_result)
+
+        # Based on compliance, return a response with a tick or cross mark
+        if compliance_check_result['compliant']:
+            result = "✔ Compliance: All required information is present."
+        else:
+            result = "❌ Compliance: Missing the following information:\n" + "\n".join(compliance_check_result.get('missing_compliance_items', []))
+
+        return jsonify({
+            'success': True,
+            'message': 'PDF uploaded successfully',
+            'compliance_check': result
+        })
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+def extract_all_text(pdf_path):
+    """Extract all text from the provided PDF."""
+    doc = fitz.open(pdf_path)
+    full_text = []
+
+    for page in doc:
+        full_text.append(page.get_text())
+
+    return '\n'.join(full_text)
+
+def check_compliance(uploaded_pdf_text):
+    """Check if all required compliance information is present in the extracted text."""
+    missing_compliance_items = []
+    lowercased_text = uploaded_pdf_text.lower()
+
+    for item, patterns in required_compliance_items.items():
+        found = False
+        for pattern in patterns:
+            # Use regex for pattern matching, including email and phone number
+            if re.search(pattern.lower(), lowercased_text):
+                found = True
+                break
+        if not found:
+            missing_compliance_items.append(item)
+
+    # Debugging: Print missing compliance items
+    print("\n----- Missing Compliance Items -----")
+    print(missing_compliance_items)
+
+    if missing_compliance_items:
+        return {
+            'compliant': False,
+            'missing_compliance_items': missing_compliance_items
+        }
+    else:
+        return {'compliant': True}
 
 if __name__ == '__main__':
     initialize_chat_history_file()
