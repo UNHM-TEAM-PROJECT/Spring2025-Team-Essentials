@@ -492,13 +492,12 @@ Date:
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-
-        // Handle file input change (when a PDF is selected)
+// Handle file input change (when a PDF is selected)
 fileInput.addEventListener('change', function (e) {
     const file = e.target.files[0];
 
     if (file && file.type === 'application/pdf') {
-        // Show the filename in the chat
+        // Show the filename in the chat (user side)
         addMessage(`PDF file selected: ${file.name}`, true);
         handleFileUpload(file);
     } else {
@@ -517,6 +516,9 @@ function handleFileUpload(file) {
     const formData = new FormData();
     formData.append('file', file);
 
+    // Show a loading or processing message
+    addMessage('Processing PDF file...', false);
+
     // Upload the file to the server using fetch API
     fetch('/upload-pdf', {
         method: 'POST',
@@ -534,13 +536,16 @@ function handleFileUpload(file) {
     .then(data => {
         // Ensure the response contains the expected fields
         if (data.success) {
-            addMessage(data.compliance_check, true);
+            // Display the compliance check result as a bot message (left-hand side)
+            addMessage(data.compliance_check, false);
         } else {
+            // Display an error message as a bot message (left-hand side)
             addMessage('Error: Unable to upload the PDF file.', false);
         }
     })
     .catch(error => {
         console.error('Error uploading PDF:', error);
+        // Display the error message as a bot message (left-hand side)
         addMessage(`Error: ${error.message}`, false);
     });
 }
