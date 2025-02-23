@@ -126,12 +126,17 @@ def check_compliance(uploaded_pdf_text):
     print(missing_compliance_items)
 
     if missing_compliance_items:
+        # Format the missing items with commas
+        missing_items_str = ", ".join(missing_compliance_items)
         return {
             'compliant': False,
-            'missing_compliance_items': missing_compliance_items
+            'compliance_check': f"❌ Compliance: Missing the following information: {missing_items_str}."
         }
     else:
-        return {'compliant': True}
+        return {
+            'compliant': True,
+            'compliance_check': "✔ Compliance: All required information is present."
+        }
 
 # Upload API: Handles file upload and processing
 @app.route('/upload-pdf', methods=['POST'])
@@ -160,16 +165,10 @@ def upload_pdf():
         # Check compliance
         compliance_check_result = check_compliance(extracted_text)
 
-        # Prepare compliance result message
-        if compliance_check_result['compliant']:
-            compliance_message = "✔ Compliance: All required information is present."
-        else:
-            compliance_message = "❌ Compliance: Missing the following information:\n" + "\n".join(compliance_check_result.get('missing_compliance_items', []))
-
         return jsonify({
             "success": True, 
             "message": f"✅ PDF uploaded successfully: {filename}",
-            "compliance_check": compliance_message
+            "compliance_check": compliance_check_result['compliance_check']
         })
     except Exception as e:
         return jsonify({"error": f"Failed to process PDF: {str(e)}"}), 500
