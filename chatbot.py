@@ -7,6 +7,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import Document, HumanMessage
+from PIL import Image
+import pytesseract
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -38,17 +40,24 @@ initialize_chroma()
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
     text = ''
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text() or ''
-            text += page_text + "\n"
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text() or ''
+                if not page_text:  # Fallback to OCR if no text is extracted
+                    page_image = page.to_image(resolution=300).original
+                    page_text = pytesseract.image_to_string(Image.fromarray(page_image))
+                text += page_text + "\n"
 
-            # Extract tables as text
-            tables = page.extract_table()
-            if tables:
-                text += "\n\n" + "\n".join(
-                    ["\t".join([str(cell) if cell is not None else '' for cell in row]) for row in tables if row]
-                ) + "\n"
+                # Extract tables as text
+                tables = page.extract_table()
+                if tables:
+                    text += "\n\n" + "\n".join(
+                        ["\t".join([str(cell) if cell is not None else '' for cell in row]) for row in tables if row]
+                    ) + "\n"
+    except Exception as e:
+        print(f"Error processing PDF {pdf_path}: {str(e)}")
+        raise
     return text
 
 # Text chunking strategy
@@ -61,19 +70,23 @@ text_splitter = RecursiveCharacterTextSplitter(
 # Function to process an uploaded PDF
 def process_uploaded_pdf(file_path, file_name):
     global db
-    extracted_text = extract_text_from_pdf(file_path)
-    
+    try:
+        extracted_text = extract_text_from_pdf(file_path)
+        print(f"Extracted text from {file_name}: {extracted_text[:100]}...")  # Debug: Print first 100 chars
+    except Exception as e:
+        print(f"Error extracting text from {file_name}: {str(e)}")
+        raise
+
     # Split into chunks
     chunks = text_splitter.split_text(extracted_text)
     documents = [Document(page_content=chunk, metadata={"source": file_name}) for chunk in chunks]
 
-    # Create or update vector store
-    if db is None:
-        db = Chroma.from_documents(documents, embedding=embeddings, persist_directory=persist_directory)
-    else:
-        db.add_documents(documents)
-
+    # Reset the vector store and add new documents
+    if db is not None:
+        db.delete_collection()  # Clear existing documents
+    db = Chroma.from_documents(documents, embedding=embeddings, persist_directory=persist_directory)
     db.persist()
+    print(f"Vector store updated with {len(documents)} documents from {file_name}")  # Debug: Confirm update
 
 # Upload API: Handles file upload and processing
 @app.route('/upload-pdf', methods=['POST'])
@@ -90,8 +103,15 @@ def upload_pdf():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(file_path)
 
+    # Debug: Verify file is saved
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File failed to save"}), 500
+
     # Process the uploaded file
-    process_uploaded_pdf(file_path, filename)
+    try:
+        process_uploaded_pdf(file_path, filename)
+    except Exception as e:
+        return jsonify({"error": f"Failed to process PDF: {str(e)}"}), 500
 
     return jsonify({
         "success": True, 
@@ -140,4 +160,4 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=True, host='0.0.0.0', port=8000)
