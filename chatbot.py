@@ -1,4 +1,5 @@
 import os
+import re
 import pdfplumber
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
@@ -37,6 +38,21 @@ def initialize_chroma():
 
 initialize_chroma()
 
+# Compliance Criteria: Key Information to Check
+required_compliance_items = {
+    "Instructor Name": [
+        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor)[:\-]?", 
+        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$" ],
+    "Title or Rank": ["title", "rank"],
+    "Department or Program Affiliation": ["department", "program affiliation"],
+    "Preferred Contact Method": ["contact method", "preferred contact", "contact information", "Office Hours"],
+    "Email Address": [r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"],
+    "Phone Number": [r"\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b", r"\(\d{3}\)\s*\d{3}[-.\s]??\d{4}"],
+    "Office Address": ["office address", "address", "Office"],
+    "Office Hours": ["office hours", "hours", "Office"],
+    "Location (Physical or Remote)": ["physical location", "remote", "by appointment", "location"]
+}
+
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
     text = ''
@@ -58,11 +74,12 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         print(f"Error processing PDF {pdf_path}: {str(e)}")
         raise
+    print(f"Extracted text from {pdf_path}:\n{text[:1000]}...")  # Debug: Print first 1000 chars
     return text
 
 # Text chunking strategy
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1500,
+    chunk_size=1000,  # Reduced chunk size
     chunk_overlap=200,
     separators=["\n\n", "\n", " "]
 )
@@ -88,6 +105,34 @@ def process_uploaded_pdf(file_path, file_name):
     db.persist()
     print(f"Vector store updated with {len(documents)} documents from {file_name}")  # Debug: Confirm update
 
+# Function to check compliance
+def check_compliance(uploaded_pdf_text):
+    """Check if all required compliance information is present in the extracted text."""
+    missing_compliance_items = []
+    lowercased_text = uploaded_pdf_text.lower()
+
+    for item, patterns in required_compliance_items.items():
+        found = False
+        for pattern in patterns:
+            # Use regex for pattern matching, including email and phone number
+            if re.search(pattern.lower(), lowercased_text):
+                found = True
+                break
+        if not found:
+            missing_compliance_items.append(item)
+
+    # Debugging: Print missing compliance items
+    print("\n----- Missing Compliance Items -----")
+    print(missing_compliance_items)
+
+    if missing_compliance_items:
+        return {
+            'compliant': False,
+            'missing_compliance_items': missing_compliance_items
+        }
+    else:
+        return {'compliant': True}
+
 # Upload API: Handles file upload and processing
 @app.route('/upload-pdf', methods=['POST'])
 def upload_pdf():
@@ -109,21 +154,33 @@ def upload_pdf():
 
     # Process the uploaded file
     try:
+        extracted_text = extract_text_from_pdf(file_path)
         process_uploaded_pdf(file_path, filename)
+
+        # Check compliance
+        compliance_check_result = check_compliance(extracted_text)
+
+        # Prepare compliance result message
+        if compliance_check_result['compliant']:
+            compliance_message = "✔ Compliance: All required information is present."
+        else:
+            compliance_message = "❌ Compliance: Missing the following information:\n" + "\n".join(compliance_check_result.get('missing_compliance_items', []))
+
+        return jsonify({
+            "success": True, 
+            "message": f"✅ PDF uploaded successfully: {filename}",
+            "compliance_check": compliance_message
+        })
     except Exception as e:
         return jsonify({"error": f"Failed to process PDF: {str(e)}"}), 500
-
-    return jsonify({
-        "success": True, 
-        "message": f"✅ PDF uploaded successfully: {filename}"
-    })
 
 # Retrieve relevant chunks using similarity search
 def retrieve_relevant_context(query):
     if db is None:
         return []
     
-    results = db.similarity_search(query, k=5)
+    results = db.similarity_search(query, k=10)  # Increase k to retrieve more chunks
+    print(f"Retrieved context for query '{query}': {results}")  # Debug: Log retrieved chunks
     return [doc.page_content for doc in results]
 
 # OpenAI Chat Model
@@ -149,7 +206,7 @@ def ask():
     context = "\n".join(retrieval_context)
 
     # Generate response with retrieved context
-    response = llm.invoke([HumanMessage(content=f"{context}\n\nUser Question: {user_question}")])
+    response = llm.invoke([HumanMessage(content=f"Context:\n{context}\n\nQuestion: {user_question}\nAnswer:")])
     answer = response.content if response else "No relevant answer found."
 
     return jsonify({"response": answer, "retrieval_context": retrieval_context})
