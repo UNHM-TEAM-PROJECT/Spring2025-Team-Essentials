@@ -16,16 +16,16 @@ Date:
     <style>
         /* Global variables for consistent styling throughout the application */
         :root {
-            --unh-blue: #002B7D;
+            --unh-blue: #725bd8;
             --unh-white: #ffffff;
             --chat-bg: rgba(248, 249, 250, 0.95);
             --message-bg: rgba(233, 236, 239, 0.9);
             --input-bg: rgba(248, 249, 250, 0.95);
             --btn-color: #ebf0f9;
-            --btn-hover: #0b5ed7;
+            --btn-hover: #9662be;
             --btn-text: #ffffff;
             --border-radius: 0;
-            --unh-black: #000000;
+            --unh-black: #403a3a;
         }
         /* Ensure the application occupies the full viewport with no extra margins or scrollbars */
 
@@ -35,11 +35,17 @@ Date:
             padding: 0;
             overflow: hidden;
         }
+        body {
+            background-image: url('../templates/chatbot-bg.png');
+            background-size: 600px; /* Adjust the image size */
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
 
         body {
-            background-image: url("/Users/bubby/TeamGulliver/static/logo.png");
-            background-size: cover;
-            background-position: center;
+            background-image: url('../templates/chatbot-bg.png');
+            background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
@@ -66,7 +72,7 @@ Date:
             /* Chat header with a blue gradient background and centered content */
 
         .chat-header {
-            background: linear-gradient(135deg, var(--unh-blue) 0%, #004db3 100%);
+            background: linear-gradient(135deg, var(--unh-blue) 0%, #3d18e0 100%);
             color: var(--unh-white);
             padding: 1rem;
             display: flex;
@@ -410,10 +416,9 @@ Date:
                     <div class="chat-container">
                         <div class="chat-header">
                             <div class="header-content">
-                                <img src="{{ url_for('static', filename='logo1.jpeg') }}" alt="UNH Logo" class="img-fluid">
-                                <h1 class="chat-header-title">UNH Internship Assistant</h1>
+                                <h1 class="chat-header-title">UNH Compliance Assistant  <span class="fas fa-shield-alt""></span> 
+ </h1>
                             <!-- Additional Logo -->
-                            <img src="{{ url_for('static', filename='logo3.png') }}" alt="Additional Logo" class="img-fluid additional-logo">
                         </div>
                     </div>
                     
@@ -454,7 +459,7 @@ Date:
         function displayWelcomeMessage() {
             const welcomeMessage = `
                 <span class="emoji">👋</span>
-                Welcome to the UNH Internship Assistant! I am an InternBee!<span class="bee-icon">🐝</span> How can I help you today? 
+                Welcome! Need to verify compliance or review UNH policies? I’m here to help with quick and accurate information.
             `;
             addHTMLMessage(welcomeMessage, false);
         }
