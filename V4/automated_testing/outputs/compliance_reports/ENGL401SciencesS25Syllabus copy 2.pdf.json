@@ -1,0 +1,60 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "Professor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "title"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "office hours"
+    ],
+    "Email Address": [
+        "c.c.hendricks@unh.edu",
+        "Lisa.Enright@unh.edu",
+        "unhm.cae@unh.edu",
+        "c.c.hendricks@unh.edu",
+        "UNHM.Foodpantry@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.wellness@unh.edu",
+        "lisa.enright@unh.edu",
+        "UNH.Veterans@unh.edu",
+        "oiss@unh.edu"
+    ],
+    "Phone Number": [
+        "603.862.2607",
+        "(603) 641.4162",
+        "(603) 641-4113",
+        "(800) 688-3544",
+        "(603) 862-0643"
+    ],
+    "Office Address": [
+        "office",
+        "office",
+        "office",
+        "OFFICE",
+        "Office"
+    ],
+    "Office Hours": [
+        "office hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "office",
+        "office",
+        "office",
+        "OFFICE",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote"
+    ],
+    "Compliance Status": "Missing: Department or Program Affiliation"
+}

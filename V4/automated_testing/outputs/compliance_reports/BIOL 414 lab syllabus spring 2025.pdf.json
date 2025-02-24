@@ -1,0 +1,75 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "instructor",
+        "professor"
+    ],
+    "Title or Rank": [
+        "title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "contact method",
+        "Preferred contact",
+        "contact information",
+        "Office Hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "Patricia.Halpin@unh.edu",
+        "unhm.library@unh.edu",
+        "sas.office@unh.edu"
+    ],
+    "Phone Number": [
+        "603-641-4140",
+        "6832251062",
+        "603-641-4173",
+        "603-641-4336",
+        "603-641-4124",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-277-5570",
+        "866-644-3574"
+    ],
+    "Office Address": [
+        "Office",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "office hours",
+        "hours",
+        "hours",
+        "Hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "office"
+    ],
+    "Location (Physical or Remote)": [
+        "Remote",
+        "remote",
+        "remote",
+        "by appointment"
+    ],
+    "Compliance Status": "Compliant"
+}

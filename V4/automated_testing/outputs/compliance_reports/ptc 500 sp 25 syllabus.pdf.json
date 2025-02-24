@@ -1,0 +1,68 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "name"
+    ],
+    "Title or Rank": [
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "contact information",
+        "Office Hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "kimberly.donovan@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.wellness@unh.edu",
+        "lisa.enright@unh.edu"
+    ],
+    "Phone Number": [
+        "603-641-4156",
+        "603.862.2607",
+        "603-641-4336",
+        "603-641-4124",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-277-5570",
+        "866-644-3574",
+        "(603) 641-4113"
+    ],
+    "Office Address": [
+        "address",
+        "Office",
+        "Office",
+        "Office",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "office hours",
+        "Hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "Office",
+        "Office",
+        "office",
+        "office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote"
+    ],
+    "Compliance Status": "Compliant"
+}

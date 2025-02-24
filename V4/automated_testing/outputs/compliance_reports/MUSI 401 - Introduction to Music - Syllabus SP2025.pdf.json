@@ -1,0 +1,36 @@
+{
+    "Instructor Name": "Not Found",
+    "Title or Rank": [
+        "Title",
+        "rank",
+        "rank",
+        "rank",
+        "rank",
+        "rank"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "Contact Information",
+        "Office Hours"
+    ],
+    "Email Address": [
+        "frankie.price@unh.edu",
+        "dms@unh.edu"
+    ],
+    "Phone Number": [
+        "603-862-2930",
+        "(603) 862-4242"
+    ],
+    "Office Address": [
+        "Office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "Hours",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "By Appointment"
+    ],
+    "Compliance Status": "Missing: Instructor Name, Department or Program Affiliation"
+}

@@ -1,0 +1,96 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "Associate Professor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "title",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department"
+    ],
+    "Preferred Contact Method": [
+        "contact method",
+        "preferred contact",
+        "Office hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "Kyle.MacLea@unh.edu",
+        "Fatoumatta.Jallow@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.cae@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.wellness@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young1@unh.edu",
+        "caroline.young1@unh.edu",
+        "UNH.civilrights@unh.edu",
+        "unhm.library@unh.edu"
+    ],
+    "Phone Number": [
+        "603-815-1556",
+        "1938168143",
+        "1947172239",
+        "603.862.2607",
+        "603-862-2930",
+        "603-641-4336",
+        "603-668-2299",
+        "(603) 641-4129",
+        "(603) 641-4113",
+        "(603) 862-7233",
+        "(800) 735-2964",
+        "(603) 862-2930",
+        "(603) 862-1527"
+    ],
+    "Office Address": [
+        "address",
+        "Office",
+        "office",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "Office",
+        "office",
+        "Office"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "office hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "office",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "Office",
+        "office",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "remote",
+        "by appointment",
+        "by appointment",
+        "location"
+    ],
+    "Compliance Status": "Compliant"
+}

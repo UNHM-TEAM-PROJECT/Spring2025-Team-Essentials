@@ -1,0 +1,70 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "title",
+        "Title",
+        "Title",
+        "Title",
+        "title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "Office Hours"
+    ],
+    "Email Address": [
+        "Lesley.Fallu@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.wellness@unh.edu",
+        "bo.zaryckyi@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.library@unh.edu.The",
+        "UNHM.Foodpantry@unh.edu"
+    ],
+    "Phone Number": [
+        "603-862-2930",
+        "603-641-4336",
+        "603-641-4124",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-735-2964",
+        "603-862-2930",
+        "800-277-5570",
+        "866-644-3574",
+        "603-641-4173",
+        "(603) \n641-4113"
+    ],
+    "Office Address": [
+        "address",
+        "address",
+        "Office",
+        "Office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "Hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "by appointment",
+        "location"
+    ],
+    "Compliance Status": "Compliant"
+}

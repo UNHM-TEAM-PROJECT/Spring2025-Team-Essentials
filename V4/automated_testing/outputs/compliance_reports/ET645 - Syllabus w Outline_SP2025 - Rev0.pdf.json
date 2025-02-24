@@ -1,0 +1,77 @@
+{
+    "Instructor Name": [
+        "INSTRUCTOR",
+        "Associate Professor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "title",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department"
+    ],
+    "Preferred Contact Method": [
+        "contact method",
+        "Preferred contact",
+        "OFFICE HOURS",
+        "office hours"
+    ],
+    "Email Address": [
+        "Sean.Tavares@unh.edu",
+        "lisa.enright@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young1@unh.edu",
+        "caroline.young1@unh.edu",
+        "UNH.civilrights@unh.edu"
+    ],
+    "Phone Number": [
+        "603.862.2607",
+        "603-862-2930",
+        "603-641-4336",
+        "603-668-2299",
+        "(603) 641-4322",
+        "(800) 735-2964",
+        "(603) 862-2930"
+    ],
+    "Office Address": [
+        "address",
+        "Office",
+        "OFFICE",
+        "office",
+        "office",
+        "office",
+        "Office"
+    ],
+    "Office Hours": [
+        "OFFICE HOURS",
+        "office hours",
+        "hours",
+        "HOURS",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "OFFICE",
+        "office",
+        "office",
+        "office",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "by appointment",
+        "by appointment"
+    ],
+    "Compliance Status": "Compliant"
+}

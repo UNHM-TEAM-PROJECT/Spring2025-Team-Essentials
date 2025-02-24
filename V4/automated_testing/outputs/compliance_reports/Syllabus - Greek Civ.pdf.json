@@ -1,0 +1,31 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "Senior Lecturer"
+    ],
+    "Title or Rank": "Not Found",
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "Office Hours"
+    ],
+    "Email Address": [
+        "phillip.deen@unh.edu"
+    ],
+    "Phone Number": [
+        "0199537178",
+        "0452007178",
+        "1603848118"
+    ],
+    "Office Address": [
+        "Office",
+        "Office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "Hours",
+        "Office",
+        "Office"
+    ],
+    "Location (Physical or Remote)": "Not Found",
+    "Compliance Status": "Missing: Title or Rank, Department or Program Affiliation, Location (Physical or Remote)"
+}

@@ -1,0 +1,87 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "title",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "Office hours",
+        "office hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "Laurie.shaffer@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.library@unh.edu",
+        "unhm.cae@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young1@unh.edu",
+        "caroline.young1@unh.edu",
+        "UNH.civilrights@unh.edu"
+    ],
+    "Phone Number": [
+        "434-529-7248",
+        "603-641-4173",
+        "603.862.2607",
+        "603-862-2930",
+        "603-641-4336",
+        "603-668-2299",
+        "(603) 641-4113",
+        "(603) 862-2930"
+    ],
+    "Office Address": [
+        "address",
+        "address",
+        "address",
+        "address",
+        "address",
+        "address",
+        "address",
+        "address",
+        "address",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "Office",
+        "Office"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "office hours",
+        "office hours",
+        "hours",
+        "hours",
+        "Hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "Office",
+        "Office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "By appointment",
+        "by appointment",
+        "by appointment"
+    ],
+    "Compliance Status": "Missing: Department or Program Affiliation"
+}

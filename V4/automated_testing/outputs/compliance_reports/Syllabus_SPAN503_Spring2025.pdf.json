@@ -1,0 +1,81 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "Name",
+        "Name",
+        "name",
+        "name",
+        "name",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "contact information",
+        "Office hours",
+        "office hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "Eva.Mohr@unh.edu",
+        "dean.students@unh.edu",
+        "unhm.wellness@unh.edu",
+        "jenessa.zurek@unh.edu",
+        "UNHM.Foodpantry@unh.edu",
+        "dean.students@unh.edu",
+        "UNHM.BIT@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.wellness@unh.edu"
+    ],
+    "Phone Number": [
+        "603-641-4336",
+        "603-541-4101",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-277-5570",
+        "866-644-3574",
+        "603-641-4113"
+    ],
+    "Office Address": [
+        "address",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "office hours",
+        "office hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "office",
+        "office",
+        "office",
+        "office",
+        "office"
+    ],
+    "Location (Physical or Remote)": [
+        "Remote",
+        "remote",
+        "Remote",
+        "by appointment"
+    ],
+    "Compliance Status": "Compliant"
+}

@@ -1,0 +1,73 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "Assistant Professor",
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "Office hours",
+        "Office Hours",
+        "Office hours",
+        "office hours"
+    ],
+    "Email Address": [
+        "bridget.nolan@unh.edu",
+        "sas.office@unh.edu",
+        "dms@unh.edu"
+    ],
+    "Phone Number": [
+        "603.862.2607",
+        "603-862-2930"
+    ],
+    "Office Address": [
+        "address",
+        "address",
+        "Office",
+        "Office",
+        "Office",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "Office Hours",
+        "Office hours",
+        "office hours",
+        "hours",
+        "Hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Office",
+        "Office",
+        "Office",
+        "office",
+        "office"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "by appointment",
+        "by appointment"
+    ],
+    "Compliance Status": "Compliant"
+}
