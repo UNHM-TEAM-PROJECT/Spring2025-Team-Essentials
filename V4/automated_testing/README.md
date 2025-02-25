@@ -5,21 +5,17 @@ The automated testing module is designed to evaluate the performance, accuracy, 
 
 The process involves the following key steps:
 
-1. **Test Case Setup**: Each test case includes a question for the chatbot, an expected answer, and a retrieval context with relevant information the chatbot should use.
+1. **Test Case Setup**: Each test case for the pdf in this iteration includes the necessary creitera for a question for a syallbus 
 2. **Response Evaluation**: The chatbot's response is assessed for Answer Relevancy, which measures its relevance to the query, and Faithfulness, which checks its consistency with the provided context.
-3. **Automated Execution**: The program sends questions from the test cases to the chatbot and responses are evaluated against the predefined metrics.
+3. **Automated Execution**: The program sends pdf from the test cases to the chatbot are evaluated.
 
 ## Key Components
 
 ### Test Case Structure
 Each test case consists of the following:
-- **Question**: The input query for the chatbot.
-- **Expected Answer**: The correct answer expected from the chatbot.
-- **Retrieval Context**: Relevant information that the chatbot uses to formulate its response.
-
-### Metrics Used
-- **Answer Relevancy**: Measures how relevant the chatbot's response is to the user's query.
-- **Faithfulness**: Ensures the chatbot's response aligns with the retrieval context without including inaccurate or extraneous information.
+- **PDF**: The input query for the chatbot.
+- **Expected Criteria**: Checking for NECHE compliance.
+- **Retrieval Context**: Relevant information that the chatbot uses to formulate its evaluation of the PDF.
 
 ## How to Perform Automated Testing
 
@@ -41,7 +37,7 @@ Once the chatbot is running, proceed with the steps below to execute automated t
 
 
 ## Running Automated Tests
-1. Place the test cases in the test_cases list inside the test_rag.py file.
+1. Place the test cases pdf files in the automated testing/Syllabi_sp2025.
 
 2. Set your OpenAI API key as an environment variable:
    - **Linux/MacOS**:
@@ -58,8 +54,7 @@ Once the chatbot is running, proceed with the steps below to execute automated t
     ```bash
     python test_rag.py
 5. Outputs:
-    - **Evaluation Results**: Saved to evaluation_results.json.
-    - **Updated Test Cases**: Saved to updated_test_cases.json with added details like actual responses and evaluation metrics..
+    - **Evaluation Results**: Saved in the outputs/compliance reports folder each pdf json report that is uploaded into the Syllabi_sp2025 folder.
 
 
 
