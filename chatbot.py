@@ -41,16 +41,34 @@ initialize_chroma()
 # Compliance Criteria: Key Information to Check
 required_compliance_items = {
     "Instructor Name": [
-        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor)[:\-]?", 
-        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$" ],
-    "Title or Rank": ["title", "rank"],
-    "Department or Program Affiliation": ["department", "program affiliation"],
-    "Preferred Contact Method": ["contact method", "preferred contact", "contact information", "Office Hours"],
-    "Email Address": [r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"],
+        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor|dr\.|mr\.|ms\.)[:\-]?", 
+        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"
+    ],
+    "Title or Rank": [
+        r"(title|rank|professor|dr\.|mr\.|ms\.|senior lecturer|assistant professor|associate professor|lecturer|instructor)"
+    ],
+    "Department or Program Affiliation": [
+        r"(department|program affiliation|school of|college of)"
+    ],
+    "Preferred Contact Method": [
+        r"(contact method|preferred contact|contact information|office hours|email|phone)"
+    ],
+    "Email Address": [
+        r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    ],
     "Phone Number": [r"\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b", r"\(\d{3}\)\s*\d{3}[-.\s]??\d{4}"],
-    "Office Address": ["office address", "address", "Office"],
-    "Office Hours": ["office hours", "hours", "Office"],
-    "Location (Physical or Remote)": ["physical location", "remote", "by appointment", "location"]
+    "Office Address": [
+        r"(office address|address|office|room|building)"
+    ],
+    "Office Hours": [
+        r"(office hours|hours|availability|by appointment)"
+    ],
+    "Location (Physical or Remote)": [
+        r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
+    ],
+    "Course Number": [
+        r"\b(comp|COMP)[\s-]?\d{3}\b"  
+    ]
 }
 
 # Function to extract text from PDFs
@@ -116,9 +134,11 @@ def check_compliance(uploaded_pdf_text):
         for pattern in patterns:
             # Use regex for pattern matching, including email and phone number
             if re.search(pattern.lower(), lowercased_text):
+                print(f"Matched '{item}' with pattern: {pattern}")  # Debug: Print matched pattern
                 found = True
                 break
         if not found:
+            print(f"Could not find '{item}' in the text.")  # Debug: Print missing item
             missing_compliance_items.append(item)
 
     # Debugging: Print missing compliance items
