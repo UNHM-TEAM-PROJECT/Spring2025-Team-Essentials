@@ -56,7 +56,13 @@ required_compliance_items = {
     "Email Address": [
         r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
     ],
-    "Phone Number": [r"\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b", r"\(\d{3}\)\s*\d{3}[-.\s]??\d{4}"],
+    # Professor-specific phone number (checks for contextual keywords)
+    "Professor's Phone Number": [
+        r"(?i)(phone|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
+        r"\(\d{3}\)\s*\d{3}[-.\s]?\d{4}(?=\s*\(?(office|contact|direct)\)?)",  # Matches "(123) 456-7890 (office)"
+        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|instructor|office hours))"  # Checks for "professor" in proximity
+    ],
+    
     "Office Address": [
         r"(office address|address|office|room|building)"
     ],
@@ -66,9 +72,6 @@ required_compliance_items = {
     "Location (Physical or Remote)": [
         r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
     ],
-    "Course Number": [
-        r"\b(comp|COMP)[\s-]?\d{3}\b"  
-    ]
 }
 
 # Function to extract text from PDFs
@@ -150,12 +153,12 @@ def check_compliance(uploaded_pdf_text):
         missing_items_str = ", ".join(missing_compliance_items)
         return {
             'compliant': False,
-            'compliance_check': f"❌ Compliance: Missing the following information: {missing_items_str}."
+            'compliance_check': f"Not NECHE Compliance: Missing the following information: {missing_items_str}."
         }
     else:
         return {
             'compliant': True,
-            'compliance_check': "✔ Compliance: All required information is present."
+            'compliance_check': "NECHE Compliance: All required information is present."
         }
 
 # Upload API: Handles file upload and processing
