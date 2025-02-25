@@ -1,0 +1,104 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "Assistant Professor",
+        "ms.",
+        "ms.",
+        "ms.",
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "Assistant Professor",
+        "ms.",
+        "ms.",
+        "ms.",
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "Email",
+        "Office hours",
+        "Office Hours",
+        "Office hours",
+        "office hours",
+        "email",
+        "Email",
+        "Email",
+        "email",
+        "phone",
+        "phone",
+        "phone",
+        "email",
+        "email",
+        "email",
+        "phone",
+        "email",
+        "email"
+    ],
+    "Email Address": [
+        "bridget.nolan@unh.edu",
+        "sas.office@unh.edu",
+        "dms@unh.edu"
+    ],
+    "Phone Number": [
+        "603.862.2607",
+        "603-862-2930"
+    ],
+    "Office Address": [
+        "Office",
+        "Building",
+        "Office",
+        "Office",
+        "office",
+        "room",
+        "office",
+        "address",
+        "room",
+        "address"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "by appointment",
+        "Office Hours",
+        "Office hours",
+        "by appointment",
+        "office hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "Zoom",
+        "zoom",
+        "by appointment",
+        "by appointment",
+        "online"
+    ],
+    "Course Number": "Not Found",
+    "Compliance Status": "Missing: Course Number"
+}

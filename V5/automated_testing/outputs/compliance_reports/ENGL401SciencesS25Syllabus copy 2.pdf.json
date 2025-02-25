@@ -1,0 +1,95 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "Professor",
+        "Dr.",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Professor",
+        "Professor",
+        "Dr.",
+        "instructor",
+        "title",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "office hours",
+        "Email",
+        "email",
+        "Email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "phone",
+        "email",
+        "email"
+    ],
+    "Email Address": [
+        "c.c.hendricks@unh.edu",
+        "Lisa.Enright@unh.edu",
+        "unhm.cae@unh.edu",
+        "c.c.hendricks@unh.edu",
+        "UNHM.Foodpantry@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.wellness@unh.edu",
+        "lisa.enright@unh.edu",
+        "UNH.Veterans@unh.edu",
+        "oiss@unh.edu"
+    ],
+    "Phone Number": [
+        "603.862.2607",
+        "(603) 641.4162",
+        "(603) 641-4113",
+        "(800) 688-3544",
+        "(603) 862-0643"
+    ],
+    "Office Address": [
+        "office",
+        "room",
+        "room",
+        "Room",
+        "room",
+        "room",
+        "office",
+        "office",
+        "Room",
+        "OFFICE",
+        "Office"
+    ],
+    "Office Hours": [
+        "office hours",
+        "hours",
+        "hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "Zoom",
+        "in-person",
+        "online",
+        "in-person",
+        "online",
+        "online"
+    ],
+    "Course Number": "Not Found",
+    "Compliance Status": "Missing: Department or Program Affiliation, Course Number"
+}

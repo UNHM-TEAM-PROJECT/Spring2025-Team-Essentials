@@ -1,0 +1,113 @@
+{
+    "Instructor Name": [
+        "Name",
+        "Instructor",
+        "Name",
+        "Associate Professor",
+        "instructor",
+        "ms.",
+        "instructor",
+        "Name",
+        "Name",
+        "name"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "Title",
+        "Associate Professor",
+        "instructor",
+        "ms.",
+        "instructor",
+        "title",
+        "Title",
+        "title",
+        "title",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department"
+    ],
+    "Preferred Contact Method": [
+        "Email",
+        "Email",
+        "Phone",
+        "Office Hours",
+        "Email",
+        "contact information",
+        "email",
+        "Email",
+        "phone"
+    ],
+    "Email Address": [
+        "karen.jin@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "UNH.civilrights@unh.edu",
+        "unhm.library@unh.edu"
+    ],
+    "Phone Number": [
+        "4858446046",
+        "603-862-2930",
+        "603-641-4336",
+        "603-668-2299",
+        "800-277-5570",
+        "866-644-3574",
+        "603-641-4173",
+        "(603) 641-4398",
+        "(603) 862-7233",
+        "(800) 735-2964",
+        "(603) 862-2930",
+        "(603) 862-1527"
+    ],
+    "Office Address": [
+        "Office",
+        "building",
+        "Office",
+        "office",
+        "room",
+        "room",
+        "Room",
+        "Office",
+        "room",
+        "room",
+        "Room"
+    ],
+    "Office Hours": [
+        "hours",
+        "Office Hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "hours",
+        "Hours",
+        "Hours"
+    ],
+    "Location (Physical or Remote)": [
+        "Location",
+        "Zoom",
+        "zoom",
+        "in person",
+        "Zoom",
+        "Zoom",
+        "online",
+        "in person",
+        "Zoom",
+        "online",
+        "remote"
+    ],
+    "Course Number": [
+        "COMP",
+        "COMP"
+    ],
+    "Compliance Status": "Compliant"
+}

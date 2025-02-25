@@ -1,0 +1,50 @@
+{
+    "Instructor Name": [
+        "Dr.",
+        "ms.",
+        "Dr.",
+        "Dr.",
+        "Dr."
+    ],
+    "Title or Rank": [
+        "Dr.",
+        "rank",
+        "rank",
+        "ms.",
+        "Dr.",
+        "rank",
+        "Dr.",
+        "rank",
+        "Dr.",
+        "rank",
+        "Title"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "Office Hours",
+        "Email",
+        "Contact Information"
+    ],
+    "Email Address": [
+        "frankie.price@unh.edu",
+        "dms@unh.edu"
+    ],
+    "Phone Number": [
+        "603-862-2930",
+        "(603) 862-4242"
+    ],
+    "Office Address": [
+        "Office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "By Appointment"
+    ],
+    "Location (Physical or Remote)": [
+        "Online",
+        "By Appointment",
+        "Zoom"
+    ],
+    "Course Number": "Not Found",
+    "Compliance Status": "Missing: Department or Program Affiliation, Course Number"
+}

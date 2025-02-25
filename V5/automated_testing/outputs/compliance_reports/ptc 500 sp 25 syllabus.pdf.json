@@ -1,0 +1,101 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "name"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "Office Hours",
+        "Email",
+        "Phone",
+        "email",
+        "email",
+        "email",
+        "Email",
+        "email",
+        "email",
+        "Phone",
+        "Email",
+        "office hours",
+        "email",
+        "phone",
+        "email",
+        "phone",
+        "contact information"
+    ],
+    "Email Address": [
+        "kimberly.donovan@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.wellness@unh.edu",
+        "lisa.enright@unh.edu"
+    ],
+    "Phone Number": [
+        "603-641-4156",
+        "603.862.2607",
+        "603-641-4336",
+        "603-641-4124",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-277-5570",
+        "866-644-3574",
+        "(603) 641-4113"
+    ],
+    "Office Address": [
+        "Room",
+        "Office",
+        "Office",
+        "address",
+        "Office",
+        "office",
+        "Room",
+        "office",
+        "room",
+        "Room",
+        "room",
+        "Building",
+        "Building",
+        "Building"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "hours",
+        "office hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "Zoom",
+        "Zoom",
+        "online",
+        "remote",
+        "Zoom",
+        "Zoom",
+        "online",
+        "online",
+        "Zoom",
+        "in-person",
+        "online",
+        "In Person"
+    ],
+    "Course Number": "Not Found",
+    "Compliance Status": "Missing: Course Number"
+}

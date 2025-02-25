@@ -1,0 +1,110 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "ms.",
+        "ms.",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "ms.",
+        "ms.",
+        "title",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title",
+        "Title",
+        "instructor",
+        "title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "Department",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "Email",
+        "Office Hours",
+        "email",
+        "phone",
+        "email",
+        "phone",
+        "email",
+        "email",
+        "phone",
+        "email",
+        "phone",
+        "email"
+    ],
+    "Email Address": [
+        "Lesley.Fallu@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.wellness@unh.edu",
+        "bo.zaryckyi@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.library@unh.edu.The",
+        "UNHM.Foodpantry@unh.edu"
+    ],
+    "Phone Number": [
+        "603-862-2930",
+        "603-641-4336",
+        "603-641-4124",
+        "603-668-8711",
+        "603-668-2299",
+        "603-862-7233",
+        "800-735-2964",
+        "603-862-2930",
+        "800-277-5570",
+        "866-644-3574",
+        "603-641-4173",
+        "(603) \n641-4113"
+    ],
+    "Office Address": [
+        "Room",
+        "Office",
+        "room",
+        "Room",
+        "room",
+        "room",
+        "room",
+        "building",
+        "address",
+        "address",
+        "room",
+        "room",
+        "room",
+        "room",
+        "Office",
+        "Room",
+        "Room",
+        "room"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "hours",
+        "hours",
+        "hours",
+        "by appointment"
+    ],
+    "Location (Physical or Remote)": [
+        "location",
+        "online",
+        "online",
+        "in person",
+        "Zoom",
+        "in person",
+        "by appointment",
+        "in-person",
+        "online",
+        "online",
+        "remote"
+    ],
+    "Course Number": "Not Found",
+    "Compliance Status": "Missing: Course Number"
+}
