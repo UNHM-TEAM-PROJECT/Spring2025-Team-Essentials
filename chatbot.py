@@ -53,9 +53,13 @@ required_compliance_items = {
     "Preferred Contact Method": [
         r"(contact method|preferred contact|contact information|office hours|email|phone)"
     ],
-    "Email Address": [
-        r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    "Professor's Email Address": [
+    r"(?i)(email|contact)\s*:\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",  # Matches "Email: example@domain.com"
+    r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?=.*(professor|instructor|faculty|contact))",  # Matches emails near "professor" or related terms
+    r"(?i)(professor|instructor|faculty)\s*[:-]?\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",  # Matches "Professor: example@domain.com"
+    r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?=\s*\(?(professor|instructor|faculty|contact)\)?)"  # Matches emails followed by "(professor)"
     ],
+
     # Professor-specific phone number 
     "Professor's Phone Number": [
         r"(?i)(phone-|Phone| Rm. #453;|cell|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
