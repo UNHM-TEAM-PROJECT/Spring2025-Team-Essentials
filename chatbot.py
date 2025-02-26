@@ -59,9 +59,10 @@ required_compliance_items = {
     ],
     # Professor-specific phone number 
     "Professor's Phone Number": [
-        r"(?i)(phone|Phone|cell|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
+        r"(?i)(phone-|Phone|cell|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
         r"\(\d{3}\)\s*\d{3}[-.\s]?\d{4}(?=\s*\(?(office|phone|phone|cell|contact|direct)\)?)",  # Matches "(123) 456-7890 (office)"
-        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|Phone|phone|cell|instructor|office hours))"  # Checks for "professor" in proximity
+        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|Phone|phone|cell|instructor|office hours))",  # Checks for "professor" in proximity
+        r"(?i)phone[-.\s]?\d{3}[-.\s]?\d{3}[-.\s]?\d{4}"
     ],
     
     "Office Address": [
