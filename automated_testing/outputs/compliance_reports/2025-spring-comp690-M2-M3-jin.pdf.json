@@ -1,0 +1,80 @@
+{
+    "Instructor Name": [
+        "Name",
+        "Instructor",
+        "Name",
+        "Associate Professor",
+        "ms.",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "Title",
+        "Associate Professor",
+        "ms.",
+        "instructor",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Program",
+        "Department"
+    ],
+    "Preferred Contact Method": [
+        "Email",
+        "Email",
+        "Phone",
+        "Office Hours",
+        "Email",
+        "email",
+        "Email",
+        "phone"
+    ],
+    "Email Address": [
+        "karen.jin@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "UNH.civilrights@unh.edu",
+        "unhm.library@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Office"
+    ],
+    "Office Address": [
+        "Room",
+        "Room",
+        "Office",
+        "building",
+        "Office",
+        "Room",
+        "Office",
+        "room",
+        "room",
+        "Room"
+    ],
+    "Office Hours": [
+        "hours",
+        "Office Hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "Location",
+        "Zoom",
+        "zoom",
+        "in person",
+        "Zoom",
+        "In person",
+        "In person",
+        "In person",
+        "In person",
+        "In person",
+        "In person",
+        "in person",
+        "Zoom",
+        "online",
+        "remote"
+    ],
+    "Compliance Status": "Compliant"
+}

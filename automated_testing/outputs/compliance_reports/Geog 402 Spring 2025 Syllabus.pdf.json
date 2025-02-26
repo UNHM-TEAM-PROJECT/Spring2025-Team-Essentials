@@ -1,0 +1,44 @@
+{
+    "Instructor Name": [
+        "instructor",
+        "ms.",
+        "professor",
+        "ms."
+    ],
+    "Title or Rank": [
+        "instructor",
+        "ms.",
+        "professor",
+        "ms."
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "phone",
+        "email",
+        "phone",
+        "phone",
+        "office hours"
+    ],
+    "Email Address": [
+        "Allen.Lemay@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Cell"
+    ],
+    "Office Address": [
+        "room",
+        "room",
+        "room",
+        "office"
+    ],
+    "Office Hours": [
+        "office hours"
+    ],
+    "Location (Physical or Remote)": [
+        "Location",
+        "Location",
+        "Location",
+        "Location"
+    ],
+    "Compliance Status": "Missing: Department or Program Affiliation"
+}

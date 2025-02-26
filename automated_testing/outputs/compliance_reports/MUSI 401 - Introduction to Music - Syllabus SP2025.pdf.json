@@ -1,0 +1,49 @@
+{
+    "Instructor Name": [
+        "Dr.",
+        "ms.",
+        "Dr.",
+        "Dr.",
+        "Dr."
+    ],
+    "Title or Rank": [
+        "Dr.",
+        "rank",
+        "rank",
+        "ms.",
+        "Dr.",
+        "rank",
+        "Dr.",
+        "rank",
+        "Dr.",
+        "rank",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Program",
+        "program"
+    ],
+    "Preferred Contact Method": [
+        "Office Hours",
+        "Email",
+        "Contact Information"
+    ],
+    "Email Address": [
+        "frankie.price@unh.edu",
+        "dms@unh.edu"
+    ],
+    "Professor's Phone Number": "Not Found",
+    "Office Address": [
+        "Office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "By Appointment"
+    ],
+    "Location (Physical or Remote)": [
+        "Online",
+        "By Appointment",
+        "Zoom"
+    ],
+    "Compliance Status": "Missing: Professor's Phone Number"
+}

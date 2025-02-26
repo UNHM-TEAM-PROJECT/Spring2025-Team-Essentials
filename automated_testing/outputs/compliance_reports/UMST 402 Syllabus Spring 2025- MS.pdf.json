@@ -1,0 +1,97 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "Dr.",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Name",
+        "name",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "Dr.",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title",
+        "Title",
+        "instructor",
+        "instructor"
+    ],
+    "Department or Program Affiliation": "Not Found",
+    "Preferred Contact Method": [
+        "Email",
+        "Phone",
+        "Office Hours",
+        "email",
+        "email",
+        "email",
+        "email",
+        "Phone",
+        "Email",
+        "email",
+        "phone",
+        "phone",
+        "office hours"
+    ],
+    "Email Address": [
+        "Matthew.Salter@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.cae@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young1@unh.edu",
+        "caroline.young1@unh.edu",
+        "UNH.civilrights@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.library@unh.edu",
+        "lisa.enright@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Phone",
+        "Phone"
+    ],
+    "Office Address": [
+        "Office",
+        "Office",
+        "building",
+        "address",
+        "Office",
+        "office",
+        "Room",
+        "room",
+        "Office",
+        "room",
+        "Room",
+        "address",
+        "address",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "hours",
+        "hours",
+        "by appointment",
+        "hours",
+        "office hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "ONLINE",
+        "online",
+        "in person",
+        "by appointment",
+        "in person",
+        "online",
+        "remote",
+        "Remote"
+    ],
+    "Compliance Status": "Missing: Department or Program Affiliation"
+}

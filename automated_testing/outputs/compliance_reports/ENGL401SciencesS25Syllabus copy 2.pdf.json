@@ -1,0 +1,92 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "Professor",
+        "Dr.",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Professor",
+        "Professor",
+        "Dr.",
+        "instructor",
+        "title",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Department or Program Affiliation": [
+        "Asst. Professor",
+        "Program",
+        "program"
+    ],
+    "Preferred Contact Method": [
+        "office hours",
+        "Email",
+        "email",
+        "Email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "phone",
+        "email",
+        "email"
+    ],
+    "Email Address": [
+        "c.c.hendricks@unh.edu",
+        "Lisa.Enright@unh.edu",
+        "unhm.cae@unh.edu",
+        "c.c.hendricks@unh.edu",
+        "UNHM.Foodpantry@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "unhm.wellness@unh.edu",
+        "lisa.enright@unh.edu",
+        "UNH.Veterans@unh.edu",
+        "oiss@unh.edu"
+    ],
+    "Professor's Phone Number": "Not Found",
+    "Office Address": [
+        "office",
+        "room",
+        "room",
+        "Room",
+        "room",
+        "room",
+        "office",
+        "office",
+        "Room",
+        "OFFICE",
+        "Office"
+    ],
+    "Office Hours": [
+        "office hours",
+        "hours",
+        "hours",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "remote",
+        "Zoom",
+        "in-person",
+        "online",
+        "in-person",
+        "online",
+        "online"
+    ],
+    "Compliance Status": "Missing: Professor's Phone Number"
+}

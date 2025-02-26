@@ -1,0 +1,97 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "instructor",
+        "instructor",
+        "Name",
+        "Name",
+        "name",
+        "name",
+        "name",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "instructor",
+        "Title",
+        "Title",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "department",
+        "Program",
+        "Program",
+        "program"
+    ],
+    "Preferred Contact Method": [
+        "Office hours",
+        "Email",
+        "office hours",
+        "contact information",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email",
+        "Phone",
+        "Email",
+        "office hours",
+        "email",
+        "email",
+        "email"
+    ],
+    "Email Address": [
+        "Eva.Mohr@unh.edu",
+        "dean.students@unh.edu",
+        "unhm.wellness@unh.edu",
+        "jenessa.zurek@unh.edu",
+        "UNHM.Foodpantry@unh.edu",
+        "dean.students@unh.edu",
+        "UNHM.BIT@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.wellness@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Phone"
+    ],
+    "Office Address": [
+        "Office",
+        "room",
+        "office",
+        "office",
+        "Room",
+        "office",
+        "office",
+        "room",
+        "office",
+        "address",
+        "Room",
+        "room"
+    ],
+    "Office Hours": [
+        "Office hours",
+        "by appointment",
+        "office hours",
+        "hours",
+        "hours",
+        "office hours"
+    ],
+    "Location (Physical or Remote)": [
+        "Zoom",
+        "by appointment",
+        "Zoom",
+        "Remote",
+        "remote",
+        "Zoom",
+        "online",
+        "online",
+        "Online",
+        "Remote",
+        "Zoom"
+    ],
+    "Compliance Status": "Compliant"
+}

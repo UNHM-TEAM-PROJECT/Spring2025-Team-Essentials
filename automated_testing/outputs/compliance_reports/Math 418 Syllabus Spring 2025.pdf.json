@@ -1,0 +1,97 @@
+{
+    "Instructor Name": [
+        "Instructor",
+        "ms.",
+        "ms.",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Instructor",
+        "ms.",
+        "ms.",
+        "title",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title",
+        "Title",
+        "instructor",
+        "title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Department",
+        "Department",
+        "department",
+        "Program"
+    ],
+    "Preferred Contact Method": [
+        "Email",
+        "Office Hours",
+        "email",
+        "phone",
+        "email",
+        "phone",
+        "email",
+        "email",
+        "phone",
+        "email",
+        "phone",
+        "email"
+    ],
+    "Email Address": [
+        "Lesley.Fallu@unh.edu",
+        "lisa.enright@unh.edu",
+        "unhm.wellness@unh.edu",
+        "bo.zaryckyi@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young@unh.edu",
+        "unhm.cae@unh.edu",
+        "unhm.library@unh.edu.The",
+        "UNHM.Foodpantry@unh.edu"
+    ],
+    "Professor's Phone Number": "Not Found",
+    "Office Address": [
+        "Room",
+        "Office",
+        "room",
+        "Room",
+        "room",
+        "room",
+        "room",
+        "building",
+        "address",
+        "address",
+        "room",
+        "room",
+        "room",
+        "room",
+        "Office",
+        "Room",
+        "Room",
+        "room"
+    ],
+    "Office Hours": [
+        "Office Hours",
+        "hours",
+        "hours",
+        "hours",
+        "by appointment"
+    ],
+    "Location (Physical or Remote)": [
+        "location",
+        "online",
+        "online",
+        "in person",
+        "Zoom",
+        "in person",
+        "by appointment",
+        "in-person",
+        "online",
+        "online",
+        "remote"
+    ],
+    "Compliance Status": "Missing: Professor's Phone Number"
+}

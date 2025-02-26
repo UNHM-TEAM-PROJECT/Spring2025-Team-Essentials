@@ -1,0 +1,70 @@
+{
+    "Instructor Name": [
+        "Professor",
+        "Dr.",
+        "professor",
+        "instructor",
+        "name",
+        "professor",
+        "name",
+        "name",
+        "name",
+        "ms.",
+        "professor",
+        "professor"
+    ],
+    "Title or Rank": [
+        "Professor",
+        "Dr.",
+        "professor",
+        "instructor",
+        "professor",
+        "ms.",
+        "professor",
+        "professor"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "Program",
+        "program"
+    ],
+    "Preferred Contact Method": [
+        "Phone",
+        "Office Hours",
+        "email",
+        "email",
+        "email",
+        "email",
+        "email"
+    ],
+    "Email Address": [
+        "kelly.kilcrease@unh.edu",
+        "jenessa.zurek@unh.edu"
+    ],
+    "Professor's Phone Number": "Not Found",
+    "Office Address": [
+        "Room",
+        "Office",
+        "Office",
+        "building",
+        "room",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "hours",
+        "Office Hours",
+        "by appointment"
+    ],
+    "Location (Physical or Remote)": [
+        "online",
+        "by appointment",
+        "online",
+        "online",
+        "online",
+        "online",
+        "online",
+        "online"
+    ],
+    "Compliance Status": "Missing: Professor's Phone Number"
+}
