@@ -564,9 +564,9 @@ function handleFileUpload(file) {
 // Function to display compliance check result
 function displayComplianceResult(complianceResult) {
     if (complianceResult.compliant) {
-        addMessage('✅ Compliance check passed! All required bold items are present.', false);
+        addMessage(' Compliance check passed! All required bold items are present.', false);
     } else {
-        addMessage('❌ Compliance check failed! Missing the following items:', false);
+        addMessage(' Compliance check failed! Missing the following items:', false);
         complianceResult.missing_items.forEach(item => {
             addMessage(`- ${item}`, false);
         });
