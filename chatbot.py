@@ -48,19 +48,20 @@ required_compliance_items = {
         r"(title|rank|professor|dr\.|mr\.|ms\.|senior lecturer|assistant professor|associate professor|lecturer|instructor)"
     ],
     "Department or Program Affiliation": [
-        r"(department|program affiliation|school of|college of)"
+        r"(department|program affiliation|school of|college of|Asst. Professor)"
     ],
     "Preferred Contact Method": [
         r"(contact method|preferred contact|contact information|office hours|email|phone)"
     ],
     "Email Address": [
-        r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    # Enforces "first.last@unh.edu" format
+    r"^[a-zA-Z]+\.[a-zA-Z]+@unh\.edu$"
     ],
-    # Professor-specific phone number (checks for contextual keywords)
+    # Professor-specific phone number 
     "Professor's Phone Number": [
-        r"(?i)(phone|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
-        r"\(\d{3}\)\s*\d{3}[-.\s]?\d{4}(?=\s*\(?(office|contact|direct)\)?)",  # Matches "(123) 456-7890 (office)"
-        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|instructor|office hours))"  # Checks for "professor" in proximity
+        r"(?i)(phone|Phone|cell|office phone|contact)\s*:?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",  # Matches "Phone: 123-456-7890"
+        r"\(\d{3}\)\s*\d{3}[-.\s]?\d{4}(?=\s*\(?(office|phone|phone|cell|contact|direct)\)?)",  # Matches "(123) 456-7890 (office)"
+        r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|Phone|phone|cell|instructor|office hours))"  # Checks for "professor" in proximity
     ],
     
     "Office Address": [
@@ -73,6 +74,9 @@ required_compliance_items = {
         r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
     ],
 }
+
+
+
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
