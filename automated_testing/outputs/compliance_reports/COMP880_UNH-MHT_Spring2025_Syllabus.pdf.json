@@ -1,0 +1,55 @@
+{
+    "Instructor Name": [
+        "Dr.",
+        "Instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "Dr.",
+        "Instructor",
+        "Title",
+        "instructor",
+        "title",
+        "Title",
+        "instructor",
+        "instructor",
+        "Instructor",
+        "instructor"
+    ],
+    "Department or Program Affiliation": [
+        "program",
+        "department"
+    ],
+    "Preferred Contact Method": [
+        "contact information",
+        "Email",
+        "Phone"
+    ],
+    "Email Address": [
+        "David.yasenchock@unh.edu",
+        "David.yasenchock@unh.edu",
+        "David.yasenchock@gmail.com",
+        "disability.office@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Phone"
+    ],
+    "Office Address": [
+        "Building",
+        "office",
+        "office"
+    ],
+    "Office Hours": [
+        "availability"
+    ],
+    "Location (Physical or Remote)": [
+        "Online",
+        "in person",
+        "online"
+    ],
+    "Compliance Status": "Compliant"
+}

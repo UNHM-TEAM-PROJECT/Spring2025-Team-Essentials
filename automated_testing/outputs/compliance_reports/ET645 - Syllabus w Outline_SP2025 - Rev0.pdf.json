@@ -1,0 +1,87 @@
+{
+    "Instructor Name": [
+        "INSTRUCTOR",
+        "Associate Professor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor",
+        "instructor"
+    ],
+    "Title or Rank": [
+        "INSTRUCTOR",
+        "Associate Professor",
+        "instructor",
+        "instructor",
+        "title",
+        "instructor",
+        "instructor",
+        "instructor",
+        "Title",
+        "Title",
+        "Title"
+    ],
+    "Department or Program Affiliation": [
+        "Department",
+        "program",
+        "PROGRAM",
+        "Program",
+        "program",
+        "Program",
+        "Program",
+        "Program"
+    ],
+    "Preferred Contact Method": [
+        "Phone",
+        "Preferred contact",
+        "OFFICE HOURS",
+        "office hours",
+        "email",
+        "phone"
+    ],
+    "Email Address": [
+        "Sean.Tavares@unh.edu",
+        "lisa.enright@unh.edu",
+        "sas.office@unh.edu",
+        "sas.office@unh.edu",
+        "Bo.Zaryckyj@unh.edu",
+        "lisa.enright@unh.edu",
+        "caroline.young1@unh.edu",
+        "caroline.young1@unh.edu",
+        "UNH.civilrights@unh.edu"
+    ],
+    "Professor's Phone Number": [
+        "Office Phone"
+    ],
+    "Office Address": [
+        "Room",
+        "Office",
+        "OFFICE",
+        "address",
+        "office",
+        "room",
+        "office",
+        "office",
+        "Room",
+        "room",
+        "Office"
+    ],
+    "Office Hours": [
+        "hours",
+        "OFFICE HOURS",
+        "by appointment",
+        "hours",
+        "hours",
+        "office hours",
+        "by appointment",
+        "hours"
+    ],
+    "Location (Physical or Remote)": [
+        "by appointment",
+        "in person",
+        "remote",
+        "by appointment",
+        "in person"
+    ],
+    "Compliance Status": "Compliant"
+}
