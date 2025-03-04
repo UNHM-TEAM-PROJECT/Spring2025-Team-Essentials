@@ -16,7 +16,7 @@ Date:
     <style>
         /* Global variables for consistent styling throughout the application */
         :root {
-            --unh-blue: #725bd8;
+            --unh-blue: #3a17d8;
             --unh-white: #ffffff;
             --chat-bg: rgba(248, 249, 250, 0.95);
             --message-bg: rgba(233, 236, 239, 0.9);
@@ -72,7 +72,7 @@ Date:
             /* Chat header with a blue gradient background and centered content */
 
         .chat-header {
-            background: linear-gradient(135deg, var(--unh-blue) 0%, #3d18e0 100%);
+            background: linear-gradient(135deg, var(--unh-blue) 0%, #2a05cf 100%);
             color: var(--unh-white);
             padding: 1rem;
             display: flex;
@@ -457,37 +457,30 @@ Date:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
-    
+
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const fileInput = document.getElementById('fileInput');
         const uploadButton = document.getElementById('uploadButton');
-        const fileNameDisplay = document.getElementById('file-name');
-    
+        
         let editingMessageElement = null;
     
         // Display the default welcome message
         function displayWelcomeMessage() {
-            const welcomeMessage = `
-                "Welcome! I can assist with NECHE compliance. How can I help you today?"
-            `;
+            const welcomeMessage = `"Welcome! I can assist with NECHE compliance. How can I help you today?"`;
             addHTMLMessage(welcomeMessage, false);
         }
     
-        // Run displayWelcomeMessage when the page loads
-        window.addEventListener('load', () => {
-            displayWelcomeMessage();
-        });
+        window.addEventListener('load', displayWelcomeMessage);
     
-        // Add messages with HTML content
         function addHTMLMessage(htmlContent, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
     
             const messageContent = document.createElement('div');
             messageContent.classList.add('message-content');
-            messageContent.innerHTML = htmlContent; // Allow HTML content
+            messageContent.innerHTML = htmlContent;
             messageDiv.appendChild(messageContent);
     
             const avatar = document.createElement('div');
@@ -495,93 +488,97 @@ Date:
             avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
             messageDiv.appendChild(avatar);
     
-            if (isUser) {
-                addEditIcon(messageDiv);
-            }
-    
             chatHistory.appendChild(messageDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-
-// Handle file input change (when a PDF is selected)
-fileInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-
-    if (file && file.type === 'application/pdf') {
-        // Show the filename in the chat (user side)
-        addMessage(`PDF file selected: ${file.name}`, true);
-        handleFileUpload(file);
-    } else {
-        addMessage('Please select a valid PDF file.', true);
-        fileInput.value = '';  // Clear file input if invalid file is selected
-    }
-});
-
-// Trigger file input when upload button is clicked
-uploadButton.addEventListener('click', function () {
-    fileInput.click();
-});
-
-// Handle file upload and response handling
-function handleFileUpload(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Show a loading or processing message
-    addMessage('Processing PDF file...', false);
-
-    // Upload the file to the server using fetch API
-    fetch('/upload-pdf', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        // Check if the response is JSON
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            return response.json();
-        } else {
-            return response.text().then(text => { throw new Error(`Unexpected response: ${text}`); });
-        }
-    })
-    .then(data => {
-        // Ensure the response contains the expected fields
-        if (data.success) {
-            // Display the compliance check result as a bot message (left-hand side)
-            addMessage(data.compliance_check, false);
-        } else {
-            // Display an error message as a bot message (left-hand side)
-            addMessage('Error: Unable to upload the PDF file.', false);
-        }
-    })
-    .catch(error => {
-        console.error('Error uploading PDF:', error);
-        // Display the error message as a bot message (left-hand side)
-        addMessage(`Error: ${error.message}`, false);
-    });
-}
-// Function to display compliance check result
-function displayComplianceResult(complianceResult) {
-    if (complianceResult.compliant) {
-        addMessage(' Compliance check passed! All required bold items are present.', false);
-    } else {
-        addMessage(' Compliance check failed! Missing the following items:', false);
-        complianceResult.missing_items.forEach(item => {
-            addMessage(`- ${item}`, false);
-        });
-    }
-}
-
-// Function to display extracted text from the PDF
-function displayExtractedText(text) {
-    if (text.length > 0) {
-        addMessage(text || 'No text found in the PDF.', false);
-    } else {
-        addMessage('No text found in the PDF.', false);
-    }
-}
     
-        // Add messages (text-based)
+        // Handle file input change
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+    
+            if (file && file.type === 'application/pdf') {
+                addMessage(` PDF file selected: ${file.name}`, true);
+                handleFileUpload(file);
+            } else {
+                addMessage('⚠️ Please select a valid PDF file.', true);
+                fileInput.value = '';  
+            }
+        });
+    
+        // Trigger file input when upload button is clicked
+        uploadButton.addEventListener('click', function () {
+            fileInput.click();
+        });
+    
+        // Handle file upload and response handling
+        function handleFileUpload(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+    
+            addMessage(' Processing PDF file...', false);
+    
+            fetch('/upload-pdf', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+    // Display Extracted Information FIRST
+    if (data.extracted_information) {
+    let extractedInfo = data.extracted_information;
+
+    // Define the correct order for displaying extracted information
+    const requiredOrder = [
+        "Instructor Name",
+        "Title or Rank",
+        "Department or Program Affiliation",
+        "Preferred Contact Method",
+        "Professor's Email Address",
+        "Professor's Phone Number",
+        "Office Address",
+        "Office Hours",
+        "Location (Physical or Remote)"
+    ];
+
+    // Main heading (bold and centered at the top)
+    let infoHTML = `
+        <h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+           
+        </h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
+    `;
+
+    // Loop through the ordered list and display extracted values in the correct order
+    requiredOrder.forEach((key) => {
+        if (extractedInfo.hasOwnProperty(key)) {
+            infoHTML += `
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
+                    <strong style="width: 40%; text-align: left;">${key}:</strong>
+                    <span style="width: 60%; text-align: left;">${extractedInfo[key] || "Not Found"}</span>
+                </div>
+            `;
+        }
+    });
+
+    infoHTML += `</div>`; // Closing the div container
+    addHTMLMessage(infoHTML, false);
+}
+
+
+    // Display NECHE Compliance Status SECOND
+    addMessage(` ${data.compliance_check}`, false);
+            }
+                 else {
+                    addMessage(' Error: Unable to process the PDF file.', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading PDF:', error);
+                addMessage(` Error: ${error.message}`, false);
+            });
+        }
+    
         function addMessage(content, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
@@ -593,10 +590,6 @@ function displayExtractedText(text) {
             textSpan.textContent = content;
             messageContent.appendChild(textSpan);
     
-            if (isUser) {
-                addEditIcon(messageDiv);
-            }
-    
             messageDiv.appendChild(messageContent);
     
             const avatar = document.createElement('div');
@@ -606,177 +599,6 @@ function displayExtractedText(text) {
     
             chatHistory.appendChild(messageDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-    
-        function addEditIcon(messageDiv) {
-            // Ensure the message container has relative positioning
-            messageDiv.style.position = 'relative';
-        
-            // Remove existing edit icon if it exists
-            const existingIconContainer = messageDiv.querySelector('.edit-icon-container');
-            if (existingIconContainer) {
-                existingIconContainer.remove();
-            }
-        
-            // Create the container for the edit icon
-            const editIconContainer = document.createElement('div');
-            editIconContainer.classList.add('edit-icon-container');
-        
-            // Create the edit icon itself
-            const editIcon = document.createElement('div');
-            editIcon.classList.add('edit-icon');
-            editIcon.innerHTML = '<i class="fas fa-edit"></i>'; // Font Awesome edit icon
-            editIcon.addEventListener('click', () => startEditing(messageDiv));
-        
-            // Append the edit icon to the container
-            editIconContainer.appendChild(editIcon);
-        
-            // Append the container to the message
-            messageDiv.appendChild(editIconContainer);
-        }
-
-        
-        /* Initializes editing mode for a specific message element.Ensures only one message is edited at a time and stores the original content. */
-        function startEditing(messageElement) {
-            if (!messageElement) {
-                console.error("Message element is null or undefined.");
-                return;
-            }
-        
-            if (editingMessageElement && editingMessageElement !== messageElement) {
-                cancelEditing();
-            }
-        
-            editingMessageElement = messageElement;
-        
-            const messageContent = messageElement.querySelector('.message-content span');
-            if (!messageContent) {
-                console.error("Message content span not found in:", messageElement);
-                return;
-            }
-        
-            const originalContent = messageContent.textContent;
-        
-            if (!messageElement.hasAttribute('data-original-content')) {
-                messageElement.setAttribute('data-original-content', originalContent);
-            }
-        
-            // Create an editable div for inline editing
-            const editDiv = document.createElement('div');
-            editDiv.contentEditable = true;
-            editDiv.textContent = originalContent;
-            editDiv.classList.add('form-control', 'edit-input');
-            editDiv.style.display = 'inline-block';
-            editDiv.style.minWidth = '50px'; // Minimum width
-            editDiv.style.maxWidth = '100%'; // Allow wrapping when exceeding container
-            editDiv.style.whiteSpace = 'pre-wrap'; // Preserve spaces and wrap text
-            editDiv.style.wordBreak = 'break-word'; // Ensure words break correctly
-            editDiv.style.border = '1px solid #ccc';
-            editDiv.style.padding = '5px';
-        
-            // Adjust height dynamically based on content
-            function adjustHeight() {
-                editDiv.style.height = 'auto'; // Reset height to calculate
-                editDiv.style.height = editDiv.scrollHeight + 'px'; // Set to scroll height
-            }
-        
-            editDiv.addEventListener('input', adjustHeight);
-        
-            const actionButtons = document.createElement('div');
-            actionButtons.classList.add('action-buttons');
-        
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancel';
-            cancelButton.classList.add('cancel-button');
-            cancelButton.addEventListener('click', cancelEditing);
-        
-            const saveButton = document.createElement('button');
-            saveButton.textContent = 'Send';
-            saveButton.classList.add('send-button');
-            saveButton.addEventListener('click', () => saveEditing(messageElement, editDiv.textContent));
-        
-            actionButtons.appendChild(cancelButton);
-            actionButtons.appendChild(saveButton);
-        
-            const messageContentContainer = messageElement.querySelector('.message-content');
-            messageContentContainer.innerHTML = '';
-            messageContentContainer.appendChild(editDiv);
-            messageContentContainer.appendChild(actionButtons);
-        
-            editDiv.focus();
-        
-            // Move the caret to the end of the content
-            moveCaretToEnd(editDiv);
-            adjustHeight(); // Adjust height initially
-        }
-        
-        // Function to move caret to the end
-        function moveCaretToEnd(element) {
-            const range = document.createRange();
-            const selection = window.getSelection();
-            range.selectNodeContents(element);
-            range.collapse(false); // Move to the end of the node
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-        
-        function saveEditing(messageElement, newContent) {
-            if (!messageElement || !newContent.trim()) {
-                cancelEditing();
-                return;
-            }
-        
-            // Update the UI with the edited message
-            const messageContent = messageElement.querySelector('.message-content');
-            const textSpan = document.createElement('span');
-            textSpan.textContent = newContent.trim(); // Update with trimmed content
-            messageContent.innerHTML = '';
-            messageContent.appendChild(textSpan);
-        
-            // Re-add the edit icon
-            addEditIcon(messageElement);
-        
-            // Clear all subsequent messages (both user and assistant)
-            const allMessages = Array.from(chatHistory.querySelectorAll('.message'));
-            let foundEditedMessage = false;
-        
-            for (let i = 0; i < allMessages.length; i++) {
-                const msg = allMessages[i];
-        
-                if (msg === messageElement) {
-                    foundEditedMessage = true; // Mark the location of the edited message
-                } else if (foundEditedMessage) {
-                    msg.remove(); // Remove all messages after the edited message
-                }
-            }
-        
-            // Clear editing state
-            editingMessageElement = null;
-        
-            console.log('Edited Message:', newContent.trim()); // Debug log for verification
-        
-            // Call handleResend to reprocess the edited message
-            handleResend(newContent.trim());
-        }
-             
-        
-        // Cancel editing
-        function cancelEditing() {
-            if (!editingMessageElement) return;
-    
-            const originalContent = editingMessageElement.getAttribute('data-original-content');
-            const messageContent = editingMessageElement.querySelector('.message-content');
-    
-            const textSpan = document.createElement('span');
-            textSpan.textContent = originalContent;
-    
-            addEditIcon(editingMessageElement);
-    
-            messageContent.innerHTML = '';
-            messageContent.appendChild(textSpan);
-    
-            editingMessageElement.removeAttribute('data-original-content');
-            editingMessageElement = null;
         }
     
         sendButton.addEventListener('click', handleSend);
@@ -792,138 +614,99 @@ function displayExtractedText(text) {
                 addMessage(message, true);
                 userInput.value = '';
     
+                addTypingIndicator();
+    
                 try {
                     const response = await fetch('/ask', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ message }),
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message })
                     });
+    
+                    removeTypingIndicator();
     
                     if (response.ok) {
                         const data = await response.json();
                         addMessage(data.response, false);
                     } else {
-                        addMessage('Error: Unable to get a response.', false);
+                        addMessage(" Error: Unable to get a response.", false);
                     }
                 } catch (error) {
-                    addMessage('Error: Unable to communicate with the server.', false);
+                    removeTypingIndicator();
+                    addMessage(" Error: Unable to communicate with the server.", false);
                 }
             }
         }
-
-         // Typing indicator functions
+    
         function addTypingIndicator() {
             const typingDiv = document.createElement('div');
             typingDiv.classList.add('typing-indicator');
             typingDiv.id = 'typing-indicator';
-
-            // Add "Typing..." text
+    
             const typingText = document.createElement('span');
             typingText.textContent = "Typing";
             typingDiv.appendChild(typingText);
-
-            // Add animated dots
+    
             for (let i = 0; i < 3; i++) {
                 const dot = document.createElement('div');
                 dot.classList.add('dot');
                 typingDiv.appendChild(dot);
             }
-
+    
             chatHistory.appendChild(typingDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-
+    
         function removeTypingIndicator() {
             const typingIndicator = document.getElementById('typing-indicator');
             if (typingIndicator) {
                 typingIndicator.remove();
             }
         }
+    async function handleSend() {
+    const message = userInput.value.trim().toLowerCase(); // Convert to lowercase for uniformity
+    if (message) {
+        addMessage(userInput.value.trim(), true);
+        userInput.value = '';
 
-        // Handle message send with typing indicator
-        async function handleSend() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                userInput.value = '';
+        addTypingIndicator();
 
-                // Show typing indicator before fetching response
-                addTypingIndicator();
+        // Custom response for general inquiries
+        const predefinedResponses = {
+            "how can you help me": "I can assist with NECHE compliance by checking if a syllabus meets the required guidelines.",
+            "what do you do": "I check if a syllabus follows NECHE compliance guidelines and inform you about any missing details.",
+            "what is your purpose": "I ensure that uploaded syllabi meet NECHE compliance standards by checking for necessary elements like instructor details and office hours."
+        };
 
-                try {
-                    const response = await fetch('/ask', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ message: message })
-                    });
+        if (predefinedResponses[message]) {
+            removeTypingIndicator();
+            addMessage(predefinedResponses[message], false);
+            return;
+        }
 
-                    // Remove typing indicator after receiving response
-                    removeTypingIndicator();
+        try {
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        addMessage(data.response, false);
-                    } else {
-                        addMessage("Error: Unable to get a response.", false);
-                    }
-                } catch (error) {
-                    removeTypingIndicator();
-                    addMessage("Error: Unable to communicate with the server.", false);
-                }
+            removeTypingIndicator();
+
+            if (response.ok) {
+                const data = await response.json();
+                addMessage(data.response, false);
+            } else {
+                addMessage(" Error: Unable to get a response.", false);
             }
+        } catch (error) {
+            removeTypingIndicator();
+            addMessage("Error: Unable to communicate with the server.", false);
         }
-
-        async function handleResend(editedMessage) {
-            console.log('Resending Edited Message:', editedMessage); // Debug log
-        
-            try {
-                // Show typing indicator
-                addTypingIndicator();
-        
-                // Send the edited message to the server
-                const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: editedMessage }),
-                });
-        
-                // Remove typing indicator
-                removeTypingIndicator();
-        
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Response for Edited Message:', data); // Debug log
-                    addMessage(data.response, false); // Add server response to the chat UI
-                } else {
-                    console.error('Error Response for Edited Message:', response.status);
-                    addMessage('Error: Unable to get a response.', false);
-                }
-            } catch (error) {
-                console.error('Fetch Error for Edited Message:', error);
-                removeTypingIndicator();
-                addMessage('Error: Unable to communicate with the server.', false);
-            }
-        }
-        
+    }
+}
     
-    sendButton.addEventListener('click', handleSend);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleSend();
-        }
-
-
+    </script>
     
-    });
-
-
-    
-</script>
 </body>
 </html>
