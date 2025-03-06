@@ -251,29 +251,50 @@ This guide provides step-by-step instructions for deploying applications on Amaz
 
    - Start interacting with the chatbot.
 
--Debug scenarios
-Intial Installation:
-   1.Clone the repository:
-      If not cloning properly, get an ssh key and try this method to access
-      git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
-      cd Spring2025-Team-Essentials
-   2. Create a virtual environment:
-      depends in the scenraio that packages aren't installing properly, but this part is not entirely necessary, but only 
-      if there are problems with installation.
-   3. Install the required dependencies:
-      This is the one with varations that depends on device. There isn't a clear scenario to get it to work since most packages tend to change on compatablilty, but if you can verify that most of the packages are installed and debug through running the script and 
-      checking what the terminal says is missing.
- Deployment Installation:
-   8. Configure security group to allow the following:
-      You can put all the security group confugurations to accept all forms of traffic for TCP, just a way to ensure that it accepts any changes to the HTTP address and port number.
-   4. SSH Connection Setup
-      This part can be skipped and be subsituted for the provided terminal that they EC2 uses by pushing the "Connect" button and not making any changes to the settings, proceed to the next major step. It's more for stylistic purposes, but it's up to you.
- Application Deployment
-    4. Clone your repository from Github:
-       A similar scenario, to the intial installation debug scenario, that requires other the normal github clone or the ssh github clone, but requires to get another key for the EC2 as well.
-    5. Install project dependencies:
-       A similar problem as well, that the EC2 linux terminal will require diffrent versions of the packages in requirements.txt, but using nano and vim to make changes to the requiremnets.txt will be necessary, if the problem contiunes, and take a similar apporach in 
-       running the primary chatbot.py program to check which packages are missing.
+# Debug Scenarios
+
+## Initial Installation
+
+1. **Clone the repository**  
+   - If cloning is not working properly, generate an SSH key and try using the SSH method:  
+     ```bash
+     git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
+     cd Spring2025-Team-Essentials
+     ```
+
+2. **Create a virtual environment**  
+   - This step is optional unless packages are not installing properly.  
+
+3. **Install the required dependencies**  
+   - The installation process may vary depending on the device.  
+   - Compatibility issues may arise, so verify that most packages are installed.  
+   - Debug by running the script and checking which dependencies are missing in the terminal.
+
+---
+
+## Deployment Installation
+
+8. **Configure security group**  
+   - Allow all forms of traffic for TCP to ensure changes to the HTTP address and port number are accepted.
+
+4. **SSH Connection Setup**  
+   - This step can be skipped by using the built-in EC2 terminal.  
+   - Simply press the **"Connect"** button without modifying settings and proceed to the next step.  
+   - This is a stylistic choice but is optional.
+
+---
+
+## Application Deployment
+
+4. **Clone your repository from GitHub**  
+   - Similar to the initial installation, use either HTTPS or SSH cloning.  
+   - EC2 requires a separate SSH key for cloning via SSH.
+
+5. **Install project dependencies**  
+   - The EC2 Linux terminal may require different versions of dependencies listed in `requirements.txt`.  
+   - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
+   - If issues persist, run the primary `chatbot.py` program to identify missing packages.
+
     
 
 
