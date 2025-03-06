@@ -25,6 +25,9 @@ This chatbot allows users to upload PDFs, extracts the text, checks for NECHE co
 Ensure you have the following installed:
 - Python 3.x
 - pip
+- Way to access the code(i.e code editor such as VS Code)
+- SSH Key(in case the regular gitclone doesn't work)
+- Allocate more than a 5gbs of space, in relation to cloning and downloading necessary packages
 
 ### Installation Steps
 1. Clone the repository:
@@ -37,10 +40,11 @@ cd Spring2025-Team-Essentials
 python -m venv venv
 # on Mac/linux: source venv/bin/activate 
 # On Windows: venv\Scripts\activate
+(depends in the scenraio that packages aren't installing properly)
 ```
 3. Install the required dependencies:
-   pip install -r requirements.txt
-4. Set your OpenAI API key as an environment variable:
+   pip install -r requirements.txt 
+5. Set your OpenAI API key as an environment variable:
 
 Linux/MacOS:
 ```bash
@@ -246,6 +250,31 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - Navigate to `http://<public-ip>:8000/` in your browser.
 
    - Start interacting with the chatbot.
+
+-Debug scenarios
+Intial Installation:
+   1.Clone the repository:
+      If not cloning properly, get an ssh key and try this method to access
+      git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
+      cd Spring2025-Team-Essentials
+   2. Create a virtual environment:
+      depends in the scenraio that packages aren't installing properly, but this part is not entirely necessary, but only 
+      if there are problems with installation.
+   3. Install the required dependencies:
+      This is the one with varations that depends on device. There isn't a clear scenario to get it to work since most packages tend to change on compatablilty, but if you can verify that most of the packages are installed and debug through running the script and 
+      checking what the terminal says is missing.
+ Deployment Installation:
+   8. Configure security group to allow the following:
+      You can put all the security group confugurations to accept all forms of traffic for TCP, just a way to ensure that it accepts any changes to the HTTP address and port number.
+   4. SSH Connection Setup
+      This part can be skipped and be subsituted for the provided terminal that they EC2 uses by pushing the "Connect" button and not making any changes to the settings, proceed to the next major step. It's more for stylistic purposes, but it's up to you.
+ Application Deployment
+    4. Clone your repository from Github:
+       A similar scenario, to the intial installation debug scenario, that requires other the normal github clone or the ssh github clone, but requires to get another key for the EC2 as well.
+    5. Install project dependencies:
+       A similar problem as well, that the EC2 linux terminal will require diffrent versions of the packages in requirements.txt, but using nano and vim to make changes to the requiremnets.txt will be necessary, if the problem contiunes, and take a similar apporach in 
+       running the primary chatbot.py program to check which packages are missing.
+    
 
 
 
