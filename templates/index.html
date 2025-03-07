@@ -457,254 +457,201 @@ Date:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const chatHistory = document.getElementById('chat-history');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const fileInput = document.getElementById('fileInput');
+    const uploadButton = document.getElementById('uploadButton');
 
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('uploadButton');
-        
-        let editingMessageElement = null;
-    
-        // Display the default welcome message
-        function displayWelcomeMessage() {
-            const welcomeMessage = `"Welcome! I can assist with NECHE compliance. How can I help you today?"`;
-            addHTMLMessage(welcomeMessage, false);
-        }
-    
-        window.addEventListener('load', displayWelcomeMessage);
-    
-        function addHTMLMessage(htmlContent, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
-    
-            const messageContent = document.createElement('div');
-            messageContent.classList.add('message-content');
-            messageContent.innerHTML = htmlContent;
-            messageDiv.appendChild(messageContent);
-    
-            const avatar = document.createElement('div');
-            avatar.classList.add('message-avatar');
-            avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-            messageDiv.appendChild(avatar);
-    
-            chatHistory.appendChild(messageDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-    
-        // Handle file input change
-        fileInput.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-    
-            if (file && file.type === 'application/pdf') {
-                addMessage(` PDF file selected: ${file.name}`, true);
-                handleFileUpload(file);
-            } else {
-                addMessage('⚠️ Please select a valid PDF file.', true);
-                fileInput.value = '';  
-            }
-        });
-    
-        // Trigger file input when upload button is clicked
-        uploadButton.addEventListener('click', function () {
-            fileInput.click();
-        });
-    
-        // Handle file upload and response handling
-        function handleFileUpload(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-    
-            addMessage(' Processing PDF file...', false);
-    
-            fetch('/upload-pdf', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-    // Display Extracted Information FIRST
-    if (data.extracted_information) {
-    let extractedInfo = data.extracted_information;
+    function displayWelcomeMessage() {
+        addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
+    }
 
-    // Define the correct order for displaying extracted information
-    const requiredOrder = [
-        "Instructor Name",
-        "Title or Rank",
-        "Department or Program Affiliation",
-        "Preferred Contact Method",
-        "Professor's Email Address",
-        "Professor's Phone Number",
-        "Office Address",
-        "Office Hours",
-        "Location (Physical or Remote)"
-    ];
+    window.addEventListener('load', displayWelcomeMessage);
 
-    // Main heading (bold and centered at the top)
-    let infoHTML = `
-        <h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
-           
-        </h2>
-        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
-    `;
+    function addHTMLMessage(htmlContent, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
 
-    // Loop through the ordered list and display extracted values in the correct order
-    requiredOrder.forEach((key) => {
-        if (extractedInfo.hasOwnProperty(key)) {
-            infoHTML += `
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
-                    <strong style="width: 40%; text-align: left;">${key}:</strong>
-                    <span style="width: 60%; text-align: left;">${extractedInfo[key] || "Not Found"}</span>
-                </div>
-            `;
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+        messageContent.innerHTML = htmlContent;
+        messageDiv.appendChild(messageContent);
+
+        const avatar = document.createElement('div');
+        avatar.classList.add('message-avatar');
+        avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        messageDiv.appendChild(avatar);
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // Handle file selection
+    fileInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+
+        if (file && file.type === 'application/pdf') {
+            addMessage(`📄 PDF file selected: ${file.name}`, true);
+            handleFileUpload(file);
+        } else {
+            addMessage('⚠️ Please select a valid PDF file.', true);
+            fileInput.value = '';  
         }
     });
 
-    infoHTML += `</div>`; // Closing the div container
-    addHTMLMessage(infoHTML, false);
-}
+    // Trigger file input when upload button is clicked
+    uploadButton.addEventListener('click', function () {
+        fileInput.click();
+    });
 
+    // Handle file upload
+    function handleFileUpload(file) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-    // Display NECHE Compliance Status SECOND
-    addMessage(` ${data.compliance_check}`, false);
-            }
-                 else {
-                    addMessage(' Error: Unable to process the PDF file.', false);
-                }
-            })
-            .catch(error => {
-                console.error('Error uploading PDF:', error);
-                addMessage(` Error: ${error.message}`, false);
+        addMessage('⏳ Processing PDF file...', false);
+
+        fetch('/upload-pdf', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            return response.json().catch(() => {
+                throw new Error("❌ Server response is not valid JSON. Check Flask error logs.");
             });
-        }
-    
-        function addMessage(content, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
-    
-            const messageContent = document.createElement('div');
-            messageContent.classList.add('message-content');
-    
-            const textSpan = document.createElement('span');
-            textSpan.textContent = content;
-            messageContent.appendChild(textSpan);
-    
-            messageDiv.appendChild(messageContent);
-    
-            const avatar = document.createElement('div');
-            avatar.classList.add('message-avatar');
-            avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-            messageDiv.appendChild(avatar);
-    
-            chatHistory.appendChild(messageDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-    
-        sendButton.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleSend();
-            }
-        });
-    
-        async function handleSend() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                userInput.value = '';
-    
-                addTypingIndicator();
-    
-                try {
-                    const response = await fetch('/ask', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message })
+        })
+        .then(data => {
+            if (data.success) {
+                // ✅ Display Extracted Information
+                if (data.extracted_information) {
+                    let extractedInfo = data.extracted_information;
+
+                    const requiredOrder = [
+                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+            "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
+            "Office Address", "Office Hours", "Location (Physical or Remote)",
+            "Course SLOs", "Program SLOs", "Credit Hour Workload", "Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                ];
+
+                    let infoHTML = `<h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;"></h2>
+                                    <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">`;
+
+                    requiredOrder.forEach((key) => {
+                        if (extractedInfo.hasOwnProperty(key)) {
+                            infoHTML += `
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
+                                    <strong style="width: 40%; text-align: left;">${key}:</strong>
+                                    <span style="width: 60%; text-align: left;">${extractedInfo[key] || "Not Found"}</span>
+                                </div>`;
+                        }
                     });
-    
-                    removeTypingIndicator();
-    
-                    if (response.ok) {
-                        const data = await response.json();
-                        addMessage(data.response, false);
-                    } else {
-                        addMessage(" Error: Unable to get a response.", false);
-                    }
-                } catch (error) {
-                    removeTypingIndicator();
-                    addMessage(" Error: Unable to communicate with the server.", false);
+
+                    infoHTML += `</div>`;
+                    addHTMLMessage(infoHTML, false); // ✅ Display extracted info
                 }
-            }
-        }
-    
-        function addTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.classList.add('typing-indicator');
-            typingDiv.id = 'typing-indicator';
-    
-            const typingText = document.createElement('span');
-            typingText.textContent = "Typing";
-            typingDiv.appendChild(typingText);
-    
-            for (let i = 0; i < 3; i++) {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                typingDiv.appendChild(dot);
-            }
-    
-            chatHistory.appendChild(typingDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-    
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        }
-    async function handleSend() {
-    const message = userInput.value.trim().toLowerCase(); // Convert to lowercase for uniformity
-    if (message) {
-        addMessage(userInput.value.trim(), true);
-        userInput.value = '';
 
-        addTypingIndicator();
-
-        // Custom response for general inquiries
-        const predefinedResponses = {
-            "how can you help me": "I can assist with NECHE compliance by checking if a syllabus meets the required guidelines.",
-            "what do you do": "I check if a syllabus follows NECHE compliance guidelines and inform you about any missing details.",
-            "what is your purpose": "I ensure that uploaded syllabi meet NECHE compliance standards by checking for necessary elements like instructor details and office hours."
-        };
-
-        if (predefinedResponses[message]) {
-            removeTypingIndicator();
-            addMessage(predefinedResponses[message], false);
-            return;
-        }
-
-        try {
-            const response = await fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
-
-            removeTypingIndicator();
-
-            if (response.ok) {
-                const data = await response.json();
-                addMessage(data.response, false);
+                // ✅ Display NECHE Compliance Status
+                addMessage(`NECHE Compliance Check: ${data.compliance_check}`, false);
             } else {
-                addMessage(" Error: Unable to get a response.", false);
+                throw new Error(`❌ Upload failed: ${data.error}`);
             }
-        } catch (error) {
-            removeTypingIndicator();
-            addMessage("Error: Unable to communicate with the server.", false);
+        })
+        .catch(error => {
+            console.error("❌ Error:", error.message);
+            addMessage(`⚠️ ${error.message}`, false);
+        });
+    }
+
+    // Function to add user and bot messages
+    function addMessage(content, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
+
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = content;
+        messageContent.appendChild(textSpan);
+
+        messageDiv.appendChild(messageContent);
+
+        const avatar = document.createElement('div');
+        avatar.classList.add('message-avatar');
+        avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        messageDiv.appendChild(avatar);
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    sendButton.addEventListener('click', handleSend);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    });
+
+    async function handleSend() {
+        const message = userInput.value.trim();
+        if (message) {
+            addMessage(message, true);
+            userInput.value = '';
+
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.response, false);
+                } else {
+                    addMessage(" Error: Unable to get a response.", false);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage(" Error: Unable to communicate with the server.", false);
+            }
         }
     }
-}
+
+    function addTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.classList.add('typing-indicator');
+        typingDiv.id = 'typing-indicator';
+
+        const typingText = document.createElement('span');
+        typingText.textContent = "Typing";
+        typingDiv.appendChild(typingText);
+
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            typingDiv.appendChild(dot);
+        }
+
+        chatHistory.appendChild(typingDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+});
+
     
     </script>
     
