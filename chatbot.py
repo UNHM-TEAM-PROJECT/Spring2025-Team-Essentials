@@ -15,6 +15,7 @@ import json
 import os
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
+from docx import Document as DocxDocument
 
 latest_syllabus_info = {}
 
@@ -202,9 +203,10 @@ required_compliance_items = {
 
 
 
+ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 
-
-
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 
@@ -230,12 +232,38 @@ def extract_text_from_pdf(pdf_path):
 
     return text if text.strip() else None  # Return None if text extraction fails
 
+
+def extract_text_from_docx(docx_path):
+    """Extracts text from Word documents including tables"""
+    text = ''
+    try:
+        doc = DocxDocument(docx_path)
+        
+        # Extract paragraphs
+        for para in doc.paragraphs:
+            text += para.text + "\n"
+            
+        # Extract tables
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    text += cell.text + "\t"
+                text += "\n"
+                    
+    except Exception as e:
+        print(f"⚠️ Error processing DOCX: {str(e)}")
+        return None
+        
+    return text if text.strip() else None
+        
+    return text if text.strip() else None
+
 # Function to process an uploaded PDF
 def process_uploaded_pdf(file_path, file_name):
     global db
     try:
         extracted_text = extract_text_from_pdf(file_path)
-        print(f"Extracted text from {file_name}: {extracted_text[:100]}...")  # Debug: Print first 100 chars
+        print(f"Extracted text from {file_name}: {extracted_text[:1000]}...")  # Debug: Print first 100 chars
     except Exception as e:
         print(f"Error extracting text from {file_name}: {str(e)}")
         raise
@@ -350,8 +378,8 @@ text_splitter = RecursiveCharacterTextSplitter(
     separators=["\n\n", "\n", " "]
 )
 
-@app.route('/upload-pdf', methods=['POST'])
-def upload_pdf():
+@app.route('/upload', methods=['POST'])
+def upload_file():
     global latest_syllabus_info
 
     if 'file' not in request.files:
@@ -366,7 +394,13 @@ def upload_pdf():
     file.save(file_path)
 
     try:
-        extracted_text = extract_text_from_pdf(file_path)
+        if filename.endswith('.pdf'):
+            extracted_text = extract_text_from_pdf(file_path)
+        elif filename.endswith('.docx'):
+            extracted_text = extract_text_from_docx(file_path)
+        else:
+            return jsonify({"error": "❌ Unsupported file type"}), 400
+
         extracted_info = extract_course_information(extracted_text)
 
         # Ensure all required NECHE fields exist
@@ -392,16 +426,14 @@ def upload_pdf():
 
         return jsonify({
             "success": True,
-            "message": f"✅ PDF uploaded successfully: {filename}",
+            "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
             "compliance_check": compliance_check_result["compliance_check"],
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process PDF: {str(e)}"}), 500
-
-
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
 # Chatbot API: Handles user queries
 
 @app.route('/ask', methods=['POST'])
