@@ -302,8 +302,8 @@ def check_neche_compliance(course_info):
         "Title or Rank",
         "Department or Program Affiliation",
         "Preferred Contact Method",
-        "Professor's Email Address",
-        "Professor's Phone Number",
+        "Email Address",  # ✅ Changed from "Professor's Email Address"
+        "Phone Number",   # ✅ Changed from "Professor's Phone Number"
         "Office Address",
         "Office Hours",
         "Location (Physical or Remote)",
@@ -314,15 +314,24 @@ def check_neche_compliance(course_info):
         "Assignment Deadlines & Policies"
     ]
     
+    # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
     
-    compliance_status = " NECHE Compliant: All required information is present." if not missing_fields else f" Not NECHE Compliant. Missing:\n" + "\n".join([f"- {field}" for field in missing_fields])
+    # ✅ If all required information is present
+    if not missing_fields:
+        compliance_status = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present."
+    else:
+        # ✅ Format missing fields list
+        missing_fields_str = ", ".join(missing_fields)
+
+        # ✅ Compliance message
+        compliance_status = f"The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information: {missing_fields_str}."
 
     print(f"🔍 Compliance Check Debug: {compliance_status}")  # Debugging Output
 
     return {
         "compliant": not missing_fields,
-        "compliance_check": compliance_status,
+        "compliance_check": compliance_status,  # ✅ Ensuring the correct message is used
         "missing_fields": missing_fields
     }
 
@@ -335,7 +344,7 @@ def extract_course_information(text):
     """
     prompt = f"""
     Extract the following course and instructor details from this text in a structured JSON format.
-    Ensure **Grading Procedures & Final Grade Scale** and **Assignment Deadlines & Policies** are included.
+    Ensure **Grading Procedures & Final Grade Scale**, **Assignment Deadlines & Policies**, and **Coursework Types & Submission Methods** are included.
 
     JSON Structure:
     {{
@@ -343,8 +352,8 @@ def extract_course_information(text):
     "Title or Rank": "",
     "Department or Program Affiliation": "",
     "Preferred Contact Method": "",
-    "Professor's Email Address": "",
-    "Professor's Phone Number": "",
+    "Email Address": "",  # ✅ Changed from "Professor's Email Address"
+    "Phone Number": "",   # ✅ Changed from "Professor's Phone Number"
     "Office Address": "",
     "Office Hours": "",
     "Location (Physical or Remote)": "",
@@ -372,11 +381,19 @@ def extract_course_information(text):
 
     try:
         extracted_info = json.loads(raw_text)
+
+        # ✅ Remove "Professor's " from extracted fields
+        if "Professor's Email Address" in extracted_info:
+            extracted_info["Email Address"] = extracted_info.pop("Professor's Email Address")
+        if "Professor's Phone Number" in extracted_info:
+            extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
+
         print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debug: Print extracted info
     except json.JSONDecodeError:
         extracted_info = {"error": "Failed to parse OpenAI response"}
 
     return extracted_info
+
 
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -438,12 +455,13 @@ def upload_file():
             "success": True,
             "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],
+            "compliance_check": compliance_check_result["compliance_check"],  # ✅ FIXED: No double message
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
+
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -471,6 +489,7 @@ def ask():
         "neche", "syllabus", "compliance", "instructor", "credit hours",
         "grading policy", "program SLOs", "assignments", "office hours",
         "submission", "deadlines", "policies", "assessment", "course objectives"
+
     ]
 
     # General inquiries about bot's purpose
@@ -479,6 +498,7 @@ def ask():
     ]
 
     is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
+
 
     if is_neche_related or latest_syllabus_info:
         prompt = f"""
