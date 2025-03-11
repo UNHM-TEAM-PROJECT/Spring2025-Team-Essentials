@@ -15,6 +15,7 @@ import json
 import os
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
+from docx import Document as DocxDocument
 
 latest_syllabus_info = {}
 
@@ -88,7 +89,7 @@ os.makedirs(persist_directory, exist_ok=True)
 OPENAI_API_KEY = "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"
 
 llm = ChatOpenAI(
-    model="gpt-4-turbo",  # Ensure you are using a valid OpenAI model
+    model="gpt-3.5-turbo",  # Ensure you are using a valid OpenAI model
     openai_api_key="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",  # 🔹 Replace with your actual API key
     temperature=0,  # Controls randomness (0 = more deterministic)
     top_p=1
@@ -161,17 +162,11 @@ required_compliance_items = {
     "Location (Physical or Remote)": [
         r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
     ],
-    "Course SLOs": [
+    "Course Learning Outcomes": [
         r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs)\b.*",
         r"(?i)\b(learning\s+objectives|outcomes|course\s+objectives|expected\s+learning\s+outcomes)\b.*",
         r"(?i)\b(this\s+course\s+aims\s+to|upon\s+successful\s+completion|students\s+will\s+be\s+able\s+to)\b.*",
         r"(?i)\b(key\s+competencies|learning\s+goals|by\s+the\s+end\s+of\s+this\s+course|core\s+learning\s+outcomes)\b.*"
-    ],
-    "Program SLOs": [
-        r"(?i)\b(program\s+learning\s+outcomes|program\s+level\s+SLOs|PLOs)\b.*",
-        r"(?i)\b(program\s+objectives|program\s+outcomes|degree\s+competencies|expected\s+program\s+outcomes)\b.*",
-        r"(?i)\b(graduates\s+of\s+this\s+program\s+will|program\s+completion\s+requirements)\b.*",
-        r"(?i)\b(by\s+completing\s+this\s+program|students\s+will\s+demonstrate|program\s+competencies)\b.*"
     ],
     "Credit Hour Workload": [
         r"(?i)\b(workload|credit\s+hour\s+expectations|credit\s+hours)\b.*",
@@ -179,7 +174,7 @@ required_compliance_items = {
         r"(?i)\b(course\s+workload|time\s+spent\s+per\s+credit\s+hour|study\s+hours\s+per\s+week)\b.*",
         r"(?i)\b(federal\s+definition\s+of\s+a\s+credit\s+hour|weekly\s+engagement\s+expectations)\b.*"
     ],
-    "Assignments & Delivery": [
+    "Coursework Types & Submission Methods": [
         r"(?i)\b(assignments|exams|projects|final\s+paper|graded\s+work)\b.*",
         r"(?i)\b(Canvas|Turnitin|remote\s+proctoring|on\s+paper|submission|assessment\s+methods)\b.*",
         r"(?i)\b(quiz|midterm|final\s+exam|group\s+project|presentation|lab\s+reports|discussion\s+posts)\b.*",
@@ -202,10 +197,29 @@ required_compliance_items = {
 
 
 
+ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+import multiprocessing
 
+def process_page(page):
+    page_text = page.extract_text(x_tolerance=2, y_tolerance=2) or ''
+    if not page_text:
+        page_image = page.to_image(resolution=150).original
+        page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
+    return page_text
 
+def extract_text_from_pdf(pdf_path):
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+                text_list = pool.map(process_page, pdf.pages)
+            return "\n".join(text_list).strip() if text_list else None
+    except Exception as e:
+        print(f"⚠️ Error processing PDF: {str(e)}")
+        return None
 
 
 # Function to extract text from PDFs
@@ -230,12 +244,38 @@ def extract_text_from_pdf(pdf_path):
 
     return text if text.strip() else None  # Return None if text extraction fails
 
+
+def extract_text_from_docx(docx_path):
+    """Extracts text from Word documents including tables"""
+    text = ''
+    try:
+        doc = DocxDocument(docx_path)
+        
+        # Extract paragraphs
+        for para in doc.paragraphs:
+            text += para.text + "\n"
+            
+        # Extract tables
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    text += cell.text + "\t"
+                text += "\n"
+                    
+    except Exception as e:
+        print(f"⚠️ Error processing DOCX: {str(e)}")
+        return None
+        
+    return text if text.strip() else None
+        
+    return text if text.strip() else None
+
 # Function to process an uploaded PDF
 def process_uploaded_pdf(file_path, file_name):
     global db
     try:
         extracted_text = extract_text_from_pdf(file_path)
-        print(f"Extracted text from {file_name}: {extracted_text[:100]}...")  # Debug: Print first 100 chars
+        print(f"Extracted text from {file_name}: {extracted_text[:1000]}...")  # Debug: Print first 100 chars
     except Exception as e:
         print(f"Error extracting text from {file_name}: {str(e)}")
         raise
@@ -262,28 +302,36 @@ def check_neche_compliance(course_info):
         "Title or Rank",
         "Department or Program Affiliation",
         "Preferred Contact Method",
-        "Professor's Email Address",
-        "Professor's Phone Number",
+        "Email Address",  # ✅ Changed from "Professor's Email Address"
+        "Phone Number",   # ✅ Changed from "Professor's Phone Number"
         "Office Address",
         "Office Hours",
         "Location (Physical or Remote)",
-        "Course SLOs",
-        "Program SLOs",
+        "Course Learning Outcomes",
         "Credit Hour Workload",
-        "Assignments & Delivery",
+        "Coursework Types & Submission Methods",
         "Grading Procedures & Final Grade Scale",
         "Assignment Deadlines & Policies"
     ]
     
+    # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
     
-    compliance_status = " NECHE Compliant: All required information is present." if not missing_fields else f" Not NECHE Compliant. Missing:\n" + "\n".join([f"- {field}" for field in missing_fields])
+    # ✅ If all required information is present
+    if not missing_fields:
+        compliance_status = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present."
+    else:
+        # ✅ Format missing fields list
+        missing_fields_str = ", ".join(missing_fields)
+
+        # ✅ Compliance message
+        compliance_status = f"The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information: {missing_fields_str}."
 
     print(f"🔍 Compliance Check Debug: {compliance_status}")  # Debugging Output
 
     return {
         "compliant": not missing_fields,
-        "compliance_check": compliance_status,
+        "compliance_check": compliance_status,  # ✅ Ensuring the correct message is used
         "missing_fields": missing_fields
     }
 
@@ -296,7 +344,7 @@ def extract_course_information(text):
     """
     prompt = f"""
     Extract the following course and instructor details from this text in a structured JSON format.
-    Ensure **Grading Procedures & Final Grade Scale** and **Assignment Deadlines & Policies** are included.
+    Ensure **Grading Procedures & Final Grade Scale**, **Assignment Deadlines & Policies**, and **Coursework Types & Submission Methods** are included.
 
     JSON Structure:
     {{
@@ -304,15 +352,14 @@ def extract_course_information(text):
     "Title or Rank": "",
     "Department or Program Affiliation": "",
     "Preferred Contact Method": "",
-    "Professor's Email Address": "",
-    "Professor's Phone Number": "",
+    "Email Address": "",  # ✅ Changed from "Professor's Email Address"
+    "Phone Number": "",   # ✅ Changed from "Professor's Phone Number"
     "Office Address": "",
     "Office Hours": "",
     "Location (Physical or Remote)": "",
-    "Course SLOs": "",
-    "Program SLOs": "",
+    "Course Learning Outcomes": "",
     "Credit Hour Workload": "",
-    "Assignments & Delivery": "",
+    "Coursework Types & Submission Methods": "",
     "Grading Procedures & Final Grade Scale": "",
     "Assignment Deadlines & Policies": ""
     }}
@@ -334,11 +381,19 @@ def extract_course_information(text):
 
     try:
         extracted_info = json.loads(raw_text)
+
+        # ✅ Remove "Professor's " from extracted fields
+        if "Professor's Email Address" in extracted_info:
+            extracted_info["Email Address"] = extracted_info.pop("Professor's Email Address")
+        if "Professor's Phone Number" in extracted_info:
+            extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
+
         print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debug: Print extracted info
     except json.JSONDecodeError:
         extracted_info = {"error": "Failed to parse OpenAI response"}
 
     return extracted_info
+
 
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -350,8 +405,8 @@ text_splitter = RecursiveCharacterTextSplitter(
     separators=["\n\n", "\n", " "]
 )
 
-@app.route('/upload-pdf', methods=['POST'])
-def upload_pdf():
+@app.route('/upload', methods=['POST'])
+def upload_file():
     global latest_syllabus_info
 
     if 'file' not in request.files:
@@ -366,7 +421,13 @@ def upload_pdf():
     file.save(file_path)
 
     try:
-        extracted_text = extract_text_from_pdf(file_path)
+        if filename.endswith('.pdf'):
+            extracted_text = extract_text_from_pdf(file_path)
+        elif filename.endswith('.docx'):
+            extracted_text = extract_text_from_docx(file_path)
+        else:
+            return jsonify({"error": "❌ Unsupported file type"}), 400
+
         extracted_info = extract_course_information(extracted_text)
 
         # Ensure all required NECHE fields exist
@@ -374,7 +435,7 @@ def upload_pdf():
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Program SLOs", "Credit Hour Workload", "Assignments & Delivery",
+            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
             "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
         ]
         
@@ -392,62 +453,85 @@ def upload_pdf():
 
         return jsonify({
             "success": True,
-            "message": f"✅ PDF uploaded successfully: {filename}",
+            "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],
+            "compliance_check": compliance_check_result["compliance_check"],  # ✅ FIXED: No double message
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process PDF: {str(e)}"}), 500
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
 
 
 # Chatbot API: Handles user queries
-
 @app.route('/ask', methods=['POST'])
 def ask():
     global latest_syllabus_info
     data = request.get_json()
-    user_question = data.get('message', '').strip()
+    user_question = data.get('message', '').strip().lower()
 
-    # If user asks about NECHE compliance, make it strict
+    # Natural responses for greetings and casual questions
+    casual_responses = {
+        "hey": "Hey! How’s your day going?",
+        "hello": "Hello! Hope you're having a great day.",
+        "hi": "Hi there! How can I assist you today?",
+        "how are you": "I'm doing great! Thanks for asking. How about you?",
+        "what's up": "Not much, just here to assist with NECHE compliance! What’s up with you?",
+        "who are you": "I'm your assistant for NECHE syllabus compliance. I help check syllabus requirements and guide you on accreditation standards.",
+        "what do you do": "I assist with NECHE compliance by checking syllabi for required information. Let me know if you need help with that!"
+    }
+
+    # Check if user's question is casual/small talk
+    if user_question in casual_responses:
+        return jsonify({"response": casual_responses[user_question]})
+
+    # NECHE compliance-related keywords
     neche_keywords = [
         "neche", "syllabus", "compliance", "instructor", "credit hours",
-        "grading policy", "program SLOs", "assignments", "office hours"
+        "grading policy", "program SLOs", "assignments", "office hours",
+        "submission", "deadlines", "policies", "assessment", "course objectives"
     ]
 
-    is_neche_related = any(keyword in user_question.lower() for keyword in neche_keywords)
+    # General inquiries about bot's purpose
+    general_inquiries = [
+        "how can you assist me", "what can you do for me", "tell me about yourself", "what is your purpose"
+    ]
 
-    # **1️⃣ If the question is about NECHE, use the NECHE-specific prompt**
-    if is_neche_related:
+    is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
+
+    if is_neche_related or latest_syllabus_info:
         prompt = f"""
-        You are a **friendly AI assistant** that helps users with **NECHE syllabus compliance**.
-        🎯 **Your job:** Check syllabus requirements, explain NECHE policies, and answer compliance-related questions.
-        
+        You are a **NECHE syllabus compliance chatbot**.
+        🎯 **Your job:** Verify syllabus compliance, identify missing NECHE requirements, and guide users on necessary improvements.
+
         **User's Question:** {user_question}
+
+        **Latest NECHE Compliance Information (from uploaded syllabus):**
+        {json.dumps(latest_syllabus_info, indent=2)}
+
+        **Response Guidelines:**
+        - If the syllabus **is missing required elements**, list what is missing and how to correct it.
+        - If the syllabus **meets NECHE compliance**, confirm compliance and summarize why.
+        - **For general inquiries (e.g., "Tell me about yourself," "What is your purpose?"),** respond naturally and then transition into explaining that you specialize in NECHE compliance.
+        - Keep responses **short, professional, and NECHE-focused**.
         """
-    
-    # **2️⃣ If it's a general question, let OpenAI answer naturally**
+
     else:
-        prompt = f"""
-        You are a **friendly AI assistant**. Answer like a helpful, conversational chatbot.
-        - Keep responses **short, engaging, and natural**.
-        - If the user asks casual questions like "How are you?" respond in a friendly way.
-        - If asked about NECHE compliance, answer accurately.
-        
-        **User's Question:** {user_question}
+        # Redirect ALL unrelated questions back to NECHE compliance
+        prompt = """
+        I specialize in NECHE syllabus compliance.
+        I can check if your syllabus meets NECHE standards, identify missing elements, 
+        and guide you on compliance improvements.
+
+        Please ask about syllabus requirements, instructor details, grading policies, or coursework submissions.
         """
 
     try:
-        response = llm.invoke([
-            HumanMessage(content=prompt)
-        ])
-
+        response = llm.invoke([HumanMessage(content=prompt)])
         return jsonify({"response": response.content})
 
     except Exception as e:
         return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
-
 
 
 # Serve frontend page
@@ -456,4 +540,4 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8026)
