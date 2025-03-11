@@ -3,10 +3,10 @@
 # NECHE Compliance Assistant Chatbot
 
 ## Overview
-This chatbot allows users to upload PDFs, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
+This chatbot allows users to upload PDFs and document(.docx) files, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
 
 ## Features
-- PDF Upload & Text Extraction: Upload PDFs and extract text.
+- PDF and .DOCX Upload & Text Extraction: Upload PDFs and extract text.
 - Compliance Checking: Analyze the extracted text for specific compliance criteria.
 - AI Chatbot: Ask questions related to the document's content and receive AI-powered responses.
 - Document Vectorization: Uses Chroma to store and search document chunks for relevance to user queries.
@@ -18,6 +18,7 @@ This chatbot allows users to upload PDFs, extracts the text, checks for NECHE co
 - langchain: For embedding documents, storing vector representations, and generating AI-based responses.
 - OpenAI GPT-4: For generating responses to user queries.
 - Chroma: For storing document embeddings and performing similarity search.
+- DocxDocument: for text extraction for documents.
 
 ## Setup
 
