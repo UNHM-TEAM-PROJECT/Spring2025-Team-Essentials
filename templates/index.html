@@ -458,6 +458,87 @@ Date:
         </div>
     </div>
 
+    <h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;">NECHE Requirement List</h2>
+
+    <table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+        <thead>
+            <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Requirement</th>
+                <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Instructor Name</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Phillip Deen</td>
+            </tr>
+            
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Title or Rank</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Senior Lecturer of Philosophy & Humanities</td>
+            </tr>
+    
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Department or Program Affiliation</td>
+                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
+            </tr>
+    
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Preferred Contact Method</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">E-mail</td>
+            </tr>
+    
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Professor's Email Address</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">phillip.deen@unh.edu</td>
+            </tr>
+    
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Professor's Phone Number</td>
+                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
+            </tr>
+    
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Office Address</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">431</td>
+            </tr>
+    
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Office Hours</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Tuesdays and Thursdays before 10:00 or after class at 3:00</td>
+            </tr>
+    
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Location (Physical or Remote)</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Classroom 345</td>
+            </tr>
+    
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Course Learning Outcomes</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">
+                    Gain knowledge about the texts and culture of classical Greece, engage deeply with 
+                    general questions of aesthetics, politics, metaphysics, and the nature of a good life, 
+                    learn how to read and think critically.
+                </td>
+            </tr>
+    
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Credit Hour Workload</td>
+                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
+            </tr>
+    
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Grading Procedures & Final Grade Scale</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">
+                    A: 93.3+, A-: 90.0-93.2, B+: 86.6-89.9, B: 83.3-86.5, B-: 80.0-83.2, 
+                    C+: 76.6-79.9, C: 73.3-76.5, C-: 70.0-73.2, D+: 66.6-69.9, 
+                    D: 63.3-66.5, D-: 60.0-63.2, F: 0-59.9
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
@@ -603,7 +684,9 @@ document.addEventListener("DOMContentLoaded", () => {
             addMessage(`File selected: ${file.name}`, true);
             handleFileUpload(file);
         } else {
-            addMessage('Please select a valid PDF or DOCX file.', true);
+
+            addMessage("The checker only supports PDF and DOCX files.", true);
+
             fileInput.value = '';  
  main
         }
@@ -620,12 +703,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        addMessage('⏳ Processing PDF file...', false);
+        addMessage('Processing the uploaded syllabus for NECHE requirements...', false);
 
         fetch('/upload', {
             method: 'POST',
             body: formData
         })
+
+
         .then(response => {
             return response.json().catch(() => {
                 throw new Error("❌ Server response is not valid JSON. Check Flask error logs.");
@@ -676,29 +761,40 @@ document.addEventListener("DOMContentLoaded", () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ message }
         })
+
         .then(data => {
             if (data.success) {
                 // ✅ Display Extracted Information
                 if (data.extracted_information) {
                     let extractedInfo = data.extracted_information;
-
+                    addMessage('Here are the NECHE requirements extracted from the document: ', false);
                     const requiredOrder = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Program SLOs", "Credit Hour Workload", "Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-                ];
+    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+    "Preferred Contact Method", "Email Address",  // ✅ Changed from "Professor's Email Address"
+    "Phone Number",  // ✅ Changed from "Professor's Phone Number"
+    "Office Address", "Office Hours", "Location (Physical or Remote)",
+    "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+    "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+];
+
+
 
                     let infoHTML = `<h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;"></h2>
                                     <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">`;
 
                     requiredOrder.forEach((key) => {
                         if (extractedInfo.hasOwnProperty(key)) {
+                            let value = extractedInfo[key] || "Not Found";
+
+                            // If the value is "Not Found", apply bold red styling
+                            if (value === "Not Found") {
+                                value = `<strong style="color: red;">${value}</strong>`;
+                            }
+
                             infoHTML += `
                                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
                                     <strong style="width: 40%; text-align: left;">${key}:</strong>
-                                    <span style="width: 60%; text-align: left;">${extractedInfo[key] || "Not Found"}</span>
+                                    <span style="width: 60%; text-align: left;">${value}</span>
                                 </div>`;
                         }
  main
@@ -708,8 +804,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     addHTMLMessage(infoHTML, false); // ✅ Display extracted info
                 }
 
-                // ✅ Display NECHE Compliance Status
-                addMessage(`NECHE Compliance Check: ${data.compliance_check}`, false);
+                // ✅ Display NECHE Compliance Status (Ensure only one message is shown)
+                if (data.compliance_check) {
+                    addMessage(data.compliance_check, false);
+                }
             } else {
                 throw new Error(`❌ Upload failed: ${data.error}`);
             }
@@ -720,28 +818,39 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Function to add user and bot messages
     function addMessage(content, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
+    if (!content) return; // ✅ Prevent empty messages
 
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
 
-        const textSpan = document.createElement('span');
-        textSpan.textContent = content;
-        messageContent.appendChild(textSpan);
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
 
-        messageDiv.appendChild(messageContent);
+    const textSpan = document.createElement('span');
+    textSpan.textContent = content;
+    messageContent.appendChild(textSpan);
 
-        const avatar = document.createElement('div');
-        avatar.classList.add('message-avatar');
-        avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-        messageDiv.appendChild(avatar);
-
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+    // ✅ Change background color for NECHE compliance messages (Font remains black)
+    if (content.includes("The NECHE compliance check is complete")) {
+        if (content.includes("not compliant")) {
+            messageDiv.style.backgroundColor = "#ffcccc"; // Red for non-compliant
+        } else {
+            messageDiv.style.backgroundColor = "#ccffcc"; // Green for compliant
+        }
+        messageDiv.style.color = "#000000"; // ✅ Ensure font is always black
     }
+
+    messageDiv.appendChild(messageContent);
+
+    const avatar = document.createElement('div');
+    avatar.classList.add('message-avatar');
+    avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+    messageDiv.appendChild(avatar);
+
+    chatHistory.appendChild(messageDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
 
     sendButton.addEventListener('click', handleSend);
     userInput.addEventListener('keypress', (e) => {
@@ -752,31 +861,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function handleSend() {
         const message = userInput.value.trim();
-        if (message) {
-            addMessage(message, true);
-            userInput.value = '';
+        if (!message) return;
 
-            addTypingIndicator();
+        addMessage(message, true);
+        userInput.value = '';
 
-            try {
-                const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
+        addTypingIndicator();
 
-                removeTypingIndicator();
+        try {
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    addMessage(data.response, false);
-                } else {
-                    addMessage(" Error: Unable to get a response.", false);
-                }
-            } catch (error) {
-                removeTypingIndicator();
-                addMessage(" Error: Unable to communicate with the server.", false);
+            removeTypingIndicator();
+
+            if (response.ok) {
+                const data = await response.json();
+                addMessage(data.response, false);
+            } else {
+                addMessage(" Error: Unable to get a response.", false);
             }
+        } catch (error) {
+            removeTypingIndicator();
+            addMessage(" Error: Unable to communicate with the server.", false);
         }
     }
 
@@ -806,6 +915,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
 
     
     </script>
