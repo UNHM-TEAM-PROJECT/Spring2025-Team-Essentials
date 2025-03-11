@@ -3,10 +3,10 @@
 # NECHE Compliance Assistant Chatbot
 
 ## Overview
-This chatbot allows users to upload PDFs, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
+This chatbot allows users to upload PDFs and document(.docx) files, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
 
 ## Features
-- PDF Upload & Text Extraction: Upload PDFs and extract text.
+- PDF and .DOCX Upload & Text Extraction: Upload PDFs and extract text.
 - Compliance Checking: Analyze the extracted text for specific compliance criteria.
 - AI Chatbot: Ask questions related to the document's content and receive AI-powered responses.
 - Document Vectorization: Uses Chroma to store and search document chunks for relevance to user queries.
@@ -18,6 +18,7 @@ This chatbot allows users to upload PDFs, extracts the text, checks for NECHE co
 - langchain: For embedding documents, storing vector representations, and generating AI-based responses.
 - OpenAI GPT-4: For generating responses to user queries.
 - Chroma: For storing document embeddings and performing similarity search.
+- DocxDocument: for text extraction for documents.
 
 ## Setup
 
@@ -25,6 +26,9 @@ This chatbot allows users to upload PDFs, extracts the text, checks for NECHE co
 Ensure you have the following installed:
 - Python 3.x
 - pip
+- Way to access the code(i.e code editor such as VS Code)
+- SSH Key(in case the regular gitclone doesn't work)
+- Allocate more than a 5gbs of space, in relation to cloning and downloading necessary packages
 
 ### Installation Steps
 1. Clone the repository:
@@ -37,10 +41,11 @@ cd Spring2025-Team-Essentials
 python -m venv venv
 # on Mac/linux: source venv/bin/activate 
 # On Windows: venv\Scripts\activate
+(depends in the scenraio that packages aren't installing properly)
 ```
 3. Install the required dependencies:
-   pip install -r requirements.txt
-4. Set your OpenAI API key as an environment variable:
+   pip install -r requirements.txt 
+5. Set your OpenAI API key as an environment variable:
 
 Linux/MacOS:
 ```bash
@@ -246,6 +251,52 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - Navigate to `http://<public-ip>:8000/` in your browser.
 
    - Start interacting with the chatbot.
+
+# Debug Scenarios
+
+## Initial Installation
+
+1. **Clone the repository**  
+   - If cloning is not working properly, generate an SSH key and try using the SSH method:  
+     ```bash
+     git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
+     cd Spring2025-Team-Essentials
+     ```
+
+2. **Create a virtual environment**  
+   - This step is optional unless packages are not installing properly.  
+
+3. **Install the required dependencies**  
+   - The installation process may vary depending on the device.  
+   - Compatibility issues may arise, so verify that most packages are installed.  
+   - Debug by running the script and checking which dependencies are missing in the terminal.
+
+---
+
+## Deployment Installation
+
+8. **Configure security group**  
+   - Allow all forms of traffic for TCP to ensure changes to the HTTP address and port number are accepted.
+
+4. **SSH Connection Setup**  
+   - This step can be skipped by using the built-in EC2 terminal.  
+   - Simply press the **"Connect"** button without modifying settings and proceed to the next step.  
+   - This is a stylistic choice but is optional.
+
+---
+
+## Application Deployment
+
+4. **Clone your repository from GitHub**  
+   - Similar to the initial installation, use either HTTPS or SSH cloning.  
+   - EC2 requires a separate SSH key for cloning via SSH.
+
+5. **Install project dependencies**  
+   - The EC2 Linux terminal may require different versions of dependencies listed in `requirements.txt`.  
+   - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
+   - If issues persist, run the primary `chatbot.py` program to identify missing packages.
+
+    
 
 
 
