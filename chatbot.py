@@ -462,6 +462,7 @@ def upload_file():
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
 
+
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -489,7 +490,6 @@ def ask():
         "neche", "syllabus", "compliance", "instructor", "credit hours",
         "grading policy", "program SLOs", "assignments", "office hours",
         "submission", "deadlines", "policies", "assessment", "course objectives"
-
     ]
 
     # General inquiries about bot's purpose
@@ -498,7 +498,6 @@ def ask():
     ]
 
     is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
-
 
     if is_neche_related or latest_syllabus_info:
         prompt = f"""
@@ -541,4 +540,4 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=True, host='0.0.0.0', port=8000)
