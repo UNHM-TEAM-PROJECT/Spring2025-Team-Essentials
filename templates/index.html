@@ -538,223 +538,222 @@ Date:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const chatHistory = document.getElementById('chat-history');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
-    const fileInput = document.getElementById('fileInput');
-    const uploadButton = document.getElementById('uploadButton');
-
-    function displayWelcomeMessage() {
-        addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
-    }
-
-    window.addEventListener('load', displayWelcomeMessage);
-
-    function addHTMLMessage(htmlContent, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
-
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
-        messageContent.innerHTML = htmlContent;
-        messageDiv.appendChild(messageContent);
-
-        const avatar = document.createElement('div');
-        avatar.classList.add('message-avatar');
-        avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-        messageDiv.appendChild(avatar);
-
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    // Handle file selection
-    fileInput.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-
-        if (file && (file.type === 'application/pdf' || file.name.endsWith('.docx'))) {
-            addMessage(`File selected: ${file.name}`, true);
-            handleFileUpload(file);
-        } else {
-            addMessage("The checker only supports PDF and DOCX files.", true);
-            fileInput.value = '';  
-        }
-    });
-
-    // Trigger file input when upload button is clicked
-    uploadButton.addEventListener('click', function () {
-        fileInput.click();
-    });
-
-    // Handle file upload
-    function handleFileUpload(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        addMessage('Processing the uploaded syllabus for NECHE requirements...', false);
-
-        fetch('/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // ✅ Display Extracted Information
-                if (data.extracted_information) {
-                    let extractedInfo = data.extracted_information;
-                    addMessage('Here are the NECHE requirements extracted from the document: ', false);
-                    const requiredOrder = [
-    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-    "Preferred Contact Method", "Email Address",  // ✅ Changed from "Professor's Email Address"
-    "Phone Number",  // ✅ Changed from "Professor's Phone Number"
-    "Office Address", "Office Hours", "Location (Physical or Remote)",
-    "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-    "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-];
-
-
-
-                    let infoHTML = `<h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;"></h2>
-                                    <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">`;
-
-                    requiredOrder.forEach((key) => {
-                        if (extractedInfo.hasOwnProperty(key)) {
+        document.addEventListener("DOMContentLoaded", () => {
+            const chatHistory = document.getElementById("chat-history");
+            const userInput = document.getElementById("user-input");
+            const sendButton = document.getElementById("send-button");
+            const fileInput = document.getElementById("fileInput");
+            const uploadButton = document.getElementById("uploadButton");
+        
+            // ✅ Display Welcome Message
+            function displayWelcomeMessage() {
+                addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
+            }
+            window.addEventListener("load", displayWelcomeMessage);
+        
+            // ✅ Function to Add Messages
+            function addHTMLMessage(htmlContent, isUser) {
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
+        
+                const messageContent = document.createElement("div");
+                messageContent.classList.add("message-content");
+                messageContent.innerHTML = htmlContent;
+                messageDiv.appendChild(messageContent);
+        
+                const avatar = document.createElement("div");
+                avatar.classList.add("message-avatar");
+                avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+                messageDiv.appendChild(avatar);
+        
+                chatHistory.appendChild(messageDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        
+            // ✅ Handle Enter Key & Send Button Click
+            sendButton.addEventListener("click", handleSend);
+            userInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleSend();
+                }
+            });
+        
+            function handleSend() {
+                const message = userInput.value.trim();
+                if (!message) return;
+        
+                addHTMLMessage(message, true);
+                userInput.value = "";
+        
+                addTypingIndicator();
+        
+                fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    removeTypingIndicator();
+                    addHTMLMessage(data.response, false);
+                })
+                .catch(error => {
+                    removeTypingIndicator();
+                    addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false);
+                });
+            }
+        
+            // ✅ Upload File Handling
+            uploadButton.addEventListener("click", function () {
+                fileInput.click();
+            });
+        
+            fileInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+        
+                if (file && (file.type === "application/pdf" || file.name.endsWith(".docx"))) {
+                    addMessage(`File selected: ${file.name}`, true);
+                    handleFileUpload(file);
+                } else {
+                    addMessage("The checker only supports PDF and DOCX files.", false);
+                    fileInput.value = "";
+                }
+            });
+        
+            function handleFileUpload(file) {
+                const formData = new FormData();
+                formData.append("file", file);
+        
+                addMessage("Processing the uploaded syllabus for NECHE requirements...", false);
+        
+                fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let extractedInfo = data.extracted_information || {};
+        
+                        const requiredOrder = [
+                            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                            "Preferred Contact Method", "Email Address", "Phone Number",
+                            "Office Address", "Office Hours", "Location (Physical or Remote)",
+                            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+                            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                        ];
+        
+                        // ✅ Show NECHE Compliance Status First
+                        let complianceMessage = data.compliance_check || "Compliance check could not be completed.";
+                        let complianceDiv = `<div style="padding: 15px; border-radius: 5px; margin-top: 20px;
+                            background-color: ${complianceMessage.includes("not compliant") ? "#ffcccc" : "#ccffcc"};
+                            color: black; font-size: 16px; font-weight: bold;">
+                            ${complianceMessage}
+                        </div>`;
+                        addHTMLMessage(complianceDiv, false);
+        
+                        // ✅ Display NECHE Requirements Table
+                        let infoHTML = `
+                            <table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; 
+                                box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+                                <thead>
+                                    <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                                        <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Requirement</th>
+                                        <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+        
+                        requiredOrder.forEach((key) => {
                             let value = extractedInfo[key] || "Not Found";
-
-                            // If the value is "Not Found", apply bold red styling
+                            if (typeof value !== "string") value = String(value);
+                            value = value.trim();
+        
                             if (value === "Not Found") {
                                 value = `<strong style="color: red;">${value}</strong>`;
                             }
-
+        
                             infoHTML += `
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
-                                    <strong style="width: 40%; text-align: left;">${key}:</strong>
-                                    <span style="width: 60%; text-align: left;">${value}</span>
-                                </div>`;
-                        }
-                    });
-
-                    infoHTML += `</div>`;
-                    addHTMLMessage(infoHTML, false); // ✅ Display extracted info
-                }
-
-                // ✅ Display NECHE Compliance Status (Ensure only one message is shown)
-                if (data.compliance_check) {
-                    addMessage(data.compliance_check, false);
-                }
-            } else {
-                throw new Error(`❌ Upload failed: ${data.error}`);
+                                <tr>
+                                    <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">${key}</td>
+                                    <td style="padding: 14px; border: 1px solid #ddd;">${value}</td>
+                                </tr>
+                            `;
+                        });
+        
+                        infoHTML += `</tbody></table>`;
+                        addHTMLMessage(infoHTML, false);
+                    } else {
+                        throw new Error(`❌ Upload failed: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error("❌ Error:", error.message);
+                    addMessage(`⚠️ ${error.message}`, false);
+                });
             }
-        })
-        .catch(error => {
-            console.error("❌ Error:", error.message);
-            addMessage(`⚠️ ${error.message}`, false);
+        
+            // ✅ Utility Functions
+            function addMessage(content, isUser) {
+                if (!content) return;
+        
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
+        
+                const messageContent = document.createElement("div");
+                messageContent.classList.add("message-content");
+        
+                const textSpan = document.createElement("span");
+                textSpan.textContent = content;
+                messageContent.appendChild(textSpan);
+        
+                if (content.includes("The NECHE compliance check is complete")) {
+                    messageDiv.style.backgroundColor = content.includes("not compliant") ? "#ffcccc" : "#ccffcc";
+                    messageDiv.style.color = "#000000";
+                }
+        
+                messageDiv.appendChild(messageContent);
+        
+                const avatar = document.createElement("div");
+                avatar.classList.add("message-avatar");
+                avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+                messageDiv.appendChild(avatar);
+        
+                chatHistory.appendChild(messageDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        
+            function addTypingIndicator() {
+                const typingDiv = document.createElement("div");
+                typingDiv.classList.add("typing-indicator");
+                typingDiv.id = "typing-indicator";
+        
+                const typingText = document.createElement("span");
+                typingText.textContent = "Typing...";
+                typingDiv.appendChild(typingText);
+        
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement("div");
+                    dot.classList.add("dot");
+                    typingDiv.appendChild(dot);
+                }
+        
+                chatHistory.appendChild(typingDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById("typing-indicator");
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
         });
-    }
-
-    function addMessage(content, isUser) {
-    if (!content) return; // ✅ Prevent empty messages
-
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', isUser ? 'user-message' : 'assistant-message');
-
-    const messageContent = document.createElement('div');
-    messageContent.classList.add('message-content');
-
-    const textSpan = document.createElement('span');
-    textSpan.textContent = content;
-    messageContent.appendChild(textSpan);
-
-    // ✅ Change background color for NECHE compliance messages (Font remains black)
-    if (content.includes("The NECHE compliance check is complete")) {
-        if (content.includes("not compliant")) {
-            messageDiv.style.backgroundColor = "#ffcccc"; // Red for non-compliant
-        } else {
-            messageDiv.style.backgroundColor = "#ccffcc"; // Green for compliant
-        }
-        messageDiv.style.color = "#000000"; // ✅ Ensure font is always black
-    }
-
-    messageDiv.appendChild(messageContent);
-
-    const avatar = document.createElement('div');
-    avatar.classList.add('message-avatar');
-    avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-    messageDiv.appendChild(avatar);
-
-    chatHistory.appendChild(messageDiv);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-    sendButton.addEventListener('click', handleSend);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleSend();
-        }
-    });
-
-    async function handleSend() {
-        const message = userInput.value.trim();
-        if (!message) return;
-
-        addMessage(message, true);
-        userInput.value = '';
-
-        addTypingIndicator();
-
-        try {
-            const response = await fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
-
-            removeTypingIndicator();
-
-            if (response.ok) {
-                const data = await response.json();
-                addMessage(data.response, false);
-            } else {
-                addMessage(" Error: Unable to get a response.", false);
-            }
-        } catch (error) {
-            removeTypingIndicator();
-            addMessage(" Error: Unable to communicate with the server.", false);
-        }
-    }
-
-    function addTypingIndicator() {
-        const typingDiv = document.createElement('div');
-        typingDiv.classList.add('typing-indicator');
-        typingDiv.id = 'typing-indicator';
-
-        const typingText = document.createElement('span');
-        typingText.textContent = "Typing";
-        typingDiv.appendChild(typingText);
-
-        for (let i = 0; i < 3; i++) {
-            const dot = document.createElement('div');
-            dot.classList.add('dot');
-            typingDiv.appendChild(dot);
-        }
-
-        chatHistory.appendChild(typingDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    function removeTypingIndicator() {
-        const typingIndicator = document.getElementById('typing-indicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-    }
-});
-
-
+        </script>
+        
     
-    </script>
     
 </body>
 </html>
