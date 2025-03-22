@@ -1,5 +1,5 @@
 <!--
-File: chatbot.py
+File: Index.html
 Authors: 
 Contributors: 
 Date: 
@@ -523,7 +523,34 @@ Date:
                 height: 200%;
                 opacity: 0;
             }
-        }
+            
+        }/* Microphone Button Styling */
+#mic-button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #0b5ed7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+/* Microphone Button Hover Effect */
+#mic-button:hover {
+    background-color: #003f8a;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Microphone Icon */
+#mic-button i {
+    font-size: 18px;
+}
+
+        
     </style>
 </head>
 <body>
@@ -547,11 +574,19 @@ Date:
                             <div class="input-group">
                                 <button id="uploadButton" class="plus-icon">+</button>
                                 <input type="file" id="fileInput" accept=".pdf, .docx" style="display: none;">
+                                
+                                <!-- Microphone Button for Voice Input -->
+                                <button id="mic-button" class="btn btn-primary">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                
                                 <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
                                 <button id="send-button" class="btn">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
+                        </div>
+                        
                         </div>
                     </div>
                 </div>
@@ -642,8 +677,35 @@ Date:
             </tr>
         </tbody>
     </table>
-
-    
+    <!-- Voice Assitant -->
+    <div class="page-container">
+        <div class="container-fluid h-100 p-0">
+            <div class="row h-100 m-0">
+                <div class="col-12 p-0">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <h1 class="chat-header-title">NECHE Syllabus Assistant</h1>
+                        </div>
+                        <div class="chat-history" id="chat-history">
+                            <!-- Chat messages will be inserted here -->
+                        </div>
+                        <div class="input-area">
+                            <div class="input-group">
+                                <!-- Microphone Button for Voice Input -->
+                                <button id="mic-button" class="btn btn-primary">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
+                                <button id="send-button" class="btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -678,222 +740,255 @@ Date:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const chatHistory = document.getElementById("chat-history");
-    const userInput = document.getElementById("user-input");
-    const sendButton = document.getElementById("send-button");
-    const fileInput = document.getElementById("fileInput");
-    const uploadButton = document.getElementById("uploadButton");
+    document.addEventListener("DOMContentLoaded", () => {
+        const chatHistory = document.getElementById("chat-history");
+        const userInput = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+        const fileInput = document.getElementById("fileInput");
+        const uploadButton = document.getElementById("uploadButton");
+        const micButton = document.getElementById("mic-button"); // Voice Assistant Button
 
-    let latestReportData = null;
+        let latestReportData = null;
 
-    function displayWelcomeMessage() {
-        addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
-    }
-    window.addEventListener("load", displayWelcomeMessage);
-
-    function addHTMLMessage(htmlContent, isUser) {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
-
-        const chatIcon = document.createElement("div");
-        chatIcon.classList.add("message-avatar");
-        chatIcon.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-
-        const messageContent = document.createElement("div");
-        messageContent.classList.add("message-content");
-        messageContent.innerHTML = htmlContent;
-
-        messageDiv.appendChild(chatIcon);
-        messageDiv.appendChild(messageContent);
-
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    sendButton.addEventListener("click", handleSend);
-    userInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            handleSend();
+        function displayWelcomeMessage() {
+            addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
         }
-    });
+        window.addEventListener("load", displayWelcomeMessage);
 
-    function handleSend() {
-        const message = userInput.value.trim();
-        if (!message) return;
+        function addHTMLMessage(htmlContent, isUser) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
 
-        addHTMLMessage(message, true);
-        userInput.value = "";
+            const chatIcon = document.createElement("div");
+            chatIcon.classList.add("message-avatar");
+            chatIcon.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
 
-        fetch("/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
-        })
-        .then(response => response.json())
-        .then(data => {
-    const userMessage = message.toLowerCase().trim();
+            const messageContent = document.createElement("div");
+            messageContent.classList.add("message-content");
+            messageContent.innerHTML = htmlContent;
 
-    // ✅ Fix Greeting Responses (Prevents Incorrect Syllabus Replies)
-    const casualGreetings = {
-        "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
-        "hello": "Hello! How can I assist you today?",
-        "hey": "Hey there! Need help with NECHE syllabus compliance?",
-        "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
-        "how are you": "I'm great! Thanks for asking. How can I help you?"
-    };
+            messageDiv.appendChild(chatIcon);
+            messageDiv.appendChild(messageContent);
 
-    if (casualGreetings[userMessage]) {
-        addHTMLMessage(casualGreetings[userMessage], false); // ✅ Ensures proper chatbot reply
-    } else {
-        addHTMLMessage(data.response, false);  // ✅ Keep all other responses the same
-    }
-})
-        .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
-    }
-
-    uploadButton.addEventListener("click", function () {
-        fileInput.click();
-    });
-
-    fileInput.addEventListener("change", function (e) {
-        const file = e.target.files[0];
-
-        if (file && (file.type === "application/pdf" || file.name.endsWith(".docx"))) {
-            addHTMLMessage(`**File Uploaded:** <strong>${file.name}</strong>`, true);
-            handleFileUpload(file);
-        } else {
-            addHTMLMessage("❌ The checker only supports PDF and DOCX files.", false);
-            fileInput.value = "";
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-    });
 
-    function handleFileUpload(file) {
-        const formData = new FormData();
-        formData.append("file", file);
+        sendButton.addEventListener("click", handleSend);
+        userInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                handleSend();
+            }
+        });
 
-        addHTMLMessage("Processing uploaded syllabus for NECHE compliance check...", false);
+        micButton.addEventListener("click", handleVoiceInput); // Voice Assistant Event Listener
 
-        fetch("/upload", {
-            method: "POST",
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                latestReportData = data.extracted_information || {};
-                let complianceDiv = `<strong></strong> ${data.compliance_check}`;
-                addHTMLMessage(complianceDiv, false);
-                setTimeout(displayReportOptions, 500);
+        function handleSend() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addHTMLMessage(message, true);
+            userInput.value = "";
+
+            fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const userMessage = message.toLowerCase().trim();
+
+                const casualGreetings = {
+                    "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
+                    "hello": "Hello! How can I assist you today?",
+                    "hey": "Hey there! Need help with NECHE syllabus compliance?",
+                    "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
+                    "how are you": "I'm great! Thanks for asking. How can I help you?"
+                };
+
+                if (casualGreetings[userMessage]) {
+                    addHTMLMessage(casualGreetings[userMessage], false);
+                } else {
+                    addHTMLMessage(data.response, false);
+                }
+            })
+            .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
+        }
+
+        function handleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Sorry, your browser does not support voice recognition.");
+                return;
+            }
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                addHTMLMessage("🎤 Listening...", false);
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                handleSend(); // Directly send the recognized message
+            };
+
+            recognition.onerror = (event) => {
+                addHTMLMessage("⚠️ Voice recognition error. Please try again.", false);
+            };
+
+            recognition.onend = () => {
+                console.log("Voice recognition ended.");
+            };
+
+            recognition.start();
+        }
+
+        uploadButton.addEventListener("click", function () {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", function (e) {
+            const file = e.target.files[0];
+
+            if (file && (file.type === "application/pdf" || file.name.endsWith(".docx"))) {
+                addHTMLMessage(`**File Uploaded:** <strong>${file.name}</strong>`, true);
+                handleFileUpload(file);
             } else {
-                throw new Error(`❌ Upload failed: ${data.error}`);
+                addHTMLMessage("❌ The checker only supports PDF and DOCX files.", false);
+                fileInput.value = "";
             }
-        })
-        .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
-    }
+        });
 
-    function displayReportOptions() {
-        const reportContainer = document.createElement("div");
-        reportContainer.style.marginTop = "15px";
-        reportContainer.style.textAlign = "left";
+        function handleFileUpload(file) {
+            const formData = new FormData();
+            formData.append("file", file);
 
-        const viewButton = createStyledButton("View Report", "btn btn-info", showReportModal);
-        const downloadButton = createStyledButton("Download Report", "btn btn-success", downloadReport);
+            addHTMLMessage("Processing uploaded syllabus for NECHE compliance check...", false);
 
-        reportContainer.appendChild(viewButton);
-        reportContainer.appendChild(downloadButton);
-        chatHistory.appendChild(reportContainer);
-    }
-
-    function createStyledButton(text, classes, clickHandler) {
-        const button = document.createElement("button");
-        button.textContent = text;
-        button.className = `${classes} modern-btn`;
-        button.style.margin = "10px";
-        button.addEventListener("click", clickHandler);
-        return button;
-    }
-
-    function showReportModal() {
-        if (!latestReportData) {
-            addHTMLMessage("No report available.", false);
-            return;
+            fetch("/upload", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    latestReportData = data.extracted_information || {};
+                    let complianceDiv = `<strong></strong> ${data.compliance_check}`;
+                    addHTMLMessage(complianceDiv, false);
+                    setTimeout(displayReportOptions, 500);
+                } else {
+                    throw new Error(`❌ Upload failed: ${data.error}`);
+                }
+            })
+            .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
         }
 
-        const requiredOrder = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Email Address", "Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-        ];
+        function displayReportOptions() {
+            const reportContainer = document.createElement("div");
+            reportContainer.style.marginTop = "15px";
+            reportContainer.style.textAlign = "left";
 
-        let reportContent = `<table class="table table-bordered">
-            <thead>
-                <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                    <th style="padding: 15px; width: 40%;">Requirement</th>
-                    <th style="padding: 15px; width: 60%;">Details</th>
-                </tr>
-            </thead>
-            <tbody>`;
+            const viewButton = createStyledButton("View Report", "btn btn-info", showReportModal);
+            const downloadButton = createStyledButton("Download Report", "btn btn-success", downloadReport);
 
-        requiredOrder.forEach(key => {
-            let value = latestReportData[key] || "Not Found";
-            if (value === "Not Found") {
-                value = `<strong style="color: red;">${value}</strong>`;
-            }
-            reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
-        });
-
-        reportContent += `</tbody></table>`;
-        addHTMLMessage(reportContent, false);
-    }
-
-    function downloadReport() {
-        if (!latestReportData) {
-            alert("No report available to download.");
-            return;
+            reportContainer.appendChild(viewButton);
+            reportContainer.appendChild(downloadButton);
+            chatHistory.appendChild(reportContainer);
         }
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        function createStyledButton(text, classes, clickHandler) {
+            const button = document.createElement("button");
+            button.textContent = text;
+            button.className = `${classes} modern-btn`;
+            button.style.margin = "10px";
+            button.addEventListener("click", clickHandler);
+            return button;
+        }
 
-        doc.setFontSize(16);
-        doc.text("NECHE Compliance Report", 14, 20);
+        function showReportModal() {
+            if (!latestReportData) {
+                addHTMLMessage("No report available.", false);
+                return;
+            }
 
-        const tableColumn = ["Requirement", "Details"];
-        const tableRows = [];
+            const requiredOrder = [
+                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                "Preferred Contact Method", "Email Address", "Phone Number",
+                "Office Address", "Office Hours", "Location (Physical or Remote)",
+                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+            ];
 
-        const requiredOrder = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Email Address", "Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-        ];
+            let reportContent = `<table class="table table-bordered">
+                <thead>
+                    <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                        <th style="padding: 15px; width: 40%;">Requirement</th>
+                        <th style="padding: 15px; width: 60%;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
-        requiredOrder.forEach(key => {
-            let value = latestReportData[key] || "Not Found";
-            tableRows.push([key, value]);
-        });
+            requiredOrder.forEach(key => {
+                let value = latestReportData[key] || "Not Found";
+                if (value === "Not Found") {
+                    value = `<strong style="color: red;">${value}</strong>`;
+                }
+                reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
+            });
 
-        doc.autoTable({
-            startY: 30,
-            head: [tableColumn],
-            body: tableRows,
-            theme: "grid",
-            headStyles: { fillColor: [58, 23, 216] },
-            styles: { fontSize: 10, cellPadding: 4 },
-            columnStyles: { 0: { cellWidth: 75, fontStyle: "bold" }, 1: { cellWidth: 100 } }
-        });
+            reportContent += `</tbody></table>`;
+            addHTMLMessage(reportContent, false);
+        }
 
-        doc.save("NECHE_Compliance_Report.pdf");
-    }
-});
+        function downloadReport() {
+            if (!latestReportData) {
+                alert("No report available to download.");
+                return;
+            }
 
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-    </script>
+            doc.setFontSize(16);
+            doc.text("NECHE Compliance Report", 14, 20);
+
+            const tableColumn = ["Requirement", "Details"];
+            const tableRows = [];
+
+            const requiredOrder = [
+                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                "Preferred Contact Method", "Email Address", "Phone Number",
+                "Office Address", "Office Hours", "Location (Physical or Remote)",
+                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+            ];
+
+            requiredOrder.forEach(key => {
+                let value = latestReportData[key] || "Not Found";
+                tableRows.push([key, value]);
+            });
+
+            doc.autoTable({
+                startY: 30,
+                head: [tableColumn],
+                body: tableRows,
+                theme: "grid",
+                headStyles: { fillColor: [58, 23, 216] },
+                styles: { fontSize: 10, cellPadding: 4 },
+            });
+
+            doc.save("NECHE_Compliance_Report.pdf");
+        }
+    });
+</script>
+
+    
 
     
     
