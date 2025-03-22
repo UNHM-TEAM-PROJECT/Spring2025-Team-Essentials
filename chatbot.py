@@ -383,6 +383,8 @@ def extract_course_information(text):
     - If information is missing, return `"Not Found"` explicitly.
     - If paragraphs are long, break them into bullet points.
     - If information is in tables or lists, extract them properly.
+    - For **Department or Program Affiliation**, only extract the actual department or program name.
+    - Ignore any mention of **"University of New Hampshire"**, **"UNH"**, **"Manchester"**, or other **institution names**.
 
     **JSON Structure:**
     {{
@@ -426,12 +428,17 @@ def extract_course_information(text):
         if "Professor's Phone Number" in extracted_info:
             extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
 
+        # ✅ Cleaning up Department or Program Affiliation
+        department_text = extracted_info.get("Department or Program Affiliation", "").lower()
+        invalid_keywords = ["university of new hampshire", "unh", "manchester", "college", "school", "institute", "university"]
+        if any(keyword in department_text for keyword in invalid_keywords):
+            extracted_info["Department or Program Affiliation"] = "Not Found"
+
         print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debugging Output
     except json.JSONDecodeError:
         extracted_info = {"error": "Failed to parse OpenAI response"}
 
     return extracted_info
-
 
 
 
