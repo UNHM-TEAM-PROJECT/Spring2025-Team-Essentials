@@ -224,53 +224,64 @@ def extract_text_from_pdf(pdf_path):
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
-    text = ''
+    """
+    Extracts full text from all pages of a PDF, ensuring accuracy.
+    Uses OCR where needed and extracts tables properly.
+    """
+    extracted_text = []
     try:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
-                page_text = page.extract_text(x_tolerance=2, y_tolerance=2) or ''
+                page_text = page.extract_text(x_tolerance=2, y_tolerance=2)
 
-                # If no text extracted, use OCR
+                # ✅ If no direct text found, apply OCR
                 if not page_text:
                     print(f"🔹 No direct text found on page {page.page_number}, using OCR...")
                     page_image = page.to_image(resolution=300).original
                     page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 6")
 
-                text += page_text + "\n"
+                # ✅ Extract tables if present
+                table_text = ""
+                if page.extract_tables():
+                    for table in page.extract_tables():
+                        for row in table:
+                            table_text += " | ".join(str(cell) if cell else "" for cell in row) + "\n"
+
+                # ✅ Append extracted text + table text
+                extracted_text.append(page_text.strip() + "\n" + table_text.strip())
 
     except Exception as e:
         print(f"⚠️ Error processing PDF: {str(e)}")
         return None
 
-    return text if text.strip() else None  # Return None if text extraction fails
-
+    return "\n".join(extracted_text).strip() if extracted_text else None
 
 def extract_text_from_docx(docx_path):
-    """Extracts text from Word documents including tables"""
-    text = ''
+    """
+    Extracts structured text from a Word document, ensuring tables are formatted correctly.
+    """
+    text = []
     try:
         doc = DocxDocument(docx_path)
         
-        # Extract paragraphs
+        # ✅ Extract paragraphs
         for para in doc.paragraphs:
-            text += para.text + "\n"
-            
-        # Extract tables
+            if para.text.strip():
+                text.append(para.text.strip())
+
+        # ✅ Extract tables properly
         for table in doc.tables:
             for row in table.rows:
-                for cell in row.cells:
-                    text += cell.text + "\t"
-                text += "\n"
-                    
+                row_text = " | ".join(cell.text.strip() for cell in row.cells if cell.text.strip())
+                if row_text:
+                    text.append(row_text)
+
     except Exception as e:
         print(f"⚠️ Error processing DOCX: {str(e)}")
         return None
-        
-    return text if text.strip() else None
-        
-    return text if text.strip() else None
 
-# Function to process an uploaded PDF
+    return "\n".join(text).strip() if text else None
+
 def process_uploaded_pdf(file_path, file_name):
     global db
     try:
@@ -302,8 +313,8 @@ def check_neche_compliance(course_info):
         "Title or Rank",
         "Department or Program Affiliation",
         "Preferred Contact Method",
-        "Professor's Email Address",
-        "Professor's Phone Number",
+        "Email Address",  # ✅ Changed from "Professor's Email Address"
+        "Phone Number",   # ✅ Changed from "Professor's Phone Number"
         "Office Address",
         "Office Hours",
         "Location (Physical or Remote)",
@@ -314,37 +325,75 @@ def check_neche_compliance(course_info):
         "Assignment Deadlines & Policies"
     ]
     
+    # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
     
-    compliance_status = " NECHE Compliant: All required information is present." if not missing_fields else f" Not NECHE Compliant. Missing:\n" + "\n".join([f"- {field}" for field in missing_fields])
+    # ✅ If all required information is present
+    if not missing_fields:
+        compliance_status = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present."
+    else:
+        # ✅ Format missing fields list
+        missing_fields_str = ", ".join(missing_fields)
+
+        # ✅ Compliance message
+        compliance_status = f"The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information: {missing_fields_str}."
 
     print(f"🔍 Compliance Check Debug: {compliance_status}")  # Debugging Output
 
     return {
         "compliant": not missing_fields,
-        "compliance_check": compliance_status,
+        "compliance_check": compliance_status,  # ✅ Ensuring the correct message is used
         "missing_fields": missing_fields
     }
+import re
 
+def format_text_as_bullets(text):
+    """
+    Converts numbered lists (1., 2., 3.) into bullet points.
+    Ensures readable formatting.
+    """
+    formatted_text = []
+    sentences = text.split("\n")
 
+    for sentence in sentences:
+        sentence = sentence.strip()
+        
+        if sentence:
+            # ✅ Remove numbers (1., 2., 3.) at the beginning
+            sentence = re.sub(r"^\d+\.\s*", "• ", sentence)  # Changes "1. Example" → "• Example"
+            formatted_text.append(sentence)  
+    
+    return "\n".join(formatted_text)
 import json
 from langchain.schema import HumanMessage
 def extract_course_information(text):
     """
     Extracts structured course and instructor details in JSON format.
+    Ensures full syllabus details are captured.
     """
-    prompt = f"""
-    Extract the following course and instructor details from this text in a structured JSON format.
-    Ensure **Grading Procedures & Final Grade Scale** and **Assignment Deadlines & Policies** are included.
+    
+    # ✅ Format text into bullet points before passing it to the LLM
+    formatted_text = format_text_as_bullets(text)
 
-    JSON Structure:
+    prompt = f"""
+    You are an AI assistant specializing in NECHE syllabus compliance.
+    
+    **TASK:** Extract ALL relevant course and instructor details from the given text in a structured JSON format.
+    - Ensure ALL fields are included.
+    - If information is missing, return `"Not Found"` explicitly.
+    - If paragraphs are long, break them into bullet points.
+    - If information is in tables or lists, extract them properly.
+    - For **Department or Program Affiliation**, only extract the actual department or program name.
+    - Ignore any mention of **"University of New Hampshire"**, **"UNH"**, **"Manchester"**, or other **institution names**.
+
+    **JSON Structure:**
     {{
     "Instructor Name": "",
     "Title or Rank": "",
     "Department or Program Affiliation": "",
     "Preferred Contact Method": "",
-    "Professor's Email Address": "",
-    "Professor's Phone Number": "",
+    "Email Address": "",
+    "Phone Number": "",
     "Office Address": "",
     "Office Hours": "",
     "Location (Physical or Remote)": "",
@@ -355,16 +404,16 @@ def extract_course_information(text):
     "Assignment Deadlines & Policies": ""
     }}
 
-    Text:
-    {text}
+    **Full Extracted Text:**
+    {formatted_text}
 
-    **Return only the JSON object. No extra explanations. If a required field is missing, return `"Not Found"` explicitly.**
+    **Return ONLY the JSON object. Do NOT add any explanations.**
     """
 
     response = llm.invoke([HumanMessage(content=prompt)])
     raw_text = response.content.strip()
 
-    # Ensure JSON format is valid
+    # ✅ Ensure JSON format is valid before parsing
     if not raw_text.startswith("{"):
         raw_text = raw_text[raw_text.find("{"):]
     if not raw_text.endswith("}"):
@@ -372,11 +421,25 @@ def extract_course_information(text):
 
     try:
         extracted_info = json.loads(raw_text)
-        print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debug: Print extracted info
+
+        # ✅ Standardizing extracted fields
+        if "Professor's Email Address" in extracted_info:
+            extracted_info["Email Address"] = extracted_info.pop("Professor's Email Address")
+        if "Professor's Phone Number" in extracted_info:
+            extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
+
+        # ✅ Cleaning up Department or Program Affiliation
+        department_text = extracted_info.get("Department or Program Affiliation", "").lower()
+        invalid_keywords = ["university of new hampshire", "unh", "manchester", "college", "school", "institute", "university"]
+        if any(keyword in department_text for keyword in invalid_keywords):
+            extracted_info["Department or Program Affiliation"] = "Not Found"
+
+        print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debugging Output
     except json.JSONDecodeError:
         extracted_info = {"error": "Failed to parse OpenAI response"}
 
     return extracted_info
+
 
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -438,12 +501,14 @@ def upload_file():
             "success": True,
             "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],
+            "compliance_check": compliance_check_result["compliance_check"],  # ✅ FIXED: No double message
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
+
+
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -521,4 +586,4 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=True, host='0.0.0.0', port=8000)
