@@ -456,11 +456,11 @@ def upload_file():
     global latest_syllabus_info
 
     if 'file' not in request.files:
-        return jsonify({"error": "❌ No file provided"}), 400
+        return jsonify({"error": " No file provided"}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "❌ No selected file"}), 400
+        return jsonify({"error": " No selected file"}), 400
 
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -472,7 +472,7 @@ def upload_file():
         elif filename.endswith('.docx'):
             extracted_text = extract_text_from_docx(file_path)
         else:
-            return jsonify({"error": "❌ Unsupported file type"}), 400
+            return jsonify({"error": " Unsupported file type"}), 400
 
         extracted_info = extract_course_information(extracted_text)
 
