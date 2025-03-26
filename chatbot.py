@@ -313,8 +313,8 @@ def check_neche_compliance(course_info):
         "Title or Rank",
         "Department or Program Affiliation",
         "Preferred Contact Method",
-        "Email Address",  # ✅ Changed from "Professor's Email Address"
-        "Phone Number",   # ✅ Changed from "Professor's Phone Number"
+        "Email Address",  
+        "Phone Number",   
         "Office Address",
         "Office Hours",
         "Location (Physical or Remote)",
