@@ -192,8 +192,66 @@ required_compliance_items = {
         r"(?i)\b(late\s+submission\s+policy|makeup\s+assignments|deadline\s+extensions|submission\s+guidelines)\b.*",
         r"(?i)\b(late\s+penalty|missed\s+exams|penalty\s+for\s+late\s+work|grace\s+period|extension\s+requests)\b.*",
         r"(?i)\b(assignment\s+turn-in\s+policy|strict\s+submission\s+guidelines|deadline\s+requirements)\b.*"
-    ]
+    ],
+
+
+    "Course Summary": [
+        # General course description
+        r"(?i)\b(course\s+summary|course\s+description|overview)\b.*",
+        r"(?i)\b(this\s+course\s+provides|you\s+will\s+learn|students\s+will\s+explore)\b.*",
+        r"(?i)\b(in\s+this\s+course\s+we\s+will|introduction\s+to)\b.*",
+
+        # Format type: lecture, lab, discussion, hybrid, etc.
+        r"(?i)\b(course\s+format|class\s+format|lecture\s+plus\s+lab|hybrid|discussion\s+based|seminar)\b.*",
+
+        # Course and program SLOs
+        r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs|program\s+learning\s+outcomes|PLOs)\b.*",
+        r"(?i)\b(upon\s+successful\s+completion|students\s+will\s+be\s+able\s+to|learning\s+goals)\b.*",
+
+        # Sequence of topics and important dates
+        r"(?i)\b(schedule\s+of\s+topics|tentative\s+schedule|course\s+schedule|important\s+dates|week\s+by\s+week)\b.*",
+
+        # Sensitive content disclosure
+        r"(?i)\b(trigger\s+warning|sensitive\s+content|potentially\s+disturbing\s+material|controversial\s+topics)\b.*",
+        r"(?i)\b(we\s+will\s+discuss\s+topics\s+that\s+may\s+be\s+upsetting)\b.*"
+    ],
+
+    "Learning Resources & Technical Requirements": [
+    # Textbooks
+    r"(?i)\b(required\s+texts?|textbooks?|recommended\s+books?|course\s+readings?)\b.*",
+    r"(?i)\b(this\s+course\s+uses|the\s+required\s+book\s+is|you\s+must\s+read)\b.*",
+
+    # Materials (hardware, software, etc.)
+    r"(?i)\b(required\s+materials|recommended\s+materials|course\s+materials|clicker|laptop|software|required\s+tools)\b.*",
+    r"(?i)\b(you\s+will\s+need\s+to\s+bring|must\s+have\s+access\s+to|supplies\s+required)\b.*",
+
+    # Technical requirements
+    r"(?i)\b(technical\s+requirements|required\s+software|internet\s+access|computer\s+requirements|system\s+requirements)\b.*",
+    r"(?i)\b(zoom|teams|microsoft\s+office|browser\s+compatibility|virtual\s+labs)\b.*"
+   ],
+
+   "Course Policies": [
+    # Attendance
+    r"(?i)\b(attendance\s+policy|attendance\s+requirements|absence\s+policy|participation\s+and\s+attendance)\b.*",
+    r"(?i)\b(students\s+must\s+attend|mandatory\s+attendance|attendance\s+is\s+expected)\b.*",
+
+    # Academic integrity / plagiarism / AI use
+    r"(?i)\b(academic\s+integrity|plagiarism|cheating|honor\s+code|academic\s+honesty)\b.*",
+    r"(?i)\b(use\s+of\s+AI|ChatGPT|unauthorized\s+assistance|AI\s+tools\s+policy)\b.*",
+    r"(?i)\b(students\s+are\s+expected\s+to\s+maintain\s+integrity|work\s+must\s+be\s+original)\b.*"
+    ],
+
+    
+
+
+
+
+
 }
+
+
+    
+
 
 
 
@@ -322,8 +380,24 @@ def check_neche_compliance(course_info):
         "Credit Hour Workload",
         "Coursework Types & Submission Methods",
         "Grading Procedures & Final Grade Scale",
-        "Assignment Deadlines & Policies"
+        "Assignment Deadlines & Policies",
+        "Course Description",
+        "Course Format",
+        "Course Topics and Schedule",
+        "Sensitive Course Content",
+        "Learning Resources",
+        "Required/recommended textbook (or other source for course reference information)",
+        "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements"
+        "Course Policies",
+        "Attendance",
+        "Academic integrity/plagiarism/AI",
+
+        
+
     ]
+    
+
     
     # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
@@ -402,7 +476,18 @@ def extract_course_information(text):
     "Coursework Types & Submission Methods": "",
     "Grading Procedures & Final Grade Scale": "",
     "Assignment Deadlines & Policies": ""
-    }}
+    "Course Description": "",
+    "Course Format": "",
+    "Course Topics and Schedule": "",
+    "Sensitive Course Content": "",
+    "Learning Resources": "",
+    "Required/recommended textbook (or other source for coursereference information)": "",
+    "Other required/recommended materials (e.g., software, clicker remote, etc.)": "",
+    "Technical Requirements": "",
+    "Course Policies": "",
+    "Attendance": "",
+    "Academic integrity/plagiarism/AI": ""
+     }}
 
     **Full Extracted Text:**
     {formatted_text}
@@ -482,7 +567,14 @@ def upload_file():
             "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies","Course Description",
+            "Course Format",
+            "Course Topics and Schedule",
+            "Sensitive Course Content",
+            "Learning Resources",
+            "Required/recommended textbook (or other source for course reference information)",
+            "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+            "Technical Requirements","Course Policies","Attendance","Academic integrity/plagiarism/AI"
         ]
         
         # Fill missing fields with "Not Found"

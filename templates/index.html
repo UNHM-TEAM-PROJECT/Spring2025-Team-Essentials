@@ -468,63 +468,74 @@ Date:
             font-size: 16px;
             color: #007bff;
         }
+/* Button Container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
 
-        /* Button Container */
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
+/* Modern Button Styles */
+.modern-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+}
 
-        /* Modern Button Styles */
-        .modern-btn {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            font-size: 16px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-        }
+/* Zoom-In Effect on Hover */
+.modern-btn:hover {
+    transform: scale(1.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
 
-        /* Zoom-In Effect on Hover */
-        .modern-btn:hover {
-            transform: scale(1.2);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
+/* Custom hover styling for specific buttons */
+#viewReport:hover,
+#downloadReport:hover,
+#viewReportBtn:hover,
+#downloadReportBtn:hover {
+    background: #000 !important;
+    color: #fff !important;
+    transform: scale(1.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
 
-        /* Ripple Effect on Click */
-        .modern-btn:active::after {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            animation: ripple 0.5s ease-out;
-        }
+/* Ripple Effect on Click */
+.modern-btn:active::after {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.3);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: ripple 0.5s ease-out;
+}
 
-        @keyframes ripple {
-            from {
-                width: 0;
-                height: 0;
-                opacity: 1;
-            }
-            to {
-                width: 200%;
-                height: 200%;
-                opacity: 0;
-            }
-            
-        }/* Microphone Button Styling */
+@keyframes ripple {
+    from {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    to {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+    }
+}
+
+/* Microphone Button Styling */
 #mic-button {
     width: 45px;
     height: 45px;
@@ -704,6 +715,34 @@ Date:
             </div>
         </div>
     </div>
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Extracted NECHE Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reportContent">
+                    <p>No report available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+           <!-- Drag & Drop Upload Box -->
+           <div class="upload-area" id="uploadArea">
+            <p>Drag & Drop your syllabus file here or <span style="color:#0056b3; font-weight:bold;">Click to Upload</span></p>
+            <input type="file" id="fileInput" accept=".pdf, .docx">
+            <p class="file-info" id="fileInfo">No file chosen</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-container">
+            <button id="uploadBtn" class="modern-btn">Upload File</button>
+            <button id="viewReportBtn" class="modern-btn">View Report</button>
+            <button id="downloadReportBtn" class="modern-btn">Download Report</button>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -799,7 +838,7 @@ Date:
             recognition.interimResults = false;
 
             recognition.onstart = () => {
-                addHTMLMessage("🎤 Listening...", false);
+                addHTMLMessage(" Listening...", false);
             };
 
             recognition.onresult = (event) => {
@@ -823,72 +862,50 @@ Date:
             fileInput.click();
         });
 
-    // Handle file upload
-    function handleFileUpload(file) {
-        const formData = new FormData();
-        formData.append('file', file);
+        fileInput.addEventListener("change", function (e) {
+            const file = e.target.files[0];
 
-        addMessage('⏳ Processing PDF file...', false);
-
-        fetch('/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            return response.json().catch(() => {
-                throw new Error("❌ Server response is not valid JSON. Check Flask error logs.");
-            });
-        })
-        .then(data => {
-            if (data.success) {
-                // ✅ Display Extracted Information
-                if (data.extracted_information) {
-                    let extractedInfo = data.extracted_information;
-
-                    const requiredOrder = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Program SLOs", "Credit Hour Workload", "Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-                ];
-
-                    let infoHTML = `<h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;"></h2>
-                                    <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">`;
-
-                    requiredOrder.forEach((key) => {
-                        if (extractedInfo.hasOwnProperty(key)) {
-                            infoHTML += `
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0;">
-                                    <strong style="width: 40%; text-align: left;">${key}:</strong>
-                                    <span style="width: 60%; text-align: left;">${extractedInfo[key] || "Not Found"}</span>
-                                </div>`;
-                        }
-                    });
-
-                    infoHTML += `</div>`;
-                    addHTMLMessage(infoHTML, false); // ✅ Display extracted info
-                }
-
-                // ✅ Display NECHE Compliance Status
-                addMessage(`NECHE Compliance Check: ${data.compliance_check}`, false);
+            if (file && (file.type === "application/pdf" || file.name.endsWith(".docx"))) {
+                addHTMLMessage(`**File Uploaded:** <strong>${file.name}</strong>`, true);
+                handleFileUpload(file);
             } else {
-                throw new Error(`❌ Upload failed: ${data.error}`);
+                addHTMLMessage("❌ The checker only supports PDF and DOCX files.", false);
+                fileInput.value = "";
             }
-        })
-        .catch(error => {
-            console.error("❌ Error:", error.message);
-            addMessage(`⚠️ ${error.message}`, false);
         });
-    }
+
+        function handleFileUpload(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            addHTMLMessage("Processing uploaded syllabus for NECHE compliance check...", false);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    latestReportData = data.extracted_information || {};
+                    let complianceDiv = `<strong></strong> ${data.compliance_check}`;
+                    addHTMLMessage(complianceDiv, false);
+                    setTimeout(displayReportOptions, 500);
+                } else {
+                    throw new Error(`❌ Upload failed: ${data.error}`);
+                }
+            })
+            .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
+        }
 
         function displayReportOptions() {
             const reportContainer = document.createElement("div");
             reportContainer.style.marginTop = "15px";
             reportContainer.style.textAlign = "left";
 
-            const viewButton = createStyledButton("View Report", "btn btn-info", showReportModal);
-            const downloadButton = createStyledButton("Download Report", "btn btn-success", downloadReport);
+            const viewButton = createStyledButton("View Report", "modern-btn report-action", showReportModal);
+            const downloadButton = createStyledButton("Download Report", "modern-btn report-action", downloadReport);
+
 
             reportContainer.appendChild(viewButton);
             reportContainer.appendChild(downloadButton);
@@ -915,8 +932,21 @@ Date:
                 "Preferred Contact Method", "Email Address", "Phone Number",
                 "Office Address", "Office Hours", "Location (Physical or Remote)",
                 "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-            ];
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+                "Course Description",                   
+                "Course Format",                        
+                "Course Topics and Schedule",          
+                "Sensitive Course Content" ,
+                "Learning Resources",
+                "Required Texts and Materials",
+                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+                "Technical Requirements",
+                "course policies",
+                "attendance",
+                "academic integrity"
+
+
+    ];
 
             let reportContent = `<table class="table table-bordered">
                 <thead>
@@ -982,7 +1012,8 @@ Date:
 </script>
 
     
-    </script>
+
+    
     
 </body>
 </html>
