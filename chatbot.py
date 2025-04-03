@@ -440,12 +440,13 @@ def format_text_as_bullets(text):
     return "\n".join(formatted_text)
 import json
 from langchain.schema import HumanMessage
+
+
 def extract_course_information(text):
     """
     Extracts structured course and instructor details in JSON format.
     Ensures full syllabus details are captured.
     """
-    
     # ✅ Format text into bullet points before passing it to the LLM
     formatted_text = format_text_as_bullets(text)
 
@@ -519,6 +520,11 @@ def extract_course_information(text):
         if any(keyword in department_text for keyword in invalid_keywords):
             extracted_info["Department or Program Affiliation"] = "Not Found"
 
+        # ✅ Convert all non-string values to strings
+        for key, value in extracted_info.items():
+            if not isinstance(value, str):
+                extracted_info[key] = json.dumps(value)  # Convert lists/dictionaries to JSON strings
+
         print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debugging Output
     except json.JSONDecodeError:
         extracted_info = {"error": "Failed to parse OpenAI response"}
@@ -564,7 +570,7 @@ def upload_file():
         # Ensure all required NECHE fields exist
         required_fields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
+            "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
             "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies","Course Description",
@@ -582,6 +588,25 @@ def upload_file():
             if field not in extracted_info or not extracted_info[field]:
                 extracted_info[field] = "Not Found"
 
+        # ✅ Flatten lists and dictionaries into plain text
+        # for key, value in extracted_info.items():
+        #     if isinstance(value, list):
+        #         extracted_info[key] = ", ".join(value)  # Convert list to comma-separated string
+        #     elif isinstance(value, dict):
+        #         extracted_info[key] = " ".join(value.values())  # Extract only values and join them as plain text
+        #     elif not isinstance(value, str):
+        #         extracted_info[key] = str(value)  # Convert other types to string
+        for key, value in extracted_info.items():
+            # Convert lists to comma-separated strings
+            if isinstance(value, list):
+                extracted_info[key] = ", ".join(map(str, value))  # Ensure all elements are strings before joining
+            # Convert dictionaries to space-separated strings of their values
+            elif isinstance(value, dict):
+                extracted_info[key] = " ".join(map(str, value.values()))  # Ensure all values are strings before joining
+            # Convert other non-string types to strings
+            elif not isinstance(value, str):
+                extracted_info[key] = str(value)
+                
         # Perform NECHE compliance check
         compliance_check_result = check_neche_compliance(extracted_info)
 
@@ -593,14 +618,14 @@ def upload_file():
             "success": True,
             "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],  # ✅ FIXED: No double message
+            "compliance_check": compliance_check_result["compliance_check"],
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
-
-
+    
+    
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
