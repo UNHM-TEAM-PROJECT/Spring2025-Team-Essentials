@@ -1,7 +1,7 @@
 <!--
 File: Index.html
 Authors: 
-Contributors: 
+Contributors: SAI SHIVA
 Date: 
 -->
 
@@ -468,63 +468,74 @@ Date:
             font-size: 16px;
             color: #007bff;
         }
+/* Button Container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
 
-        /* Button Container */
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
+/* Modern Button Styles */
+.modern-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+}
 
-        /* Modern Button Styles */
-        .modern-btn {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            font-size: 16px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-        }
+/* Zoom-In Effect on Hover */
+.modern-btn:hover {
+    transform: scale(1.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
 
-        /* Zoom-In Effect on Hover */
-        .modern-btn:hover {
-            transform: scale(1.2);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
+/* Custom hover styling for specific buttons */
+#viewReport:hover,
+#downloadReport:hover,
+#viewReportBtn:hover,
+#downloadReportBtn:hover {
+    background: #000 !important;
+    color: #fff !important;
+    transform: scale(1.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
 
-        /* Ripple Effect on Click */
-        .modern-btn:active::after {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            animation: ripple 0.5s ease-out;
-        }
+/* Ripple Effect on Click */
+.modern-btn:active::after {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.3);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: ripple 0.5s ease-out;
+}
 
-        @keyframes ripple {
-            from {
-                width: 0;
-                height: 0;
-                opacity: 1;
-            }
-            to {
-                width: 200%;
-                height: 200%;
-                opacity: 0;
-            }
-            
-        }/* Microphone Button Styling */
+@keyframes ripple {
+    from {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    to {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+    }
+}
+
+/* Microphone Button Styling */
 #mic-button {
     width: 45px;
     height: 45px;
@@ -538,14 +549,12 @@ Date:
     margin-right: 0.5rem;
 }
 
-/* Microphone Button Hover Effect */
 #mic-button:hover {
     background-color: #003f8a;
     transform: scale(1.1);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Microphone Icon */
 #mic-button i {
     font-size: 18px;
 }
@@ -829,7 +838,7 @@ Date:
             recognition.interimResults = false;
 
             recognition.onstart = () => {
-                addHTMLMessage("🎤 Listening...", false);
+                addHTMLMessage(" Listening...", false);
             };
 
             recognition.onresult = (event) => {
@@ -894,8 +903,9 @@ Date:
             reportContainer.style.marginTop = "15px";
             reportContainer.style.textAlign = "left";
 
-            const viewButton = createStyledButton("View Report", "btn btn-info", showReportModal);
-            const downloadButton = createStyledButton("Download Report", "btn btn-success", downloadReport);
+            const viewButton = createStyledButton("View Report", "modern-btn report-action", showReportModal);
+            const downloadButton = createStyledButton("Download Report", "modern-btn report-action", downloadReport);
+
 
             reportContainer.appendChild(viewButton);
             reportContainer.appendChild(downloadButton);
@@ -922,8 +932,21 @@ Date:
                 "Preferred Contact Method", "Email Address", "Phone Number",
                 "Office Address", "Office Hours", "Location (Physical or Remote)",
                 "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-            ];
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+                "Course Description",                   
+                "Course Format",                        
+                "Course Topics and Schedule",          
+                "Sensitive Course Content" ,
+                "Learning Resources",
+                "Required Texts and Materials",
+                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+                "Technical Requirements",
+                "course policies",
+                "attendance",
+                "academic integrity"
+
+
+    ];
 
             let reportContent = `<table class="table table-bordered">
                 <thead>
