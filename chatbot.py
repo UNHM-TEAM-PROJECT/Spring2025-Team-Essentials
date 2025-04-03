@@ -240,6 +240,28 @@ required_compliance_items = {
     r"(?i)\b(use\s+of\s+AI|ChatGPT|unauthorized\s+assistance|AI\s+tools\s+policy)\b.*",
     r"(?i)\b(students\s+are\s+expected\s+to\s+maintain\s+integrity|work\s+must\s+be\s+original)\b.*"
     ],
+    "Course Number and Title": [
+        r"(?i)\b(course\s+number|course\s+title|course\s+name|course\s+code)\b.*"
+    ],
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)": [
+        r"(?i)\b(credits|credit\s+hours|number\s+of\s+credits|units|federal\s+definition\s+of\s+a\s+credit\s+hour)\b.*"
+    ],
+    "Modality/Meeting Time and Place": [
+        r"(?i)\b(modality|meeting\s+time|meeting\s+place|class\s+schedule|class\s+time|location|online|in-person|hybrid|remote)\b.*"
+    ],
+    "Semester/Term (and start/end dates)": [
+        r"(?i)\b(semester|term|start\s+date|end\s+date|academic\s+term|academic\s+year)\b.*"
+    ],
+
+    "Program Accreditation Info": [
+    r"(?i)\b(accreditation\s+requirements?|program\s+accreditation|additional\s+program\s+requirements)\b.*",
+    r"(?i)\b(required\s+for\s+accreditation|meets\s+standards\s+of\s+.*accrediting\s+body)\b.*",
+    r"(?i)\b(this\s+course\s+is\s+(designed|aligned)\s+to\s+meet\s+.*program\s+requirements)\b.*",
+    r"(?i)\b(required\s+for\s+(ABET|ACEN|CACREP|AACSB|NCATE|CCNE|program-level\s+accreditation))\b.*",
+    r"(?i)\b(additional\s+information\s+(for|related\s+to)\s+program\s+accreditation)\b.*"
+]
+
+    
 
     
 
@@ -385,23 +407,29 @@ def check_neche_compliance(course_info):
         "Course Format",
         "Course Topics and Schedule",
         "Sensitive Course Content",
-        "Learning Resources",
         "Required/recommended textbook (or other source for course reference information)",
         "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-        "Technical Requirements"
-        "Course Policies",
+        "Technical Requirements",
         "Attendance",
         "Academic integrity/plagiarism/AI",
-
-        
-
+        "Program Accreditation Info",
+        # New NECHE requirements
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place",
+        "Semester/Term (and start/end dates)",
     ]
-    
 
-    
     # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
-    
+
+    # Special check for "Number of Credits/Units"
+    credit_hour_field = "Number of Credits/Units (include a link to the federal definition of a credit hour)"
+    if credit_hour_field in course_info:
+        if "https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/" not in course_info[credit_hour_field]:
+            if credit_hour_field not in missing_fields:
+                missing_fields.append(credit_hour_field)
+
     # ✅ If all required information is present
     if not missing_fields:
         compliance_status = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present."
@@ -411,6 +439,10 @@ def check_neche_compliance(course_info):
 
         # ✅ Compliance message
         compliance_status = f"The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information: {missing_fields_str}."
+
+        # Add specific message for the credit hour link
+        if credit_hour_field in missing_fields:
+            compliance_status += " Missing link to the federal definition of a credit hour. Here is the link: https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/"
 
     print(f"🔍 Compliance Check Debug: {compliance_status}")  # Debugging Output
 
@@ -440,12 +472,13 @@ def format_text_as_bullets(text):
     return "\n".join(formatted_text)
 import json
 from langchain.schema import HumanMessage
+
+
 def extract_course_information(text):
     """
     Extracts structured course and instructor details in JSON format.
     Ensures full syllabus details are captured.
     """
-    
     # ✅ Format text into bullet points before passing it to the LLM
     formatted_text = format_text_as_bullets(text)
 
@@ -475,19 +508,26 @@ def extract_course_information(text):
     "Credit Hour Workload": "",
     "Coursework Types & Submission Methods": "",
     "Grading Procedures & Final Grade Scale": "",
-    "Assignment Deadlines & Policies": ""
+    "Assignment Deadlines & Policies": "",
     "Course Description": "",
     "Course Format": "",
     "Course Topics and Schedule": "",
     "Sensitive Course Content": "",
-    "Learning Resources": "",
-    "Required/recommended textbook (or other source for coursereference information)": "",
+    "Required/recommended textbook (or other source for course reference information)": "",
     "Other required/recommended materials (e.g., software, clicker remote, etc.)": "",
     "Technical Requirements": "",
-    "Course Policies": "",
     "Attendance": "",
-    "Academic integrity/plagiarism/AI": ""
-     }}
+    "Academic integrity/plagiarism/AI": "",
+    "Program Accreditation Info": "",
+    "Course Number and Title": "",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)": "",
+    "Modality/Meeting Time and Place": "",
+    "Semester/Term (and start/end dates)": "",
+    "Course Prerequisites": "",
+    "Simultaneous 700/800 Course Designation": "",
+    "University Requirements": "",
+    "Teaching Assistants (Names and Contact Information)": ""
+    }}
 
     **Full Extracted Text:**
     {formatted_text}
@@ -518,6 +558,11 @@ def extract_course_information(text):
         invalid_keywords = ["university of new hampshire", "unh", "manchester", "college", "school", "institute", "university"]
         if any(keyword in department_text for keyword in invalid_keywords):
             extracted_info["Department or Program Affiliation"] = "Not Found"
+
+        # ✅ Convert all non-string values to strings
+        for key, value in extracted_info.items():
+            if not isinstance(value, str):
+                extracted_info[key] = json.dumps(value)  # Convert lists/dictionaries to JSON strings
 
         print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debugging Output
     except json.JSONDecodeError:
@@ -564,23 +609,47 @@ def upload_file():
         # Ensure all required NECHE fields exist
         required_fields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Professor's Email Address", "Professor's Phone Number",
+            "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies","Course Description",
-            "Course Format",
-            "Course Topics and Schedule",
-            "Sensitive Course Content",
-            "Learning Resources",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
+            "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
             "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements","Course Policies","Attendance","Academic integrity/plagiarism/AI"
+            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI","Program Accreditation Info",
+            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
-        
-        # Fill missing fields with "Not Found"
+
+        # Optional fields
+        optional_fields = [
+            "Course Prerequisites",
+            "Simultaneous 700/800 Course Designation",
+            "University Requirements",
+            "Teaching Assistants (Names and Contact Information)"
+        ]
+
+        # Fill missing fields with "Not Found" for required fields
         for field in required_fields:
-            if field not in extracted_info or not extracted_info[field]:
-                extracted_info[field] = "Not Found"
+            value = extracted_info.get(field, "").strip()
+        if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+               extracted_info[field] = "Not Found"
+
+
+        # Include optional fields only if they are present
+        optional_info = {field: extracted_info[field] for field in optional_fields if field in extracted_info and extracted_info[field] != "Not Found"}
+
+        # ✅ Flatten lists and dictionaries into plain text
+        for key, value in extracted_info.items():
+            # Convert lists to comma-separated strings
+            if isinstance(value, list):
+                extracted_info[key] = ", ".join(map(str, value))  # Ensure all elements are strings before joining
+            # Convert dictionaries to space-separated strings of their values
+            elif isinstance(value, dict):
+                extracted_info[key] = " ".join(map(str, value.values()))  # Ensure all values are strings before joining
+            # Convert other non-string types to strings
+            elif not isinstance(value, str):
+                extracted_info[key] = str(value)
 
         # Perform NECHE compliance check
         compliance_check_result = check_neche_compliance(extracted_info)
@@ -589,18 +658,20 @@ def upload_file():
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
 
+        # Add optional fields to the response
+        extracted_info.update(optional_info)
+
         return jsonify({
             "success": True,
             "message": f"✅ File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],  # ✅ FIXED: No double message
+            "compliance_check": compliance_check_result["compliance_check"],
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
-
-
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
+    
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():

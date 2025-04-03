@@ -609,7 +609,7 @@ Date:
         <button id="viewReport" class="btn btn-primary">View Report</button>
         <button id="downloadReport" class="btn btn-success">Download Report</button>
     </div>
-    table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
         <thead>
             <tr style="background-color: #3a17d8; color: white; text-align: center;">
                 <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Requirement</th>
@@ -684,6 +684,23 @@ Date:
                     D: 63.3-66.5, D-: 60.0-63.2, F: 0-59.9
                 </td>
             </tr>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Course Number and Title</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">COMP890 - Advanced Topics in Computer Science</td>
+            </tr>
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Number of Credits/Units</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">4 Credits</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Modality/Meeting Time and Place</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Hybrid, Mondays and Wednesdays, 2:00 PM - 3:30 PM, Room 210</td>
+            </tr>
+            <tr>
+                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Semester/Term (and start/end dates)</td>
+                <td style="padding: 14px; border: 1px solid #ddd;">Spring 2025 (January 15 - May 10)</td>
+            </tr>
+            
         </tbody>
     </table>
     <!-- Voice Assitant -->
@@ -927,26 +944,41 @@ Date:
                 return;
             }
 
+            
             const requiredOrder = [
-                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                "Preferred Contact Method", "Email Address", "Phone Number",
-                "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-                "Course Description",                   
-                "Course Format",                        
-                "Course Topics and Schedule",          
-                "Sensitive Course Content" ,
-                "Learning Resources",
-                "Required Texts and Materials",
-                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-                "Technical Requirements",
-                "course policies",
-                "attendance",
-                "academic integrity"
+    "Instructor Name",
+    "Title or Rank",
+    "Department or Program Affiliation",
+    "Preferred Contact Method",
+    "Email Address",
+    "Phone Number",
+    "Office Address",
+    "Office Hours",
+    "Location (Physical or Remote)",
+    "Course Learning Outcomes",
+    "Credit Hour Workload",
+    "Coursework Types & Submission Methods",
+    "Grading Procedures & Final Grade Scale",
+    "Assignment Deadlines & Policies",
+    "Course Description",
+    "Course Format",
+    "Course Topics and Schedule", // ✅ Required
+    "Sensitive Course Content", // ✅ Required
+    "Required/recommended textbook (or other source for course reference information)", // ✅ Required
+    "Other required/recommended materials (e.g., software, clicker remote, etc.)", // ✅ Required
+    "Technical Requirements", 
+    "Attendance",
+    "Academic integrity/plagiarism/AI", 
+    "Program Accreditation Info",
+    "Course Number and Title",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+    "Modality/Meeting Time and Place",
+    "Semester/Term (and start/end dates)"
+];
 
 
-    ];
+
+    
 
             let reportContent = `<table class="table table-bordered">
                 <thead>
@@ -957,13 +989,13 @@ Date:
                 </thead>
                 <tbody>`;
 
+            // Loop through fields and add them to the report if present
             requiredOrder.forEach(key => {
-                let value = latestReportData[key] || "Not Found";
-                if (value === "Not Found") {
-                    value = `<strong style="color: red;">${value}</strong>`;
-                }
-                reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
-            });
+             let value = latestReportData[key] || "Not Found";
+           let displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value;
+             reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${displayValue}</td></tr>`;
+});
+
 
             reportContent += `</tbody></table>`;
             addHTMLMessage(reportContent, false);
@@ -989,7 +1021,21 @@ Date:
                 "Preferred Contact Method", "Email Address", "Phone Number",
                 "Office Address", "Office Hours", "Location (Physical or Remote)",
                 "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+                "Course Number and Title",
+                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                "Modality/Meeting Time and Place",
+                "Semester/Term (and start/end dates)",
+                "Course Description",                   
+                "Course Format",                        
+                "Course Topics and Schedule",          
+                "Sensitive Course Content" ,
+                "Required Texts and Materials",
+                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+                "Technical Requirements",
+                "attendance",
+                "academic integrity",
+                
             ];
 
             requiredOrder.forEach(key => {
