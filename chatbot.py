@@ -500,26 +500,27 @@ def extract_course_information(text):
     "Credit Hour Workload": "",
     "Coursework Types & Submission Methods": "",
     "Grading Procedures & Final Grade Scale": "",
-    "Assignment Deadlines & Policies": ""
+    "Assignment Deadlines & Policies": "",
     "Course Description": "",
     "Course Format": "",
     "Course Topics and Schedule": "",
     "Sensitive Course Content": "",
     "Learning Resources": "",
-    "Required/recommended textbook (or other source for coursereference information)": "",
+    "Required/recommended textbook (or other source for course reference information)": "",
     "Other required/recommended materials (e.g., software, clicker remote, etc.)": "",
     "Technical Requirements": "",
     "Course Policies": "",
     "Attendance": "",
-    "Academic integrity/plagiarism/AI": ""
-    
+    "Academic integrity/plagiarism/AI": "",
     "Course Number and Title": "",
     "Number of Credits/Units (include a link to the federal definition of a credit hour)": "",
     "Modality/Meeting Time and Place": "",
     "Semester/Term (and start/end dates)": "",
-    
-       
-     }}
+    "Course Prerequisites": "",
+    "Simultaneous 700/800 Course Designation": "",
+    "University Requirements": "",
+    "Teaching Assistants (Names and Contact Information)": ""
+    }}
 
     **Full Extracted Text:**
     {formatted_text}
@@ -604,33 +605,32 @@ def upload_file():
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies","Course Description",
-            "Course Format",
-            "Course Topics and Schedule",
-            "Sensitive Course Content",
-            "Learning Resources",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
+            "Course Format", "Course Topics and Schedule", "Sensitive Course Content", "Learning Resources",
             "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements","Course Policies","Attendance","Academic integrity/plagiarism/AI", "Course Number and Title",
-        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-        "Modality/Meeting Time and Place",
-        "Semester/Term (and start/end dates)",
-        
+            "Technical Requirements", "Course Policies", "Attendance", "Academic integrity/plagiarism/AI",
+            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
-        
-        # Fill missing fields with "Not Found"
+
+        # Optional fields
+        optional_fields = [
+            "Course Prerequisites",
+            "Simultaneous 700/800 Course Designation",
+            "University Requirements",
+            "Teaching Assistants (Names and Contact Information)"
+        ]
+
+        # Fill missing fields with "Not Found" for required fields
         for field in required_fields:
             if field not in extracted_info or not extracted_info[field]:
                 extracted_info[field] = "Not Found"
 
+        # Include optional fields only if they are present
+        optional_info = {field: extracted_info[field] for field in optional_fields if field in extracted_info and extracted_info[field] != "Not Found"}
+
         # ✅ Flatten lists and dictionaries into plain text
-        # for key, value in extracted_info.items():
-        #     if isinstance(value, list):
-        #         extracted_info[key] = ", ".join(value)  # Convert list to comma-separated string
-        #     elif isinstance(value, dict):
-        #         extracted_info[key] = " ".join(value.values())  # Extract only values and join them as plain text
-        #     elif not isinstance(value, str):
-        #         extracted_info[key] = str(value)  # Convert other types to string
         for key, value in extracted_info.items():
             # Convert lists to comma-separated strings
             if isinstance(value, list):
@@ -641,13 +641,16 @@ def upload_file():
             # Convert other non-string types to strings
             elif not isinstance(value, str):
                 extracted_info[key] = str(value)
-                
+
         # Perform NECHE compliance check
         compliance_check_result = check_neche_compliance(extracted_info)
 
         # Update latest syllabus info
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
+
+        # Add optional fields to the response
+        extracted_info.update(optional_info)
 
         return jsonify({
             "success": True,
@@ -658,8 +661,7 @@ def upload_file():
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
-    
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
     
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
