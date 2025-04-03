@@ -966,7 +966,9 @@ Date:
                 "Number of Credits/Units (include a link to the federal definition of a credit hour)",
                 "Modality/Meeting Time and Place",
                 "Semester/Term (and start/end dates)",
-                
+                 // Optional fields
+                "Course Prerequisites", "Simultaneous 700/800 Course Designation",
+                "University Requirements", "Teaching Assistants (Names and Contact Information)"
 
 
     ];
@@ -980,12 +982,12 @@ Date:
                 </thead>
                 <tbody>`;
 
+            // Loop through fields and add them to the report if present
             requiredOrder.forEach(key => {
-                let value = latestReportData[key] || "Not Found";
-                if (value === "Not Found") {
-                    value = `<strong style="color: red;">${value}</strong>`;
+                if (latestReportData[key] && latestReportData[key] !== "N/A" && latestReportData[key] !== "Not Found") {
+                    let value = latestReportData[key];
+                    reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
                 }
-                reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
             });
 
             reportContent += `</tbody></table>`;
