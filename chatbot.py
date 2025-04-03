@@ -240,6 +240,19 @@ required_compliance_items = {
     r"(?i)\b(use\s+of\s+AI|ChatGPT|unauthorized\s+assistance|AI\s+tools\s+policy)\b.*",
     r"(?i)\b(students\s+are\s+expected\s+to\s+maintain\s+integrity|work\s+must\s+be\s+original)\b.*"
     ],
+    "Course Number and Title": [
+        r"(?i)\b(course\s+number|course\s+title|course\s+name|course\s+code)\b.*"
+    ],
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)": [
+        r"(?i)\b(credits|credit\s+hours|number\s+of\s+credits|units|federal\s+definition\s+of\s+a\s+credit\s+hour)\b.*"
+    ],
+    "Modality/Meeting Time and Place": [
+        r"(?i)\b(modality|meeting\s+time|meeting\s+place|class\s+schedule|class\s+time|location|online|in-person|hybrid|remote)\b.*"
+    ],
+    "Semester/Term (and start/end dates)": [
+        r"(?i)\b(semester|term|start\s+date|end\s+date|academic\s+term|academic\s+year)\b.*"
+    ],
+    
 
     
 
@@ -392,6 +405,12 @@ def check_neche_compliance(course_info):
         "Course Policies",
         "Attendance",
         "Academic integrity/plagiarism/AI",
+        # New NECHE requirements
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place",
+        "Semester/Term (and start/end dates)",
+        
 
         
 
@@ -488,6 +507,13 @@ def extract_course_information(text):
     "Course Policies": "",
     "Attendance": "",
     "Academic integrity/plagiarism/AI": ""
+    
+    "Course Number and Title": "",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)": "",
+    "Modality/Meeting Time and Place": "",
+    "Semester/Term (and start/end dates)": "",
+    
+       
      }}
 
     **Full Extracted Text:**
@@ -580,7 +606,11 @@ def upload_file():
             "Learning Resources",
             "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements","Course Policies","Attendance","Academic integrity/plagiarism/AI"
+            "Technical Requirements","Course Policies","Attendance","Academic integrity/plagiarism/AI", "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place",
+        "Semester/Term (and start/end dates)",
+        
         ]
         
         # Fill missing fields with "Not Found"
