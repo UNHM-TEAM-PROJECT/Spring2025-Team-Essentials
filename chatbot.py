@@ -401,7 +401,7 @@ def check_neche_compliance(course_info):
         "Learning Resources",
         "Required/recommended textbook (or other source for course reference information)",
         "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-        "Technical Requirements"
+        "Technical Requirements",
         "Course Policies",
         "Attendance",
         "Academic integrity/plagiarism/AI",
@@ -410,17 +410,18 @@ def check_neche_compliance(course_info):
         "Number of Credits/Units (include a link to the federal definition of a credit hour)",
         "Modality/Meeting Time and Place",
         "Semester/Term (and start/end dates)",
-        
-
-        
-
     ]
-    
 
-    
     # Identify missing fields
     missing_fields = [field for field in required_fields if not course_info.get(field) or course_info[field] in ["Not Found", ""]]
-    
+
+    # Special check for "Number of Credits/Units"
+    credit_hour_field = "Number of Credits/Units (include a link to the federal definition of a credit hour)"
+    if credit_hour_field in course_info:
+        if "https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/" not in course_info[credit_hour_field]:
+            if credit_hour_field not in missing_fields:
+                missing_fields.append(credit_hour_field)
+
     # ✅ If all required information is present
     if not missing_fields:
         compliance_status = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present."
@@ -430,6 +431,10 @@ def check_neche_compliance(course_info):
 
         # ✅ Compliance message
         compliance_status = f"The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information: {missing_fields_str}."
+
+        # Add specific message for the credit hour link
+        if credit_hour_field in missing_fields:
+            compliance_status += " Missing link to the federal definition of a credit hour. Here is the link: https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/"
 
     print(f"🔍 Compliance Check Debug: {compliance_status}")  # Debugging Output
 
