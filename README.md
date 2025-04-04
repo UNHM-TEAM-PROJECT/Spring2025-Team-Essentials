@@ -20,7 +20,7 @@ This chatbot allows users to upload PDFs and document(.docx) files, extracts the
 - Chroma: For storing document embeddings and performing similarity search.
 - DocxDocument: for text extraction for documents.
 
-## Setup
+## Local Setup
 
 ### Prerequisites
 Ensure you have the following installed:
@@ -164,14 +164,15 @@ This guide provides step-by-step instructions for deploying applications on Amaz
       - Choose an Amazon Machine Image (AMI): Select Amazon Linux 2.
 4. Select an instance type: Use t3.2xlarge or similar for performance.
 
-5. Create a new key pair (.pem file) during the instance setup.
-6. Download and save the .pem file securely on your local machine. This file will be used for SSH access.
-7. Add storage: Allocate at least 100GB.
+6. Create a new key pair (.pem file) during the instance setup.
+7. Download and save the .pem file securely on your local machine. This file will be used for SSH access.
+8. Add storage: Allocate at least 100GB.
 
-8. Configure security group to allow the following:
-      - Open ports 22 (SSH) and 80 (HTTP).
+9. Configure security group to allow the following:
+      - Open ports 22 (SSH) and 8000 (HTTP).
+      - Or make it accept all forms of traffic
 
-9. Launch the instance.
+10. Launch the instance.
 
 ### 3. Start the EC2 Instance
 1. From EC2 Dashboard, select your instance
