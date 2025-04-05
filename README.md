@@ -297,9 +297,9 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
    - If issues persist, run the primary `chatbot.py` program to identify missing packages.
 
-## Accessing the School Server and Cloning a Git Repository via SSH
+## Accessing the School Server, Cloning a Git Repository, and Running the Chatbot
 
-These steps outline how to access the school server via VPN, generate an SSH key, add it to your GitHub account, and clone a repository using SSH.
+These steps outline how to access the school server via VPN, generate an SSH key, add it to your GitHub account, clone a repository using SSH, install dependencies, and run a chatbot application.
 
 **Prerequisites:**
 
@@ -307,6 +307,7 @@ These steps outline how to access the school server via VPN, generate an SSH key
 * Access to the command prompt/terminal.
 * Your school credentials.
 * A GitHub account.
+* Python 3 and pip3 installed.
 
 **Steps:**
 
@@ -350,17 +351,34 @@ These steps outline how to access the school server via VPN, generate an SSH key
         git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
         ```
     * If this is the first time you are connecting to github via ssh, you will be prompted to confirm the authenticity of the host. Type "yes" and press enter.
-8. **Navigate to the Repository**
+8.  **Navigate to the Repository:**
     * Once the clone is complete, navigate into the cloned repository using:
         ```bash
         cd Spring2025-Team-Essentials
         ```
+9.  **Install Required Packages:**
+    * Install the necessary Python packages listed in the `requirements.txt` file:
+        ```bash
+        pip3 install -r requirements.txt
+        ```
+10. **Run the Chatbot Application:**
+    * Execute the chatbot script:
+        ```bash
+        python3 chatbot.py
+        ```
+        * **Note:** replace chatbot.py with the correct python file name.
+11. **Install Additional Packages (If Needed):**
+    * If the chatbot application encounters missing package errors, install the required packages using `pip3 install <package_name>`.
+12. **Modify Imports (If Needed):**
+    * If there are any errors relating to imports, modify the python files as needed, to correct the import statements.
 
 **Important Notes:**
 
 * Cloning via HTTPS may not function correctly due to changes implemented since 2021.
 * Using SSH keys is the recommended and reliable method for cloning Git repositories in this environment.
 * Make sure to keep your private key (`id_rsa`) secure. Do not share it with anyone.
+* Pay close attention to any error messages during the installation and execution phases, as they will provide valuable information for troubleshooting.
+* The python file name may not always be chatbot.py, so check the file name.
 
     
 
