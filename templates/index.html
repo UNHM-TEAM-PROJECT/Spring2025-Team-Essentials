@@ -582,7 +582,7 @@ Date:
                         <div class="input-area">
                             <div class="input-group">
                                 <button id="uploadButton" class="plus-icon">+</button>
-                                <input type="file" id="fileInput" accept=".pdf, .docx" style="display: none;">
+                                <input type="file" id="fileInput" accept=".pdf, .docx, .zip" multiple>
                                 
                                 <!-- Microphone Button for Voice Input -->
                                 <button id="mic-button" class="btn btn-primary">
@@ -881,39 +881,133 @@ Date:
 
         fileInput.addEventListener("change", function (e) {
             const file = e.target.files[0];
+            if (
+    file &&
+    (
+        file.type === "application/pdf" ||
+        file.name.endsWith(".docx") ||
+        file.name.endsWith(".zip")
+    )
+) {
+    addHTMLMessage(` <strong>Uploaded:</strong> ${file.name}`, true);
+    handleFileUpload(file);
+} else {
+    addHTMLMessage(" Only PDF, DOCX, or ZIP files are supported.", false);
+    fileInput.value = "";
+}
 
-            if (file && (file.type === "application/pdf" || file.name.endsWith(".docx"))) {
-                addHTMLMessage(`**File Uploaded:** <strong>${file.name}</strong>`, true);
-                handleFileUpload(file);
-            } else {
-                addHTMLMessage("❌ The checker only supports PDF and DOCX files.", false);
-                fileInput.value = "";
-            }
+
         });
 
         function handleFileUpload(file) {
-            const formData = new FormData();
-            formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-            addHTMLMessage("Processing uploaded syllabus for NECHE compliance check...", false);
+    addHTMLMessage("Processing uploaded syllabus for NECHE compliance check...", false);
 
-            fetch("/upload", {
-                method: "POST",
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    latestReportData = data.extracted_information || {};
-                    let complianceDiv = `<strong></strong> ${data.compliance_check}`;
-                    addHTMLMessage(complianceDiv, false);
-                    setTimeout(displayReportOptions, 500);
-                } else {
-                    throw new Error(`❌ Upload failed: ${data.error}`);
-                }
-            })
-            .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
+    fetch("/upload", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const reportContainer = document.createElement("div");
+            reportContainer.style.marginTop = "20px";
+            if (data.results) {
+// Wrapper for the scrollable 3-column PDF result table
+const scrollWrapper = document.createElement("div");
+scrollWrapper.style.maxHeight = "400px";
+scrollWrapper.style.overflowY = "auto";
+scrollWrapper.style.border = "1px solid #ddd";
+scrollWrapper.style.marginTop = "20px";
+scrollWrapper.style.marginBottom = "20px";
+scrollWrapper.style.padding = "10px";
+scrollWrapper.style.backgroundColor = "white";
+
+// Create the table element
+const table = document.createElement("table");
+table.className = "table table-bordered";
+table.style.marginBottom = "0";
+
+// Add table header
+const thead = document.createElement("thead");
+thead.innerHTML = `
+  <tr style="background-color: #3a17d8; color: white; text-align: center;">
+    <th style="padding: 12px; width: 40%;">PDF Name</th>
+    <th style="padding: 12px; width: 20%;">Syllabus Compliance</th>
+    <th style="padding: 12px; width: 40%;">Report</th>
+  </tr>`;
+table.appendChild(thead);
+
+// Add table body
+const tbody = document.createElement("tbody");
+
+data.results.forEach((result, index) => {
+  const filename = result.filename || `File ${index + 1}`;
+  const passFail = result.compliance_check.includes("Compliant") ? "✅ Pass" : "❌ Fail";
+  const reportData = result.extracted_information || {};
+
+  const row = document.createElement("tr");
+
+  const nameCell = document.createElement("td");
+  nameCell.style.padding = "10px";
+  nameCell.innerHTML = `<strong>${filename}</strong>`;
+  row.appendChild(nameCell);
+
+  const statusCell = document.createElement("td");
+  statusCell.style.padding = "10px";
+  statusCell.style.textAlign = "center";
+  statusCell.innerHTML = `<strong>${passFail}</strong>`;
+  row.appendChild(statusCell);
+
+  const buttonCell = document.createElement("td");
+  buttonCell.style.padding = "10px";
+  buttonCell.style.textAlign = "center";
+
+  const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
+  const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(reportData, filename));
+  viewBtn.style.marginRight = "8px";
+
+  buttonCell.appendChild(viewBtn);
+  buttonCell.appendChild(downloadBtn);
+  row.appendChild(buttonCell);
+
+  tbody.appendChild(row);
+});
+
+table.appendChild(tbody);
+scrollWrapper.appendChild(table);
+
+// Download All Reports Button
+const allBtnWrapper = document.createElement("div");
+allBtnWrapper.style.textAlign = "center";
+allBtnWrapper.style.marginTop = "20px";
+
+const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
+  downloadAllReports(data.results);
+});
+
+allBtnWrapper.appendChild(allReportsBtn);
+
+// ✅ Append everything to chat without removing the table again
+chatHistory.appendChild(scrollWrapper);
+chatHistory.appendChild(allBtnWrapper);
+
+}else {
+                // Single file
+                latestReportData = data.extracted_information || {};
+                let complianceDiv = `<strong>${file.name}</strong><br>${data.compliance_check}`;
+                addHTMLMessage(complianceDiv, false);
+                displayReportOptions();
+            }
+        } else {
+            throw new Error(` Upload failed: ${data.error}`);
         }
+    })
+    .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
+}
+
 
         function displayReportOptions() {
             const reportContainer = document.createElement("div");
@@ -937,108 +1031,116 @@ Date:
             button.addEventListener("click", clickHandler);
             return button;
         }
+        function showReportModal(data = null) {
+    const reportData = data || latestReportData;
+    if (!reportData) {
+        addHTMLMessage("No report available.", false);
+        return;
+    }
 
-        function showReportModal() {
-            if (!latestReportData) {
-                addHTMLMessage("No report available.", false);
-                return;
-            }
-
-            const requiredOrder = [
-                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                "Preferred Contact Method", "Email Address", "Phone Number",
-                "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-                "Course Description",                   
-                "Course Format",                        
-                "Course Topics and Schedule",          
-                "Sensitive Course Content" ,
-                "Learning Resources",
-                "Required Texts and Materials",
-                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-                "Technical Requirements",
-                "course policies",
-                "attendance",
-                "academic integrity",
-                
-                "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place",
-                "Semester/Term (and start/end dates)",
-                 // Optional fields
-                "Course Prerequisites", "Simultaneous 700/800 Course Designation",
-                "University Requirements", "Teaching Assistants (Names and Contact Information)"
-
-
+    const requiredOrder = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+        "Preferred Contact Method", "Email Address", "Phone Number",
+        "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+        "Course Description", "Course Format", "Course Topics and Schedule",
+        "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
+        "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
+        "Program Accreditation Info", "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
     ];
 
-            let reportContent = `<table class="table table-bordered">
-                <thead>
-                    <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                        <th style="padding: 15px; width: 40%;">Requirement</th>
-                        <th style="padding: 15px; width: 60%;">Details</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+    // 👇 This keeps any existing tables and just adds below
+    const reportContent = document.createElement("div");
+    reportContent.className = "neche-detailed-report";
+    reportContent.style.marginTop = "20px";
+    reportContent.style.padding = "20px";
+    reportContent.style.backgroundColor = "#fff";
+    reportContent.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+    reportContent.style.border = "1px solid #ccc";
+    reportContent.style.borderRadius = "8px";
+    reportContent.style.overflow = "visible"; // 👈 Make sure no scroll
+    reportContent.style.maxWidth = "100%"; // 👈 Full width
 
-            // Loop through fields and add them to the report if present
-            requiredOrder.forEach(key => {
-                if (latestReportData[key] && latestReportData[key] !== "N/A" && latestReportData[key] !== "Not Found") {
-                    let value = latestReportData[key];
-                    reportContent += `<tr><td style="padding: 14px;">${key}</td><td style="padding: 14px;">${value}</td></tr>`;
-                }
-            });
+    let html = `<h4 style="text-align:center; font-weight:bold;"> Detailed NECHE Report</h4>
+    <table class="table table-bordered" style="width: 100%; background: white;">
+        <thead>
+            <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                <th style="padding: 12px; width: 40%;">Requirement</th>
+                <th style="padding: 12px; width: 60%;">Details</th>
+            </tr>
+        </thead>
+        <tbody>`;
 
-            reportContent += `</tbody></table>`;
-            addHTMLMessage(reportContent, false);
-        }
-
-        function downloadReport() {
-            if (!latestReportData) {
-                alert("No report available to download.");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.setFontSize(16);
-            doc.text("NECHE Compliance Report", 14, 20);
-
-            const tableColumn = ["Requirement", "Details"];
-            const tableRows = [];
-
-            const requiredOrder = [
-                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                "Preferred Contact Method", "Email Address", "Phone Number",
-                "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", 
-                "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place",
-                "Semester/Term (and start/end dates)",
-                
-            ];
-
-            requiredOrder.forEach(key => {
-                let value = latestReportData[key] || "Not Found";
-                tableRows.push([key, value]);
-            });
-
-            doc.autoTable({
-                startY: 30,
-                head: [tableColumn],
-                body: tableRows,
-                theme: "grid",
-                headStyles: { fillColor: [58, 23, 216] },
-                styles: { fontSize: 10, cellPadding: 4 },
-            });
-
-            doc.save("NECHE_Compliance_Report.pdf");
-        }
+    requiredOrder.forEach(key => {
+        const value = reportData[key] || "Not Found";
+        const displayValue = value === "Not Found"
+            ? `<span style="color: red; font-weight: bold;">Not Found</span>`
+            : value;
+        html += `<tr><td style="padding: 12px;">${key}</td><td style="padding: 12px;">${displayValue}</td></tr>`;
     });
+
+    html += `</tbody></table>`;
+    reportContent.innerHTML = html;
+
+    // ✅ Append it without hiding previous table
+    document.getElementById("chat-history").appendChild(reportContent);
+    document.getElementById("chat-history").scrollTop = document.getElementById("chat-history").scrollHeight;
+}
+
+
+function downloadReport(data = null, filename = "NECHE_Compliance_Report.pdf") {
+    const reportData = data || latestReportData;
+    if (!reportData) {
+        alert("No report available to download.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("NECHE Compliance Report", 14, 20);
+
+    const tableColumn = ["Requirement", "Details"];
+    const tableRows = [];
+
+    const requiredOrder = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+        "Preferred Contact Method", "Email Address", "Phone Number",
+        "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+        "Course Description", "Course Format", "Course Topics and Schedule",
+        "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
+        "Other required/recommended materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
+        "Program Accreditation Info", "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
+    ];
+
+    requiredOrder.forEach(key => {
+        const value = reportData[key] || "Not Found";
+        tableRows.push([key, value]);
+    });
+
+    doc.autoTable({
+        startY: 30,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: { fillColor: [58, 23, 216] },
+        styles: { fontSize: 10, cellPadding: 4 },
+    });
+
+    doc.save(filename.endsWith(".pdf") ? filename : `${filename}_NECHE_Report.pdf`);
+}
+    })
+
 </script>
 
     
