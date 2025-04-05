@@ -297,6 +297,71 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
    - If issues persist, run the primary `chatbot.py` program to identify missing packages.
 
+## Accessing the School Server and Cloning a Git Repository via SSH
+
+These steps outline how to access the school server via VPN, generate an SSH key, add it to your GitHub account, and clone a repository using SSH.
+
+**Prerequisites:**
+
+* Access to the school's VPN.
+* Access to the command prompt/terminal.
+* Your school credentials.
+* A GitHub account.
+
+**Steps:**
+
+1.  **Connect to the School's VPN:**
+    * Use the link provided: [https://td.usnh.edu/TDClient/60/Portal/KB/ArticleDet?ID=4787](https://td.usnh.edu/TDClient/60/Portal/KB/ArticleDet?ID=4787) to acquire and setup the school's VPN.
+2.  **Access the School Server via SSH:**
+    * Open your command prompt or terminal.
+    * Connect to the server using the following command, replacing `username` with your school username:
+        ```bash
+        ssh username@whitemount.sr.unh.edu
+        ```
+    * Enter your school password when prompted.
+3.  **Generate an SSH Key:**
+    * In your command prompt or terminal, execute the following command:
+        ```bash
+        ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
+        ```
+        * **Note:** Replace `"your-email@example.com"` with your actual email address.
+    * Press Enter for all prompts to use the default settings (no passphrase, default file locations).
+4.  **Verify SSH Key Generation:**
+    * List the contents of the `.ssh` directory to confirm the key files were created:
+        ```bash
+        ls -al ~/.ssh
+        ```
+        * You should see `id_rsa` and `id_rsa.pub` files.
+5.  **Copy the Public SSH Key:**
+    * Display the contents of the public key file (`id_rsa.pub`) and copy the entire output:
+        ```bash
+        cat ~/.ssh/id_rsa.pub
+        ```
+6.  **Add the SSH Key to your GitHub Account:**
+    * Go to your GitHub account settings.
+    * Navigate to "SSH and GPG keys."
+    * Click "New SSH key" or "Add SSH key."
+    * Give your key a descriptive title.
+    * Paste the copied SSH key into the "Key" field.
+    * Click "Add SSH key"
+7.  **Clone the Git Repository via SSH:**
+    * Use the following command to clone the repository, replacing the repository URL with the one you want to clone:
+        ```bash
+        git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
+        ```
+    * If this is the first time you are connecting to github via ssh, you will be prompted to confirm the authenticity of the host. Type "yes" and press enter.
+8. **Navigate to the Repository**
+    * Once the clone is complete, navigate into the cloned repository using:
+        ```bash
+        cd Spring2025-Team-Essentials
+        ```
+
+**Important Notes:**
+
+* Cloning via HTTPS may not function correctly due to changes implemented since 2021.
+* Using SSH keys is the recommended and reliable method for cloning Git repositories in this environment.
+* Make sure to keep your private key (`id_rsa`) secure. Do not share it with anyone.
+
     
 
 
