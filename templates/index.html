@@ -994,12 +994,75 @@ allBtnWrapper.appendChild(allReportsBtn);
 chatHistory.appendChild(scrollWrapper);
 chatHistory.appendChild(allBtnWrapper);
 
-}else {
-                // Single file
-                latestReportData = data.extracted_information || {};
-                let complianceDiv = `<strong>${file.name}</strong><br>${data.compliance_check}`;
-                addHTMLMessage(complianceDiv, false);
-                displayReportOptions();
+}else {latestReportData = data.extracted_information || {};
+
+// Create wrapper like ZIP mode
+const scrollWrapper = document.createElement("div");
+scrollWrapper.style.maxHeight = "400px";
+scrollWrapper.style.overflowY = "auto";
+scrollWrapper.style.border = "1px solid #ddd";
+scrollWrapper.style.marginTop = "20px";
+scrollWrapper.style.marginBottom = "20px";
+scrollWrapper.style.padding = "10px";
+scrollWrapper.style.backgroundColor = "white";
+
+const table = document.createElement("table");
+table.className = "table table-bordered";
+table.style.marginBottom = "0";
+
+const thead = document.createElement("thead");
+thead.innerHTML = `
+    <tr style="background-color: #3a17d8; color: white; text-align: center;">
+        <th style="padding: 12px; width: 40%;">PDF Name</th>
+        <th style="padding: 12px; width: 20%;">Syllabus Compliance</th>
+        <th style="padding: 12px; width: 40%;">Report</th>
+    </tr>`;
+table.appendChild(thead);
+
+const tbody = document.createElement("tbody");
+const row = document.createElement("tr");
+
+const nameCell = document.createElement("td");
+nameCell.style.padding = "10px";
+nameCell.innerHTML = `<strong>${file.name}</strong>`;
+row.appendChild(nameCell);
+
+const passFail = data.compliance_check.includes("Compliant") ? "✅ Pass" : "❌ Fail";
+const statusCell = document.createElement("td");
+statusCell.style.padding = "10px";
+statusCell.style.textAlign = "center";
+statusCell.innerHTML = `<strong>${passFail}</strong>`;
+row.appendChild(statusCell);
+
+const buttonCell = document.createElement("td");
+buttonCell.style.padding = "10px";
+buttonCell.style.textAlign = "center";
+
+const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(latestReportData));
+const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(latestReportData, file.name));
+viewBtn.style.marginRight = "8px";
+
+buttonCell.appendChild(viewBtn);
+buttonCell.appendChild(downloadBtn);
+row.appendChild(buttonCell);
+
+tbody.appendChild(row);
+table.appendChild(tbody);
+scrollWrapper.appendChild(table);
+
+chatHistory.appendChild(scrollWrapper);
+
+// Add "Download All Reports" for single too (optional)
+const allBtnWrapper = document.createElement("div");
+allBtnWrapper.style.textAlign = "center";
+allBtnWrapper.style.marginTop = "20px";
+
+const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
+    downloadAllReports([{ filename: file.name, extracted_information: latestReportData }]);
+});
+
+allBtnWrapper.appendChild(allReportsBtn);
+chatHistory.appendChild(allBtnWrapper);
             }
         } else {
             throw new Error(` Upload failed: ${data.error}`);
