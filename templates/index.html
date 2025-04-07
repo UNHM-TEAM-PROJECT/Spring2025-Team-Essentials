@@ -16,7 +16,7 @@ Date:
     <style>
         /* Global variables for consistent styling throughout the application */
         :root {
-            --unh-blue: #3a17d8;
+            --unh-blue: #003591;
             --unh-white: #ffffff;
             --chat-bg: rgba(248, 249, 250, 0.95);
             --message-bg: rgba(233, 236, 239, 0.9);
@@ -72,7 +72,7 @@ Date:
             /* Chat header with a blue gradient background and centered content */
 
         .chat-header {
-            background: linear-gradient(135deg, var(--unh-blue) 0%, #2a05cf 100%);
+            background: linear-gradient(135deg, var(--unh-blue) 0%, #003591 100%);
             color: var(--unh-white);
             padding: 1rem;
             display: flex;
@@ -235,7 +235,7 @@ Date:
         }
         
         .send-button {
-            background-color: #002B7D; /* Updated color */
+            background-color: #003591; /* Updated color */
             color: #fff; /* Keep the text white for contrast */
         }
         
@@ -301,7 +301,7 @@ Date:
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background-color: #0b5ed7; 
+            background-color: #003591; 
             color: var(--btn-text);
             display: flex;
             align-items: center;
@@ -313,7 +313,7 @@ Date:
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background-color: #0b5ed7; 
+            background-color: #003591; 
             color: var(--btn-text);
             display: flex;
             align-items: center;
@@ -324,7 +324,7 @@ Date:
         
         /* Hover effect for send button with slight scale animation */
         #send-button:hover {
-            background-color: #0b5ed7;
+            background-color: #003591;
             transform: scale(1.05);
         }
 
@@ -438,7 +438,7 @@ Date:
 
         /* Drag & Drop Upload Box */
         .upload-area {
-            border: 2px dashed #007bff;
+            border: 2px dashed #003591;
             padding: 30px;
             cursor: pointer;
             text-align: center;
@@ -454,7 +454,7 @@ Date:
 
         .upload-area.dragover {
             background: #c2e0ff;
-            border-color: #0056b3;
+            border-color: #003591;
         }
 
         /* Hidden Input File */
@@ -466,7 +466,7 @@ Date:
         .file-info {
             margin-top: 10px;
             font-size: 16px;
-            color: #007bff;
+            color: #003591;
         }
 /* Button Container */
 .button-container {
@@ -478,7 +478,7 @@ Date:
 
 /* Modern Button Styles */
 .modern-btn {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: linear-gradient(135deg, #003591, #003591);
     color: white;
     font-size: 16px;
     padding: 12px 24px;
@@ -540,7 +540,7 @@ Date:
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background-color: #0b5ed7;
+    background-color: #003591;
     color: white;
     display: flex;
     align-items: center;
@@ -550,13 +550,113 @@ Date:
 }
 
 #mic-button:hover {
-    background-color: #003f8a;
+    background-color: #003591;
     transform: scale(1.1);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 #mic-button i {
     font-size: 18px;
+}
+/* Ensure the chat-history container doesn't interfere with the table */
+.chat-history {
+    background: none !important; /* Remove background image and gradient */
+    backdrop-filter: none !important; /* Remove blur effect */
+}
+
+/* Style for the detailed NECHE report table */
+.neche-detailed-report table {
+    border-collapse: collapse !important; /* Ensure no gaps between cells */
+    width: 100%;
+    margin: 0;
+    border: 1px solid #ddd; /* Add a border to the table */
+}
+
+/* Remove gaps and ensure consistent row styling */
+.neche-detailed-report table tr {
+    border: none; /* Remove borders between rows */
+}
+
+/* Ensure cells have no gaps and proper padding */
+.neche-detailed-report table td, 
+.neche-detailed-report table th {
+    border: 1px solid #ddd; /* Add borders to cells */
+    padding: 12px;
+    vertical-align: top;
+}
+
+/* Remove any overflow constraints on the detailed report */
+.neche-detailed-report {
+    max-height: none !important; /* Remove height constraint */
+    overflow: visible !important; /* Ensure no scrolling */
+}
+/* Ensure the chat-history container allows full height for all content */
+.chat-history {
+    overflow-y: auto !important; /* Allow scrolling */
+    max-height: none !important; /* Remove any height constraint */
+    display: flex !important; /* Ensure flex layout */
+    flex-direction: column !important; /* Stack children vertically */
+    flex-shrink: 0 !important; /* Prevent shrinking */
+}
+
+/* Set a fixed height for the scrollWrapper div and enable scrollbar */
+.scroll-wrapper {
+    max-height: 300px !important; /* Set a fixed height for the three-column table */
+    min-height: 150px !important; /* Ensure it doesn't shrink below this height */
+    overflow-y: auto !important; /* Enable vertical scrollbar */
+    width: 100% !important; /* Ensure full width */
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    border: 1px solid #ddd !important; /* Ensure consistent border */
+    margin-top: 20px !important; /* Consistent margin */
+    margin-bottom: 20px !important; /* Consistent margin */
+    padding: 10px !important; /* Consistent padding */
+    background-color: white !important; /* Consistent background */
+}
+
+/* Custom scrollbar styling for the three-column table */
+.scroll-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 53, 145, 0.5);
+    border-radius: 4px;
+}
+
+.scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 53, 145, 0.7);
+}
+
+/* Ensure the table inside scrollWrapper takes full width and doesn't shrink */
+.scroll-wrapper table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+/* Ensure table cells have proper borders and padding */
+.scroll-wrapper table td,
+.scroll-wrapper table th {
+    border: 1px solid #ddd;
+    padding: 12px;
+    vertical-align: top;
+}
+
+/* Ensure the detailed report table does not have a scrollbar */
+.neche-detailed-report {
+    max-height: none !important; /* Remove height constraint */
+    overflow: visible !important; /* Ensure no scrolling */
+    width: 100% !important; /* Ensure full width */
+    flex-shrink: 0 !important; /* Prevent shrinking */
+}
+
+/* Remove any unwanted borders or margins that might cause the horizontal line */
+.scroll-wrapper + div {
+    margin-top: 0 !important; /* Remove extra margin that might cause the line */
+    border-top: none !important; /* Remove any top border */
 }
 
         
@@ -611,9 +711,9 @@ Date:
     </div>
     <table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
         <thead>
-            <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Requirement</th>
-                <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Details</th>
+            <tr style="background-color: #003591; color: white; text-align: center;">
+                <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Syllabus Items</th>
+                <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Syllabus Details</th>
             </tr>
         </thead>
         <tbody>
@@ -748,7 +848,7 @@ Date:
     </div>
            <!-- Drag & Drop Upload Box -->
            <div class="upload-area" id="uploadArea">
-            <p>Drag & Drop your syllabus file here or <span style="color:#0056b3; font-weight:bold;">Click to Upload</span></p>
+            <p>Drag & Drop your syllabus file here or <span style="color:##003591; font-weight:bold;">Click to Upload</span></p>
             <input type="file" id="fileInput" accept=".pdf, .docx">
             <p class="file-info" id="fileInfo">No file chosen</p>
         </div>
@@ -811,38 +911,37 @@ Date:
         micButton.addEventListener("click", handleVoiceInput); // Voice Assistant Event Listener
 
         function handleSend() {
-            const message = userInput.value.trim();
-            if (!message) return;
+    const message = userInput.value.trim();
+    if (!message) return;
 
-            addHTMLMessage(message, true);
-            userInput.value = "";
+    addHTMLMessage(message, true);
+    userInput.value = "";
 
-            fetch("/ask", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                const userMessage = message.toLowerCase().trim();
+    fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        const userMessage = message.toLowerCase().trim();
 
-                const casualGreetings = {
-                    "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
-                    "hello": "Hello! How can I assist you today?",
-                    "hey": "Hey there! Need help with NECHE syllabus compliance?",
-                    "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
-                    "how are you": "I'm great! Thanks for asking. How can I help you?"
-                };
+        const casualGreetings = {
+            "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
+            "hello": "Hello! How can I assist you today?",
+            "hey": "Hey there! Need help with NECHE syllabus compliance?",
+            "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
+            "how are you": "I'm great! Thanks for asking. How can I help you?"
+        };
 
-                if (casualGreetings[userMessage]) {
-                    addHTMLMessage(casualGreetings[userMessage], false);
-                } else {
-                    addHTMLMessage(data.response, false);
-                }
-            })
-            .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
+        if (casualGreetings[userMessage]) {
+            addHTMLMessage(casualGreetings[userMessage], false);
+        } else {
+            addHTMLMessage(data.response, false);
         }
-
+    })
+    .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
+}
         function handleVoiceInput() {
             if (!('webkitSpeechRecognition' in window)) {
                 alert("Sorry, your browser does not support voice recognition.");
@@ -915,162 +1014,166 @@ Date:
             const reportContainer = document.createElement("div");
             reportContainer.style.marginTop = "20px";
             if (data.results) {
-// Wrapper for the scrollable 3-column PDF result table
-const scrollWrapper = document.createElement("div");
-scrollWrapper.style.maxHeight = "400px";
-scrollWrapper.style.overflowY = "auto";
-scrollWrapper.style.border = "1px solid #ddd";
-scrollWrapper.style.marginTop = "20px";
-scrollWrapper.style.marginBottom = "20px";
-scrollWrapper.style.padding = "10px";
-scrollWrapper.style.backgroundColor = "white";
+                // Wrapper for the 3-column PDF result table
+                const scrollWrapper = document.createElement("div");
+                scrollWrapper.className = "scroll-wrapper"; // Add class for styling
+                scrollWrapper.style.border = "1px solid #ddd";
+                scrollWrapper.style.marginTop = "20px";
+                scrollWrapper.style.marginBottom = "20px";
+                scrollWrapper.style.padding = "10px";
+                scrollWrapper.style.backgroundColor = "white";
 
-// Create the table element
-const table = document.createElement("table");
-table.className = "table table-bordered";
-table.style.marginBottom = "0";
+                // Create the table element
+                const table = document.createElement("table");
+                table.className = "table table-bordered";
+                table.style.marginBottom = "0";
+                table.style.borderCollapse = "collapse"; // Ensure no gaps
 
-// Add table header
-const thead = document.createElement("thead");
-thead.innerHTML = `
-  <tr style="background-color: #3a17d8; color: white; text-align: center;">
-    <th style="padding: 12px; width: 40%;">PDF Name</th>
-    <th style="padding: 12px; width: 20%;">Syllabus Compliance</th>
-    <th style="padding: 12px; width: 40%;">Report</th>
-  </tr>`;
-table.appendChild(thead);
+                // Add table header
+                const thead = document.createElement("thead");
+                thead.innerHTML = `
+                    <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">PDF Name</th>
+                        <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
+                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
+                    </tr>`;
+                table.appendChild(thead);
 
-// Add table body
-const tbody = document.createElement("tbody");
+                // Add table body
+                const tbody = document.createElement("tbody");
 
-data.results.forEach((result, index) => {
-  const filename = result.filename || `File ${index + 1}`;
-  const passFail = result.compliance_check.includes("Compliant") ? "✅ Pass" : "❌ Fail";
-  const reportData = result.extracted_information || {};
+                data.results.forEach((result, index) => {
+                    const filename = result.filename || `File ${index + 1}`;
+                    const passFail = result.compliance_check.includes("Compliant") ? " Pass" : " Fail";
+                    const reportData = result.extracted_information || {};
 
-  const row = document.createElement("tr");
+                    const row = document.createElement("tr");
 
-  const nameCell = document.createElement("td");
-  nameCell.style.padding = "10px";
-  nameCell.innerHTML = `<strong>${filename}</strong>`;
-  row.appendChild(nameCell);
+                    const nameCell = document.createElement("td");
+                    nameCell.style.padding = "10px";
+                    nameCell.style.border = "1px solid #ddd";
+                    nameCell.innerHTML = `<strong>${filename}</strong>`;
+                    row.appendChild(nameCell);
 
-  const statusCell = document.createElement("td");
-  statusCell.style.padding = "10px";
-  statusCell.style.textAlign = "center";
-  statusCell.innerHTML = `<strong>${passFail}</strong>`;
-  row.appendChild(statusCell);
+                    const statusCell = document.createElement("td");
+                    statusCell.style.padding = "10px";
+                    statusCell.style.textAlign = "center";
+                    statusCell.style.border = "1px solid #ddd";
+                    statusCell.innerHTML = `<strong>${passFail}</strong>`;
+                    row.appendChild(statusCell);
 
-  const buttonCell = document.createElement("td");
-  buttonCell.style.padding = "10px";
-  buttonCell.style.textAlign = "center";
+                    const buttonCell = document.createElement("td");
+                    buttonCell.style.padding = "10px";
+                    buttonCell.style.textAlign = "center";
+                    buttonCell.style.border = "1px solid #ddd";
 
-  const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
-  const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(reportData, filename));
-  viewBtn.style.marginRight = "8px";
+                    const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
+                    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(reportData, filename));
+                    viewBtn.style.marginRight = "8px";
 
-  buttonCell.appendChild(viewBtn);
-  buttonCell.appendChild(downloadBtn);
-  row.appendChild(buttonCell);
+                    buttonCell.appendChild(viewBtn);
+                    buttonCell.appendChild(downloadBtn);
+                    row.appendChild(buttonCell);
 
-  tbody.appendChild(row);
-});
+                    tbody.appendChild(row);
+                });
 
-table.appendChild(tbody);
-scrollWrapper.appendChild(table);
+                table.appendChild(tbody);
+                scrollWrapper.appendChild(table);
 
-// Download All Reports Button
-const allBtnWrapper = document.createElement("div");
-allBtnWrapper.style.textAlign = "center";
-allBtnWrapper.style.marginTop = "20px";
+                // Download All Reports Button
+                const allBtnWrapper = document.createElement("div");
+                allBtnWrapper.style.textAlign = "center";
+                allBtnWrapper.style.marginTop = "20px";
 
-const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
-  downloadAllReports(data.results);
-});
+                const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
+                    downloadAllReports(data.results);
+                });
 
-allBtnWrapper.appendChild(allReportsBtn);
+                allBtnWrapper.appendChild(allReportsBtn);
 
-// ✅ Append everything to chat without removing the table again
-chatHistory.appendChild(scrollWrapper);
-chatHistory.appendChild(allBtnWrapper);
+                chatHistory.appendChild(scrollWrapper);
+                chatHistory.appendChild(allBtnWrapper);
+            } else {
+                latestReportData = data.extracted_information || {};
 
-}else {latestReportData = data.extracted_information || {};
+                // Create wrapper like ZIP mode
+                const scrollWrapper = document.createElement("div");
+                scrollWrapper.className = "scroll-wrapper"; // Add class for styling
+                scrollWrapper.style.border = "1px solid #ddd";
+                scrollWrapper.style.marginTop = "20px";
+                scrollWrapper.style.marginBottom = "20px";
+                scrollWrapper.style.padding = "10px";
+                scrollWrapper.style.backgroundColor = "white";
 
-// Create wrapper like ZIP mode
-const scrollWrapper = document.createElement("div");
-scrollWrapper.style.maxHeight = "400px";
-scrollWrapper.style.overflowY = "auto";
-scrollWrapper.style.border = "1px solid #ddd";
-scrollWrapper.style.marginTop = "20px";
-scrollWrapper.style.marginBottom = "20px";
-scrollWrapper.style.padding = "10px";
-scrollWrapper.style.backgroundColor = "white";
+                const table = document.createElement("table");
+                table.className = "table table-bordered";
+                table.style.marginBottom = "0";
+                table.style.borderCollapse = "collapse"; // Ensure no gaps
 
-const table = document.createElement("table");
-table.className = "table table-bordered";
-table.style.marginBottom = "0";
+                const thead = document.createElement("thead");
+                thead.innerHTML = `
+                    <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">PDF Name</th>
+                        <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
+                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
+                    </tr>`;
+                table.appendChild(thead);
 
-const thead = document.createElement("thead");
-thead.innerHTML = `
-    <tr style="background-color: #3a17d8; color: white; text-align: center;">
-        <th style="padding: 12px; width: 40%;">PDF Name</th>
-        <th style="padding: 12px; width: 20%;">Syllabus Compliance</th>
-        <th style="padding: 12px; width: 40%;">Report</th>
-    </tr>`;
-table.appendChild(thead);
+                const tbody = document.createElement("tbody");
+                const row = document.createElement("tr");
 
-const tbody = document.createElement("tbody");
-const row = document.createElement("tr");
+                const nameCell = document.createElement("td");
+                nameCell.style.padding = "10px";
+                nameCell.style.border = "1px solid #ddd";
+                nameCell.innerHTML = `<strong>${file.name}</strong>`;
+                row.appendChild(nameCell);
 
-const nameCell = document.createElement("td");
-nameCell.style.padding = "10px";
-nameCell.innerHTML = `<strong>${file.name}</strong>`;
-row.appendChild(nameCell);
+                const passFail = data.compliance_check.includes("Compliant") ? "Pass" : "Fail";
+                const statusCell = document.createElement("td");
+                statusCell.style.padding = "10px";
+                statusCell.style.textAlign = "center";
+                statusCell.style.border = "1px solid #ddd";
+                statusCell.innerHTML = `<strong>${passFail}</strong>`;
+                row.appendChild(statusCell);
 
-const passFail = data.compliance_check.includes("Compliant") ? "✅ Pass" : "❌ Fail";
-const statusCell = document.createElement("td");
-statusCell.style.padding = "10px";
-statusCell.style.textAlign = "center";
-statusCell.innerHTML = `<strong>${passFail}</strong>`;
-row.appendChild(statusCell);
+                const buttonCell = document.createElement("td");
+                buttonCell.style.padding = "10px";
+                buttonCell.style.textAlign = "center";
+                buttonCell.style.border = "1px solid #ddd";
 
-const buttonCell = document.createElement("td");
-buttonCell.style.padding = "10px";
-buttonCell.style.textAlign = "center";
+                const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(latestReportData));
+                const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(latestReportData, file.name));
+                viewBtn.style.marginRight = "8px";
 
-const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(latestReportData));
-const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(latestReportData, file.name));
-viewBtn.style.marginRight = "8px";
+                buttonCell.appendChild(viewBtn);
+                buttonCell.appendChild(downloadBtn);
+                row.appendChild(buttonCell);
 
-buttonCell.appendChild(viewBtn);
-buttonCell.appendChild(downloadBtn);
-row.appendChild(buttonCell);
+                tbody.appendChild(row);
+                table.appendChild(tbody);
+                scrollWrapper.appendChild(table);
 
-tbody.appendChild(row);
-table.appendChild(tbody);
-scrollWrapper.appendChild(table);
+                chatHistory.appendChild(scrollWrapper);
 
-chatHistory.appendChild(scrollWrapper);
+                // Add "Download All Reports" for single too (optional)
+                const allBtnWrapper = document.createElement("div");
+                allBtnWrapper.style.textAlign = "center";
+                allBtnWrapper.style.marginTop = "20px";
 
-// Add "Download All Reports" for single too (optional)
-const allBtnWrapper = document.createElement("div");
-allBtnWrapper.style.textAlign = "center";
-allBtnWrapper.style.marginTop = "20px";
+                const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
+                    downloadAllReports([{ filename: file.name, extracted_information: latestReportData }]);
+                });
 
-const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
-    downloadAllReports([{ filename: file.name, extracted_information: latestReportData }]);
-});
-
-allBtnWrapper.appendChild(allReportsBtn);
-chatHistory.appendChild(allBtnWrapper);
+                allBtnWrapper.appendChild(allReportsBtn);
+                chatHistory.appendChild(allBtnWrapper);
             }
         } else {
-            throw new Error(` Upload failed: ${data.error}`);
+            throw new Error(`Upload failed: ${data.error}`);
         }
     })
     .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
 }
-
 
         function displayReportOptions() {
             const reportContainer = document.createElement("div");
@@ -1094,7 +1197,9 @@ chatHistory.appendChild(allBtnWrapper);
             button.addEventListener("click", clickHandler);
             return button;
         }
-        function showReportModal(data = null) {
+
+
+function showReportModal(data = null) {
     const reportData = data || latestReportData;
     if (!reportData) {
         addHTMLMessage("No report available.", false);
@@ -1116,24 +1221,23 @@ chatHistory.appendChild(allBtnWrapper);
         "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
     ];
 
-    // 👇 This keeps any existing tables and just adds below
+    // Create a container for the detailed report
     const reportContent = document.createElement("div");
     reportContent.className = "neche-detailed-report";
     reportContent.style.marginTop = "20px";
     reportContent.style.padding = "20px";
     reportContent.style.backgroundColor = "#fff";
     reportContent.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
-    reportContent.style.border = "1px solid #ccc";
     reportContent.style.borderRadius = "8px";
-    reportContent.style.overflow = "visible"; // 👈 Make sure no scroll
-    reportContent.style.maxWidth = "100%"; // 👈 Full width
+    reportContent.style.width = "100%"; // Ensure full width
+    reportContent.style.boxSizing = "border-box"; // Include padding in width calculation
 
-    let html = `<h4 style="text-align:center; font-weight:bold;"> Detailed NECHE Report</h4>
-    <table class="table table-bordered" style="width: 100%; background: white;">
+    let html = `<h4 style="text-align:center; font-weight:bold;">Syllabus Report for Course name & Number & professor Name</h4>
+    <table style="width: 100%; border-collapse: collapse; background: white;">
         <thead>
             <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                <th style="padding: 12px; width: 40%;">Requirement</th>
-                <th style="padding: 12px; width: 60%;">Details</th>
+                <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Syllabus Items</th>
+                <th style="padding: 12px; width: 60%; border: 1px solid #ddd;">Syllabus Details</th>
             </tr>
         </thead>
         <tbody>`;
@@ -1143,17 +1247,19 @@ chatHistory.appendChild(allBtnWrapper);
         const displayValue = value === "Not Found"
             ? `<span style="color: red; font-weight: bold;">Not Found</span>`
             : value;
-        html += `<tr><td style="padding: 12px;">${key}</td><td style="padding: 12px;">${displayValue}</td></tr>`;
+        html += `<tr style="border: none;">
+                    <td style="padding: 12px; border: 1px solid #ddd;">${key}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd;">${displayValue}</td>
+                 </tr>`;
     });
 
     html += `</tbody></table>`;
     reportContent.innerHTML = html;
 
-    // ✅ Append it without hiding previous table
+    // Append the report to chat history
     document.getElementById("chat-history").appendChild(reportContent);
     document.getElementById("chat-history").scrollTop = document.getElementById("chat-history").scrollHeight;
 }
-
 
 function downloadReport(data = null, filename = "NECHE_Compliance_Report.pdf") {
     const reportData = data || latestReportData;
