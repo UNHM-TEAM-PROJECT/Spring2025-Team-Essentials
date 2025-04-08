@@ -11,7 +11,16 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, or 
 - AI Chatbot: Ask questions related to the document's content and receive AI-powered responses.
 - Document Vectorization: Uses Chroma to store and search document chunks for relevance to user queries.
 
-## Technologies Used
+## Technologies Stack 
+###  Frontend
+- HTML5 – Structure for the interactive chat interface.
+- CSS3 – Custom styling for layout, responsiveness, and animation.
+- Bootstrap – Responsive design framework.
+- JavaScript – Client-side logic, chat rendering, speech-to-text, and file handling.
+- Web Speech API – Voice input via microphone.
+
+ ### Backend
+- Python 3.10+ – Core language.
 - Flask: Web framework for handling HTTP requests.
 - pdfplumber: For extracting text from PDFs.
 - Pytesseract: For OCR to extract text from images within PDFs.
@@ -19,6 +28,12 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, or 
 - OpenAI GPT-4: For generating responses to user queries.
 - Chroma: For storing document embeddings and performing similarity search.
 - DocxDocument: for text extraction for documents.
+
+### Libraries & Utilities
+- json – Formatting and response structure.
+- multiprocessing – Speeding up PDF processing.
+- os – File management.
+- werkzeug – Safe file uploads.
 
 ## Directory Structure
 - The project is organized as follows:
