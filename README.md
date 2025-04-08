@@ -21,7 +21,7 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, or 
 - DocxDocument: for text extraction for documents.
 
 ## Directory Structure
-'- The project is organized as follows:
+- The project is organized as follows:
 
 ```
 Spring2025-Team-Essentials/
