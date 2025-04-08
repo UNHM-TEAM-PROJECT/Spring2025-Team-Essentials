@@ -3,7 +3,7 @@
 # NECHE Compliance Assistant Chatbot
 
 ## Overview
-This chatbot allows users to upload PDFs and document(.docx) files, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
+This chatbot allows users to upload individual PDFs, document (.docx) files, or zip files containing multiple PDFs and documents. It extracts the text from the uploaded files and checks for compliance with various requirements, including NECHE compliance, minimal syllabus requirements, and optional syllabus requirements. The chatbot uses AI-powered responses to answer user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
 
 ## Features
 - PDF and .DOCX Upload & Text Extraction: Upload PDFs and extract text.
@@ -19,6 +19,51 @@ This chatbot allows users to upload PDFs and document(.docx) files, extracts the
 - OpenAI GPT-4: For generating responses to user queries.
 - Chroma: For storing document embeddings and performing similarity search.
 - DocxDocument: for text extraction for documents.
+
+## Directory Structure
+- The project is organized as follows:
+Spring2025-Team-Essentials/
+│
+├── .vscode/                     # VS Code configuration files
+│   └── extensions.json          #Extensions configuration for the project
+│
+├── automated_testing/           # Automated testing module
+│   ├── README.md                # Documentation for automated testing
+│   ├── test_rag.py              # Script to run automated tests
+│   ├── outputs/                 # Folder for storing compliance reports
+│   │   └── compliance_reports/  # JSON reports for each test case
+│   ├── Syllabi_sp2025/          # Folder containing test case PDFs
+│       ├── chatbot-doc.pdf
+│       ├── COMP 802 Spring 2024 Syllabus.pdf
+│       ├── Comp693.pdf
+│       ├── niche_compliance.pdf
+│       └── ...                  # Additional test case PDFs
+│
+├── data/                       
+│   ├── chatbot-bg.png           # Background image for the chatbot UI
+│   └── ...                      # Additional static files
+│
+├── db/                          # Database-related files (if any)
+│   └── ...                      # Placeholder for database files
+│
+├── templates/                   # HTML templates for the chatbot frontend
+│   ├── index.html               # Main HTML file for the chatbot UI
+│   └── ...                      
+│
+├── uploads/                     # Folder for storing uploaded files
+│   └── ...                    
+│
+├── venv/                        # Python virtual environment
+│   ├── bin/                     # Executables for the virtual environment
+│   ├── lib/                     # Installed Python packages
+│   │   └── python3.11/          # Python 3.11 site-packages
+│   └── ...                      # Other virtual environment files
+│
+├── chat_history.json            # JSON file to store chatbot conversation history
+├── chatbot.py                   # Main script to run the chatbot backend
+├── conversation_memory.json     # JSON file to store chatbot memory
+├── requirements.txt             # Python dependencies for the project
+└── README.md                    # High-level project documentation
 
 ## Local Setup
 
