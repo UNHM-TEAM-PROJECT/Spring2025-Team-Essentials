@@ -65,7 +65,9 @@ Spring2025-Team-Essentials/
 ├── chatbot.py                   # Main script to run the chatbot backend
 ├── conversation_memory.json     # JSON file to store chatbot memory
 ├── requirements.txt             # Python dependencies for the project
-└── README.md                    # High-level project documentation```
+└── README.md                    # High-level project documentation
+
+```
 
 ## Local Setup
 
