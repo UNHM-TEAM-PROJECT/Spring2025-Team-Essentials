@@ -21,11 +21,13 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, or 
 - DocxDocument: for text extraction for documents.
 
 ## Directory Structure
-- The project is organized as follows:
+'- The project is organized as follows:
+
+```
 Spring2025-Team-Essentials/
-│
+|
 ├── .vscode/                     # VS Code configuration files
-│   └── extensions.json          #Extensions configuration for the project
+│   └── extensions.json          # Extensions configuration for the project
 │
 ├── automated_testing/           # Automated testing module
 │   ├── README.md                # Documentation for automated testing
@@ -63,7 +65,7 @@ Spring2025-Team-Essentials/
 ├── chatbot.py                   # Main script to run the chatbot backend
 ├── conversation_memory.json     # JSON file to store chatbot memory
 ├── requirements.txt             # Python dependencies for the project
-└── README.md                    # High-level project documentation
+└── README.md                    # High-level project documentation```
 
 ## Local Setup
 
