@@ -723,92 +723,7 @@ Date:
                 <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Syllabus Details</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Instructor Name</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Phillip Deen</td>
-            </tr>
-            
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Title or Rank</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Senior Lecturer of Philosophy & Humanities</td>
-            </tr>
-    
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Department or Program Affiliation</td>
-                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
-            </tr>
-    
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Preferred Contact Method</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">E-mail</td>
-            </tr>
-    
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Professor's Email Address</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">phillip.deen@unh.edu</td>
-            </tr>
-    
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Professor's Phone Number</td>
-                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
-            </tr>
-    
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Office Address</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">431</td>
-            </tr>
-    
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Office Hours</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Tuesdays and Thursdays before 10:00 or after class at 3:00</td>
-            </tr>
-    
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Location (Physical or Remote)</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Classroom 345</td>
-            </tr>
-    
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Course Learning Outcomes</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">
-                    Gain knowledge about the texts and culture of classical Greece, engage deeply with 
-                    general questions of aesthetics, politics, metaphysics, and the nature of a good life, 
-                    learn how to read and think critically.
-                </td>
-            </tr>
-    
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Credit Hour Workload</td>
-                <td style="padding: 14px; border: 1px solid #ddd; color: red; font-weight: bold;">Not Found</td>
-            </tr>
-    
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Grading Procedures & Final Grade Scale</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">
-                    A: 93.3+, A-: 90.0-93.2, B+: 86.6-89.9, B: 83.3-86.5, B-: 80.0-83.2, 
-                    C+: 76.6-79.9, C: 73.3-76.5, C-: 70.0-73.2, D+: 66.6-69.9, 
-                    D: 63.3-66.5, D-: 60.0-63.2, F: 0-59.9
-                </td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Course Number and Title</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">COMP890 - Advanced Topics in Computer Science</td>
-            </tr>
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Number of Credits/Units</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">4 Credits</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Modality/Meeting Time and Place</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Hybrid, Mondays and Wednesdays, 2:00 PM - 3:30 PM, Room 210</td>
-            </tr>
-            <tr>
-                <td style="padding: 14px; border: 1px solid #ddd; font-weight: bold;">Semester/Term (and start/end dates)</td>
-                <td style="padding: 14px; border: 1px solid #ddd;">Spring 2025 (January 15 - May 10)</td>
-            </tr>
-            
-        </tbody>
+        tbody
     </table>
     <!-- Voice Assitant -->
     <div class="page-container">
@@ -1113,92 +1028,115 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tbody = document.createElement("tbody");
 
                 allResults.forEach((result, index) => {
-                    
-                    const filename = result.filename || `File_${index + 1}`;
-                    const passFail = result.compliance_check.includes("Compliant") ? "Pass" : "Fail";
-                    const statusColor = passFail === "Pass" ? "green" : "red"; // Set color based on status
-                    const reportData = result.extracted_information || {};
+    const filename = result.filename || `File_${index + 1}`;
+    const reportData = result.extracted_information || {};
 
-                    let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
-                    let professorName = reportData["Instructor Name"] || "Not Found";
-                    let courseNumber = "";
-                    let courseTitle = "";
+    // Define required NECHE and minimum fields (same as in showCompliancePopupClean)
+    const requiredNECHEFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+        "Preferred Contact Method", "Email Address", "Phone Number",
+        "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+    ];
 
-                    if (courseNumberAndTitle !== "Not Found") {
-                        const parts = courseNumberAndTitle.split(" ");
-                        if (parts.length >= 2) {
-                            const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                            const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                            if (courseNumberMatch) {
-                                courseNumber = potentialCourseNumber;
-                                courseTitle = parts.slice(2).join(" ").trim();
-                            } else {
-                                courseTitle = courseNumberAndTitle.trim();
-                            }
-                        } else {
-                            courseTitle = courseNumberAndTitle.trim();
-                        }
-                    }
+    const minimumFields = [
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
 
-                    let courseDetails = [];
-                    if (courseNumber) courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
-                    if (courseTitle) courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
-                    if (professorName !== "Not Found") courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
+    // Check for missing fields in reportData
+    const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+    const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
 
-                    let statusHeading = courseDetails.length > 0 ? `
-                        <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
-                            ${courseDetails.join("<br>")}
-                        </div>` : "";
+    // Determine Pass/Fail based on missing fields (same logic as popup)
+    const passFail = (missingNECHE.length === 0 && missingMinimum.length === 0) ? "Pass" : "Fail";
+    const statusColor = passFail === "Pass" ? "green" : "red"; // Set color based on status
 
-                    let formattedComplianceMessage = result.compliance_check || "Compliance status not available.";
-                    const urlRegex = /(https?:\/\/[^\s]+)/g;
-                    formattedComplianceMessage = formattedComplianceMessage.replace(urlRegex, url => {
-                        return `<a href="${url}" target="_blank" style="color: #1a73e8; text-decoration: underline; word-break: break-all;">${url}</a>`;
-                    });
+    let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
+    let professorName = reportData["Instructor Name"] || "Not Found";
+    let courseNumber = "";
+    let courseTitle = "";
 
-                    const fullStatusMessage = `
-                        <div style="line-height: 1.5;">
-                            ${statusHeading}
-                            <div style="margin-top: 10px;">
-                                ${formattedComplianceMessage}
-                            </div>
-                        </div>`;
+    if (courseNumberAndTitle !== "Not Found") {
+        const parts = courseNumberAndTitle.split(" ");
+        if (parts.length >= 2) {
+            const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
+            const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
+            if (courseNumberMatch) {
+                courseNumber = potentialCourseNumber;
+                courseTitle = parts.slice(2).join(" ").trim();
+            } else {
+                courseTitle = courseNumberAndTitle.trim();
+            }
+        } else {
+            courseTitle = courseNumberAndTitle.trim();
+        }
+    }
 
-                    const row = document.createElement("tr");
+    let courseDetails = [];
+    if (courseNumber) courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
+    if (courseTitle) courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
+    if (professorName !== "Not Found") courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
 
-                    const nameCell = document.createElement("td");
-                    nameCell.style.padding = "10px";
-                    nameCell.style.border = "1px solid #ddd";
-                    nameCell.innerHTML = `<strong>${filename}</strong>`;
-                    row.appendChild(nameCell);
+    let statusHeading = courseDetails.length > 0 ? `
+        <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+            ${courseDetails.join("<br>")}
+        </div>` : "";
 
-                    const statusCell = document.createElement("td");
-                    statusCell.style.padding = "10px";
-                    statusCell.style.textAlign = "center";
-                    statusCell.style.border = "1px solid #ddd";
-                    statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
-                    row.appendChild(statusCell);
+    let formattedComplianceMessage = result.compliance_check || "Compliance status not available.";
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    formattedComplianceMessage = formattedComplianceMessage.replace(urlRegex, url => {
+        return `<a href="${url}" target="_blank" style="color: #1a73e8; text-decoration: underline; word-break: break-all;">${url}</a>`;
+    });
 
-                    const buttonCell = document.createElement("td");
-                    buttonCell.style.padding = "10px";
-                    buttonCell.style.textAlign = "center";
-                    buttonCell.style.border = "1px solid #ddd";
+    const fullStatusMessage = `
+        <div style="line-height: 1.5;">
+            ${statusHeading}
+            <div style="margin-top: 10px;">
+                ${formattedComplianceMessage}
+            </div>
+        </div>`;
 
-                    const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
-                    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, "Sample_Report"));
-                    const statusBtn = createStyledButton("Status", "modern-btn", () => {
-    showCompliancePopupClean(reportData, filename, result.compliance_check);
+    const row = document.createElement("tr");
+
+    const nameCell = document.createElement("td");
+    nameCell.style.padding = "10px";
+    nameCell.style.border = "1px solid #ddd";
+    nameCell.innerHTML = `<strong>${filename}</strong>`;
+    row.appendChild(nameCell);
+    
+    const statusCell = document.createElement("td");
+    statusCell.style.padding = "10px";
+    statusCell.style.textAlign = "center";
+    statusCell.style.border = "1px solid #ddd";
+    statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
+    row.appendChild(statusCell);
+
+    const buttonCell = document.createElement("td");
+    buttonCell.style.padding = "10px";
+    buttonCell.style.textAlign = "center";
+    buttonCell.style.border = "1px solid #ddd";
+
+    const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
+    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, "Sample_Report"));
+    const statusBtn = createStyledButton("Status", "modern-btn", () => {
+        showCompliancePopupClean(reportData, filename, result.compliance_check);
+    });
+    viewBtn.style.marginRight = "8px";
+    downloadBtn.style.marginRight = "8px";
+
+    buttonCell.appendChild(viewBtn);
+    buttonCell.appendChild(downloadBtn);
+    buttonCell.appendChild(statusBtn);
+    row.appendChild(buttonCell);
+
+    tbody.appendChild(row);
 });
-                    viewBtn.style.marginRight = "8px";
-                    downloadBtn.style.marginRight = "8px";
-
-                    buttonCell.appendChild(viewBtn);
-                    buttonCell.appendChild(downloadBtn);
-                    buttonCell.appendChild(statusBtn);
-                    row.appendChild(buttonCell);
-
-                    tbody.appendChild(row);
-                });
 
                 table.appendChild(tbody);
                 scrollWrapper.appendChild(table);
@@ -1274,30 +1212,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Define the fields for the report
         const requiredFields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
-            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-            "Assignment Deadlines & Policies"
-        ];
+    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+    "Assignment Deadlines & Policies"
+];
 
-        const minimumFields = [
-            "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)","Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-            "Attendance", "Academic Integrity/Plagiarism/AI"
-        ];
+const minimumFields = [
+    "Course Number and Title",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+    "Attendance", "Academic Integrity/Plagiarism/AI"
+];
 
-        const optionalFields = [
-            "Course Prerequisites",
-            "Simultaneous 700/800 Course Designation",
-            "University Requirements",
-            "Teaching Assistants (Names and Contact Information)",
-            "Sensitive course content",
-            "Additional information as needed for program accreditation (and other program requirements)"
-        ];
-
+const optionalFields = [
+    "Course Prerequisites",
+    "Simultaneous 700/800 Course Designation",
+    "University Requirements",
+    "Teaching Assistants (Names and Contact Information)"
+];
         const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
         const tableColumn = ["Syllabus Items", "Syllabus Details"];
         const tableRows = [];
@@ -1378,31 +1314,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showReportModal(data) {
         const requiredFields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
-            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-            "Assignment Deadlines & Policies"
-        ];
+    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+    "Assignment Deadlines & Policies"
+];
 
-        const minimumFields = [
-            "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-            "Attendance", "Academic Integrity/Plagiarism/AI"
-        ];
+const minimumFields = [
+    "Course Number and Title",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+    "Attendance", "Academic Integrity/Plagiarism/AI"
+];
 
-        const optionalFields = [
-            "Course Prerequisites",
-            "Simultaneous 700/800 Course Designation",
-            "University Requirements",
-            "Teaching Assistants (Names and Contact Information)",
-            "Sensitive course content",
-            "Additional information as needed for program accreditation (and other program requirements)"
-        ];
-
+const optionalFields = [
+    "Course Prerequisites",
+    "Simultaneous 700/800 Course Designation",
+    "University Requirements",
+    "Teaching Assistants (Names and Contact Information)"
+];
         const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
 
         let html = `<html><head>
@@ -1591,25 +1524,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function showCompliancePopupClean(data, filename, complianceStatus) {
-    const missingNECHE = [
-        "Coursework Types & Submission Methods",
-        "Credit Hour Workload",
-        "Grading Procedures & Final Grade Scale",
-        "Assignment Deadlines & Policies",
-        "Course SLOs"
-    ].filter(field => !data[field] || data[field] === "Not Found");
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+        "Preferred Contact Method", "Email Address", "Phone Number",
+        "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+    ];
 
-    const missingMinimum = [
-        "Technical Requirements",
-        "Required/Recommended Textbook (or other source for course reference information)",
-        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
-        "Format (e.g., lecture plus lab/discussion etc.)"
-    ].filter(field => !data[field] || data[field] === "Not Found");
+    const minimumFields = [
+    "Course Number and Title",
+    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+    "Modality/Meeting Time and Place",
+    "Semester/Term (and start/end dates)",
+    "Department/Program",
+    "Format (e.g., lecture plus lab/discussion etc.)",
+    "Course Description (minimum course catalog description)",
+    "Sequence of Course Topics and Important Dates",
+    "Required/Recommended Textbook (or other source for course reference information)",
+    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+    "Technical Requirements",
+    "Attendance",
+    "Academic Integrity/Plagiarism/AI"
+];
+
+
+    const missingNECHE = requiredFields.filter(field => data[field] === "Not Found" || !data[field]);
+    const missingMinimum = minimumFields.filter(field => data[field] === "Not Found" || !data[field]);
 
     const courseRaw = data["Course Number and Title"] || "Not Found";
     const professor = data["Instructor Name"] || "Not Found";
 
-    // Try to separate number and title
     let courseNumber = "";
     let courseTitle = courseRaw;
     const parts = courseRaw.split(" ");
@@ -1618,7 +1563,6 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
         courseTitle = parts.slice(2).join(" ");
     }
 
-    // Determine compliance status
     const isCompliant = missingNECHE.length === 0 && missingMinimum.length === 0;
     const statusColor = isCompliant ? "green" : "red";
     const statusText = isCompliant ? "Pass" : "Fail";
@@ -1637,7 +1581,7 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
     popupOverlay.style.zIndex = "9999";
 
     const popup = document.createElement("div");
-    popup.style.background = "#ffffff"; // Light background (white)
+    popup.style.background = "#ffffff";
     popup.style.borderRadius = "10px";
     popup.style.padding = "25px";
     popup.style.width = "90%";
@@ -1646,10 +1590,12 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
     popup.style.overflowY = "auto";
     popup.style.fontFamily = "Segoe UI, sans-serif";
     popup.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
-    popup.style.color = "#000000"; // Default text color to black
+    popup.style.color = "#000000";
 
-    // Create the table for course details and compliance status
     let popupContent = `
+        <div style="background-color: #003591; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 18px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+            Status
+        </div>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Number</td>
@@ -1667,65 +1613,48 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Compliance Status</td>
                 <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
             </tr>
-        </table>
+        </table>`;
 
-        <div style="font-weight: bold; color: red; margin-bottom: 20px; text-align: center;">
-            ${isCompliant ? "This syllabus is fully NECHE compliant." : "This syllabus is not fully NECHE compliant. Below is the list of missing items."}
-        </div>
-    `;
+    popupContent += `<div style="font-weight: bold; color: ${statusColor}; margin-bottom: 20px; text-align: center;">
+        The compliance check is complete. The syllabus is ${isCompliant ? "NECHE compliant." : "not NECHE compliant.<br>Here is the missing information."}
+    </div>`;
 
-    // Add missing NECHE requirements if any
     if (missingNECHE.length > 0) {
         popupContent += `
             <div style="margin-top: 10px; text-align: left;">
-                <h5 style="margin-bottom: 10px; color: #000000;">Missing NECHE Requirements</h5>
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="background-color: #f0f0f0;">
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Item</th>
+                        <tr style="background-color: #003591; color: white;">
+                            <th style="padding: 8px; border: 1px solid #ddd;">Missing NECHE Requirements</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${missingNECHE.map(item => `
-                            <tr>
-                                <td style="padding: 8px; border: 1px solid #ddd; color: red;">${item}</td>
-                            </tr>
-                        `).join("")}
+                        ${missingNECHE.map(field => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${field}</td></tr>`).join("")}
                     </tbody>
                 </table>
-            </div>
-        `;
+            </div>`;
     }
 
-    // Add missing minimum requirements if any
     if (missingMinimum.length > 0) {
         popupContent += `
             <div style="margin-top: 20px; text-align: left;">
-                <h5 style="margin-bottom: 10px; color: #000000;">Missing Minimum Requirements</h5>
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr style="background-color: #f0f0f0;">
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Item</th>
+                        <tr style="background-color: #003591; color: white;">
+                            <th style="padding: 8px; border: 1px solid #ddd;">Missing Minimum Requirements</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${missingMinimum.map(item => `
-                            <tr>
-                                <td style="padding: 8px; border: 1px solid #ddd; color: red;">${item}</td>
-                            </tr>
-                        `).join("")}
+                        ${missingMinimum.map(field => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${field}</td></tr>`).join("")}
                     </tbody>
                 </table>
-            </div>
-        `;
+            </div>`;
     }
 
-    // Add the Close button
     popupContent += `
         <div style="text-align: center; margin-top: 30px;">
             <button id="closeCompliancePopup" style="background-color: #000000; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Close</button>
-        </div>
-    `;
+        </div>`;
 
     popup.innerHTML = popupContent;
     popupOverlay.appendChild(popup);
