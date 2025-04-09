@@ -791,7 +791,12 @@ def ask():
         return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
     
     
+from flask import send_file
 
+@app.route("/download_all_reports_zip", methods=["GET"])
+def download_all_reports_zip():
+    zip_path = "/path/to/generated/NECHE_All_Reports.zip"  # Update this path accordingly
+    return send_file(zip_path, as_attachment=True)
 
 # Serve frontend page
 @app.route('/')
