@@ -661,6 +661,9 @@ Date:
 
         
     </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="page-container">
@@ -848,7 +851,7 @@ Date:
     </div>
            <!-- Drag & Drop Upload Box -->
            <div class="upload-area" id="uploadArea">
-            <p>Drag & Drop your syllabus file here or <span style="color:##003591; font-weight:bold;">Click to Upload</span></p>
+            <p>Drag & Drop your syllabus file here or <span style="color:#003591; font-weight:bold;">Click to Upload</span></p>
             <input type="file" id="fileInput" accept=".pdf, .docx">
             <p class="file-info" id="fileInfo">No file chosen</p>
         </div>
@@ -920,23 +923,23 @@ Date:
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Get DOM elements
     const chatHistory = document.getElementById("chat-history");
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
     const fileInput = document.getElementById("fileInput");
     const uploadButton = document.getElementById("uploadButton");
     const micButton = document.getElementById("mic-button");
+    console.log("jsPDF loaded:", !!window.jspdf);
+console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
 
     let latestReportData = null;
+    let allResults = [];
 
-    // Display welcome message when the page loads
     function displayWelcomeMessage() {
         addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
     }
     window.addEventListener("load", displayWelcomeMessage);
 
-    // Function to add a message to the chat history
     function addHTMLMessage(htmlContent, isUser) {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
@@ -956,7 +959,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    // Handle sending a text message
     sendButton.addEventListener("click", handleSend);
     userInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
@@ -965,7 +967,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle voice input
     micButton.addEventListener("click", handleVoiceInput);
 
     function handleSend() {
@@ -983,7 +984,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(response => response.json())
         .then(data => {
             const userMessage = message.toLowerCase().trim();
-
             const casualGreetings = {
                 "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
                 "hello": "Hello! How can I assist you today?",
@@ -1033,13 +1033,15 @@ document.addEventListener("DOMContentLoaded", () => {
         recognition.start();
     }
 
-    // Handle file upload
     uploadButton.addEventListener("click", function () {
         fileInput.click();
     });
 
     fileInput.addEventListener("change", function (e) {
-        const file = e.target.files[0];
+        const files = e.target.files;
+        if (!files.length) return;
+
+        const file = files[0];
         if (
             file &&
             (
@@ -1056,40 +1058,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Sample syllabus data to use if server extraction fails
-    const sampleSyllabusData = {
-        "Course Number and Title": "MATH 425 Calculus I",
-        "Instructor Name": "Dr. John Smith",
-        "Title or Rank": "Professor",
-        "Department or Program Affiliation": "Mathematics Department",
-        "Preferred Contact Method": "Email",
-        "Email Address": "john.smith@unh.edu",
-        "Phone Number": "603-555-1234",
-        "Office Address": "Room 101, Math Building",
-        "Office Hours": "MWF 10:00 AM - 11:00 AM",
-        "Location (Physical or Remote)": "Physical",
-        "Course Learning Outcomes": "Students will learn differentiation, integration, and their applications.",
-        "Credit Hour Workload": "45 hours per credit (3 credits)",
-        "Coursework Types & Submission Methods": "Assignments via Canvas, exams in-class",
-        "Grading Procedures & Final Grade Scale": "A: 90-100, B: 80-89, etc.",
-        "Assignment Deadlines & Policies": "Late work accepted with 10% penalty per day",
-        "Course Description": "This course covers the fundamentals of calculus, including limits, derivatives, and integrals.",
-        "Course Format": "Lecture plus discussion",
-        "Course Topics and Schedule": "Week 1: Limits, Week 2: Derivatives, etc.",
-        "Sensitive Course Content": "N/A",
-        "Required/recommended textbook (or other source for course reference information)": "Calculus: Early Transcendentals by Stewart",
-        "Other required/recommended materials (e.g., software, clicker remote, etc.)": "Graphing calculator recommended",
-        "Technical Requirements": "Access to Canvas and a laptop",
-        "Attendance": "Attendance is mandatory; 3 unexcused absences result in a grade penalty",
-        "Academic integrity/plagiarism/AI": "All work must be your own; AI tools are prohibited unless specified",
-        "Program Accreditation Info": "This course meets NECHE requirements for quantitative reasoning",
-        "Number of Credits/Units (include a link to the federal definition of a credit hour)": "3 credits (https://www.neche.org/credit-hour-definition)",
-        "Modality/Meeting Time and Place": "In-person, MWF 9:00 AM - 10:00 AM, Room 202",
-        "Semester/Term (and start/end dates)": "Spring 2025 (Jan 21 - May 15)",
-        "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)": "N/A",
-        "University requirements (i.e., DISC, WI,)": "Fulfills DISC Quantitative Reasoning"
-    };
-
     function handleFileUpload(file) {
         const formData = new FormData();
         formData.append("file", file);
@@ -1103,17 +1071,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Check if extracted_information is empty or missing key fields
-                const extractedInfo = data.extracted_information || {};
-                const hasData = Object.keys(extractedInfo).length > 0 && extractedInfo["Course Number and Title"];
-
-                // If no useful data is extracted, use sample data
-                const reportDataToUse = hasData ? extractedInfo : sampleSyllabusData;
-                const complianceMessage = hasData 
-                    ? (data.compliance_check || "Compliance status not available.") 
-                    : "Using sample syllabus data due to extraction failure. Please ensure the uploaded syllabus contains the required information.";
-
-                latestReportData = reportDataToUse;
+                allResults = data.results || [{ filename: file.name, extracted_information: data.extracted_information, compliance_check: data.compliance_check }];
+                latestReportData = data.extracted_information || {};
 
                 const scrollWrapper = document.createElement("div");
                 scrollWrapper.className = "scroll-wrapper";
@@ -1131,244 +1090,119 @@ document.addEventListener("DOMContentLoaded", () => {
                 const thead = document.createElement("thead");
                 thead.innerHTML = `
                     <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">PDF Name</th>
+                        <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
                         <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
                         <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
                     </tr>`;
                 table.appendChild(thead);
 
                 const tbody = document.createElement("tbody");
-                const row = document.createElement("tr");
 
-                const nameCell = document.createElement("td");
-                nameCell.style.padding = "10px";
-                nameCell.style.border = "1px solid #ddd";
-                nameCell.innerHTML = `<strong>${file.name}</strong>`;
-                row.appendChild(nameCell);
+                allResults.forEach((result, index) => {
+                    const filename = result.filename || `File_${index + 1}`;
+                    const passFail = result.compliance_check.includes("Compliant") ? "Pass" : "Fail";
+                    const reportData = result.extracted_information || {};
 
-                const passFail = complianceMessage.includes("Compliant") || !hasData ? "Pass" : "Fail";
-                const statusCell = document.createElement("td");
-                statusCell.style.padding = "10px";
-                statusCell.style.textAlign = "center";
-                statusCell.style.border = "1px solid #ddd";
-                statusCell.innerHTML = `<strong>${passFail}</strong>`;
-                row.appendChild(statusCell);
-
-                let courseNumberAndTitle = reportDataToUse["Course Number and Title"] || "Not Found";
-                let professorName = reportDataToUse["Instructor Name"] || "Not Found";
-                let courseNumber = "";
-                let courseTitle = "";
-                if (courseNumberAndTitle !== "Not Found") {
-                    const parts = courseNumberAndTitle.split(" ");
-                    if (parts.length >= 2) {
-                        const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                        const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                        if (courseNumberMatch) {
-                            courseNumber = potentialCourseNumber;
-                            courseTitle = parts.slice(2).join(" ").trim();
+                    let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
+                    let professorName = reportData["Instructor Name"] || "Not Found";
+                    let courseNumber = "";
+                    let courseTitle = "";
+                    if (courseNumberAndTitle !== "Not Found") {
+                        const parts = courseNumberAndTitle.split(" ");
+                        if (parts.length >= 2) {
+                            const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
+                            const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
+                            if (courseNumberMatch) {
+                                courseNumber = potentialCourseNumber;
+                                courseTitle = parts.slice(2).join(" ").trim();
+                            } else {
+                                courseTitle = courseNumberAndTitle.trim();
+                            }
                         } else {
                             courseTitle = courseNumberAndTitle.trim();
                         }
-                    } else {
-                        courseTitle = courseNumberAndTitle.trim();
                     }
-                }
 
-                let courseDetails = [];
-                if (courseNumber) {
-                    courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
-                }
-                if (courseTitle) {
-                    courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
-                }
-                if (professorName !== "Not Found") {
-                    courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
-                }
+                    let courseDetails = [];
+                    if (courseNumber) courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
+                    if (courseTitle) courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
+                    if (professorName !== "Not Found") courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
 
-                let statusHeading = "";
-                if (courseDetails.length > 0) {
-                    statusHeading = `
+                    let statusHeading = courseDetails.length > 0 ? `
                         <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
                             ${courseDetails.join("<br>")}
-                        </div>`;
-                }
+                        </div>` : "";
 
-                let formattedComplianceMessage = complianceMessage;
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                formattedComplianceMessage = formattedComplianceMessage.replace(urlRegex, url => {
-                    return `<a href="${url}" target="_blank" style="color: #1a73e8; text-decoration: underline; word-break: break-all;">${url}</a>`;
+                    let formattedComplianceMessage = result.compliance_check || "Compliance status not available.";
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    formattedComplianceMessage = formattedComplianceMessage.replace(urlRegex, url => {
+                        return `<a href="${url}" target="_blank" style="color: #1a73e8; text-decoration: underline; word-break: break-all;">${url}</a>`;
+                    });
+
+                    const fullStatusMessage = `
+                        <div style="line-height: 1.5;">
+                            ${statusHeading}
+                            <div style="margin-top: 10px;">
+                                ${formattedComplianceMessage}
+                            </div>
+                        </div>`;
+
+                    const row = document.createElement("tr");
+
+                    const nameCell = document.createElement("td");
+                    nameCell.style.padding = "10px";
+                    nameCell.style.border = "1px solid #ddd";
+                    nameCell.innerHTML = `<strong>${filename}</strong>`;
+                    row.appendChild(nameCell);
+
+                    const statusCell = document.createElement("td");
+                    statusCell.style.padding = "10px";
+                    statusCell.style.textAlign = "center";
+                    statusCell.style.border = "1px solid #ddd";
+                    statusCell.innerHTML = `<strong>${passFail}</strong>`;
+                    row.appendChild(statusCell);
+
+                    const buttonCell = document.createElement("td");
+                    buttonCell.style.padding = "10px";
+                    buttonCell.style.textAlign = "center";
+                    buttonCell.style.border = "1px solid #ddd";
+
+                    const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
+                    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, filename));
+                    const statusBtn = createStyledButton("Status", "modern-btn", () => {
+    showCompliancePopupClean(reportData, filename, result.compliance_check);
+});
+                    viewBtn.style.marginRight = "8px";
+                    downloadBtn.style.marginRight = "8px";
+
+                    buttonCell.appendChild(viewBtn);
+                    buttonCell.appendChild(downloadBtn);
+                    buttonCell.appendChild(statusBtn);
+                    row.appendChild(buttonCell);
+
+                    tbody.appendChild(row);
                 });
 
-                const fullStatusMessage = `
-                    <div style="line-height: 1.5;">
-                        ${statusHeading}
-                        <div style="margin-top: 10px;">
-                            ${formattedComplianceMessage}
-                        </div>
-                    </div>`;
-
-                const buttonCell = document.createElement("td");
-                buttonCell.style.padding = "10px";
-                buttonCell.style.textAlign = "center";
-                buttonCell.style.border = "1px solid #ddd";
-
-                const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportDataToUse));
-                const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(reportDataToUse, file.name));
-                const statusBtn = createStyledButton("Status", "modern-btn", () => addHTMLMessage(fullStatusMessage, false));
-                viewBtn.style.marginRight = "8px";
-                downloadBtn.style.marginRight = "8px";
-
-                buttonCell.appendChild(viewBtn);
-                buttonCell.appendChild(downloadBtn);
-                buttonCell.appendChild(statusBtn);
-                row.appendChild(buttonCell);
-
-                tbody.appendChild(row);
                 table.appendChild(tbody);
                 scrollWrapper.appendChild(table);
-
                 chatHistory.appendChild(scrollWrapper);
 
-                const allBtnWrapper = document.createElement("div");
-                allBtnWrapper.style.textAlign = "center";
-                allBtnWrapper.style.marginTop = "20px";
+                if (allResults.length > 1) {
+                    const allBtnWrapper = document.createElement("div");
+                    allBtnWrapper.style.textAlign = "center";
+                    allBtnWrapper.style.marginTop = "20px";
 
-                const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
-                    downloadAllReports([{ filename: file.name, extracted_information: reportDataToUse }]);
-                });
-
-                allBtnWrapper.appendChild(allReportsBtn);
-                chatHistory.appendChild(allBtnWrapper);
+                    const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => downloadAllReports(allResults));
+                    allBtnWrapper.appendChild(allReportsBtn);
+                    chatHistory.appendChild(allBtnWrapper);
+                }
             } else {
                 throw new Error(`Upload failed: ${data.error}`);
             }
         })
-        .catch(error => {
-            // If the server fails, use sample data as a fallback
-            addHTMLMessage("⚠️ Server error: Unable to process the file. Using sample syllabus data instead.", false);
-            latestReportData = sampleSyllabusData;
-
-            const scrollWrapper = document.createElement("div");
-            scrollWrapper.className = "scroll-wrapper";
-            scrollWrapper.style.border = "1px solid #ddd";
-            scrollWrapper.style.marginTop = "20px";
-            scrollWrapper.style.marginBottom = "20px";
-            scrollWrapper.style.padding = "10px";
-            scrollWrapper.style.backgroundColor = "white";
-
-            const table = document.createElement("table");
-            table.className = "table table-bordered";
-            table.style.marginBottom = "0";
-            table.style.borderCollapse = "collapse";
-
-            const thead = document.createElement("thead");
-            thead.innerHTML = `
-                <tr style="background-color: #3a17d8; color: white; text-align: center;">
-                    <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">PDF Name</th>
-                    <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
-                    <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
-                </tr>`;
-            table.appendChild(thead);
-
-            const tbody = document.createElement("tbody");
-            const row = document.createElement("tr");
-
-            const nameCell = document.createElement("td");
-            nameCell.style.padding = "10px";
-            nameCell.style.border = "1px solid #ddd";
-            nameCell.innerHTML = `<strong>${file.name}</strong>`;
-            row.appendChild(nameCell);
-
-            const statusCell = document.createElement("td");
-            statusCell.style.padding = "10px";
-            statusCell.style.textAlign = "center";
-            statusCell.style.border = "1px solid #ddd";
-            statusCell.innerHTML = `<strong>Pass</strong>`;
-            row.appendChild(statusCell);
-
-            let courseNumberAndTitle = sampleSyllabusData["Course Number and Title"] || "Not Found";
-            let professorName = sampleSyllabusData["Instructor Name"] || "Not Found";
-            let courseNumber = "";
-            let courseTitle = "";
-            if (courseNumberAndTitle !== "Not Found") {
-                const parts = courseNumberAndTitle.split(" ");
-                if (parts.length >= 2) {
-                    const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                    const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                    if (courseNumberMatch) {
-                        courseNumber = potentialCourseNumber;
-                        courseTitle = parts.slice(2).join(" ").trim();
-                    } else {
-                        courseTitle = courseNumberAndTitle.trim();
-                    }
-                } else {
-                    courseTitle = courseNumberAndTitle.trim();
-                }
-            }
-
-            let courseDetails = [];
-            if (courseNumber) {
-                courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
-            }
-            if (courseTitle) {
-                courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
-            }
-            if (professorName !== "Not Found") {
-                courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
-            }
-
-            let statusHeading = "";
-            if (courseDetails.length > 0) {
-                statusHeading = `
-                    <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
-                        ${courseDetails.join("<br>")}
-                    </div>`;
-            }
-
-            const fullStatusMessage = `
-                <div style="line-height: 1.5;">
-                    ${statusHeading}
-                    <div style="margin-top: 10px;">
-                        Using sample syllabus data due to server error. Please ensure the server is running and the uploaded syllabus contains the required information.
-                    </div>
-                </div>`;
-
-            const buttonCell = document.createElement("td");
-            buttonCell.style.padding = "10px";
-            buttonCell.style.textAlign = "center";
-            buttonCell.style.border = "1px solid #ddd";
-
-            const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(sampleSyllabusData));
-            const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadReport(sampleSyllabusData, file.name));
-            const statusBtn = createStyledButton("Status", "modern-btn", () => addHTMLMessage(fullStatusMessage, false));
-            viewBtn.style.marginRight = "8px";
-            downloadBtn.style.marginRight = "8px";
-
-            buttonCell.appendChild(viewBtn);
-            buttonCell.appendChild(downloadBtn);
-            buttonCell.appendChild(statusBtn);
-            row.appendChild(buttonCell);
-
-            tbody.appendChild(row);
-            table.appendChild(tbody);
-            scrollWrapper.appendChild(table);
-
-            chatHistory.appendChild(scrollWrapper);
-
-            const allBtnWrapper = document.createElement("div");
-            allBtnWrapper.style.textAlign = "center";
-            allBtnWrapper.style.marginTop = "20px";
-
-            const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => {
-                downloadAllReports([{ filename: file.name, extracted_information: sampleSyllabusData }]);
-            });
-
-            allBtnWrapper.appendChild(allReportsBtn);
-            chatHistory.appendChild(allBtnWrapper);
-        });
+        .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
     }
 
-    // Create a styled button
     function createStyledButton(text, classes, clickHandler) {
         const button = document.createElement("button");
         button.textContent = text;
@@ -1378,371 +1212,209 @@ document.addEventListener("DOMContentLoaded", () => {
         return button;
     }
 
-    // Download a single report as PDF
-    function downloadReport(data = null, filename = "NECHE_Compliance_Report.pdf") {
-        const reportData = data || latestReportData;
-        if (!reportData) {
-            alert("No report available to download.");
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Create the heading
-        doc.setFontSize(16);
-        doc.setFont("helvetica", "bold");
-        let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
-        let professorName = reportData["Instructor Name"] || "Not Found";
-        let courseNumber = "";
-        let courseTitle = "";
-        if (courseNumberAndTitle !== "Not Found") {
-            const parts = courseNumberAndTitle.split(" ");
-            if (parts.length >= 2) {
-                const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                if (courseNumberMatch) {
-                    courseNumber = potentialCourseNumber;
-                    courseTitle = parts.slice(2).join(" ").trim();
-                } else {
-                    courseTitle = courseNumberAndTitle.trim();
-                }
-            } else {
-                courseTitle = courseNumberAndTitle.trim();
-            }
-        }
-
-        let headingParts = [];
-        let coursePart = "";
-        if (courseTitle && courseNumber) {
-            coursePart = `${courseTitle} (${courseNumber})`;
-        } else if (courseTitle) {
-            coursePart = courseTitle;
-        } else if (courseNumber) {
-            coursePart = courseNumber;
-        }
-
-        if (coursePart) {
-            headingParts.push(coursePart);
-        }
-        if (professorName !== "Not Found") {
-            headingParts.push(`by Professor ${professorName}`);
-        }
-
-        let heading = "Syllabus Report";
-        if (headingParts.length > 0) {
-            heading += " for " + headingParts.join(" ");
-        }
-
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const textWidth = doc.getTextWidth(heading);
-        const xPosition = (pageWidth - textWidth) / 2;
-        doc.text(heading, xPosition, 20);
-
-        const tableColumn = ["Syllabus Items", "Syllabus Details"];
-        const tableRows = [];
-
-        // Define the order and formatting of syllabus items
-        const requiredOrder = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Email Address", "Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-            "Course Description", "Course Format", 
-            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)",
-            "University requirements (i.e., DISC, WI,)",
-            "Course Topics and Schedule",
-            "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
-            "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
-            "Program Accreditation Info", "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
-        ];
-
-        const formattingMap = {
-            "Assignment Deadlines & Policies": "regular",
-            "Technical Requirements": "regular",
-            "Attendance": "regular",
-            "Academic integrity/plagiarism/AI": "regular",
-            "Program Accreditation Info": "regular",
-            "Sensitive Course Content": "regular",
-            "Other required/recommended materials (e.g., software, clicker remote, etc.)": "regular",
-            "Course Number and Title": "bold",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)": "bold",
-            "Modality/Meeting Time and Place": "bold",
-            "Semester/Term (and start/end dates)": "bold",
-            "Course Description": "bold",
-            "Course Format": "bold",
-            "Course Topics and Schedule": "bold",
-            "Course Learning Outcomes": "bold",
-            "Credit Hour Workload": "bold",
-            "Coursework Types & Submission Methods": "bold",
-            "Grading Procedures & Final Grade Scale": "bold",
-            "Required/recommended textbook (or other source for course reference information)": "bold",
-            "Instructor Name": "italic-bold",
-            "Title or Rank": "italic-bold",
-            "Department or Program Affiliation": "italic-bold",
-            "Preferred Contact Method": "italic-bold",
-            "Email Address": "italic-bold",
-            "Phone Number": "italic-bold",
-            "Office Address": "italic-bold",
-            "Office Hours": "italic-bold",
-            "Location (Physical or Remote)": "italic-bold",
-            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)": "italic-bold",
-            "University requirements (i.e., DISC, WI,)": "italic-bold"
-        };
-
-        requiredOrder.forEach(key => {
-            const value = reportData[key] || "Not Found";
-            const format = formattingMap[key] || "regular";
-            if (format === "italic-bold" && value === "Not Found") {
-                return;
-            }
-
-            let formattedKey = key;
-            if (format === "bold") {
-                formattedKey = `**${key}**`;
-            } else if (format === "italic-bold") {
-                formattedKey = `***${key}***`;
-            }
-
-            const displayValue = value === "Not Found" ? "Not Found" : value;
-            tableRows.push([formattedKey, displayValue]);
-        });
-
-        doc.autoTable({
-            startY: 30,
-            head: [tableColumn],
-            body: tableRows,
-            theme: "grid",
-            headStyles: {
-                fillColor: [58, 23, 216], // #3a17d8
-                textColor: [255, 255, 255],
-                fontSize: 10,
-                cellPadding: 4,
-            },
-            columnStyles: {
-                0: {
-                    fillColor: [242, 242, 242], // #f2f2f2
-                    cellWidth: 70,
-                },
-                1: {
-                    fillColor: [255, 255, 255], // #ffffff
-                    cellWidth: 110,
-                }
-            },
-            styles: {
-                fontSize: 10,
-                cellPadding: 4,
-                textColor: [0, 0, 0],
-            },
-            didParseCell: function (data) {
-                if (data.column.index === 0) {
-                    let text = data.cell.text[0];
-                    if (text.startsWith("***") && text.endsWith("***")) {
-                        data.cell.text[0] = text.slice(3, -3);
-                        data.cell.styles.fontStyle = "italicbold";
-                    } else if (text.startsWith("**") && text.endsWith("**")) {
-                        data.cell.text[0] = text.slice(2, -2);
-                        data.cell.styles.fontStyle = "bold";
-                    }
-                }
-                if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                    data.cell.styles.textColor = [255, 0, 0];
-                    data.cell.styles.fontStyle = "bold";
-                }
-            },
-            didDrawCell: function (data) {
-                doc.setDrawColor(221, 221, 221);
-                doc.setLineWidth(0.1);
-                if (data.row.index === 0 && data.row.section === "head") {
-                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                } else {
-                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                }
-            }
-        });
-
-        doc.save(filename.endsWith(".pdf") ? filename : `${filename}_NECHE_Report.pdf`);
+    function downloadSingleReport(data, filename) {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        console.error("jsPDF is not loaded.");
+        addHTMLMessage("⚠️ Error: jsPDF library not loaded.", false);
+        return;
+    }
+    if (!window.jspdfAutoTable) {
+        console.error("jspdf-autotable is not loaded.");
+        addHTMLMessage("⚠️ Error: jspdf-autotable library not loaded.", false);
+        return;
     }
 
-    // Show the report in a modal-like table
-    function showReportModal(data = null) {
-        const reportData = data || latestReportData;
-        if (!reportData) {
-            addHTMLMessage("Error: No report data available to display.", false);
-            return;
+    const doc = new jsPDF();
+
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
+
+    const minimumFields = [
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
+
+    const optionalFields = [
+        "Simultaneous 700/800 course designation (Graduate vs. Undergraduate)",
+        "Names and contact information for teaching assistants",
+        "Sensitive course content",
+        "Additional information as needed for program accreditation (and other program requirements)"
+    ];
+
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+    const tableColumn = ["Syllabus Items", "Syllabus Details"];
+    const tableRows = [];
+
+    allFields.forEach(field => {
+        const value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
+
+        if (isOptional && value === "Not Found") return;
+
+        let displayField = field;
+        if (requiredFields.includes(field)) {
+            displayField = `**${field}**`;
+        } else if (optionalFields.includes(field)) {
+            displayField = `***${field}***`;
         }
 
-        const requiredOrder = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-            "Preferred Contact Method", "Email Address", "Phone Number",
-            "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-            "Course Description", "Course Format", 
-            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)",
-            "University requirements (i.e., DISC, WI,)",
-            "Course Topics and Schedule",
-            "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
-            "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
-            "Program Accreditation Info", "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
+        const displayValue = value === "Not Found" ? "Not Found" : value;
+        tableRows.push([displayField, displayValue]);
+    });
+
+    let title = "NECHE Compliance Report";
+    const course = data["Course Number and Title"];
+    const professor = data["Instructor Name"];
+
+    const headingParts = [];
+    if (course && course !== "Not Found") headingParts.push(course);
+    if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
+
+    if (headingParts.length > 0) title += " – " + headingParts.join(" ");
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = doc.getTextWidth(title);
+    doc.setFontSize(16);
+    doc.text(title, (pageWidth - textWidth) / 2, 20);
+
+    doc.autoTable({
+        startY: 30,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: {
+            fillColor: [58, 23, 216],
+            textColor: [255, 255, 255],
+            fontSize: 10,
+        },
+        styles: {
+            fontSize: 10,
+            cellPadding: 4,
+        },
+        didParseCell: function (data) {
+            if (data.column.index === 0) {
+                let text = data.cell.text[0];
+                if (text.startsWith("***") && text.endsWith("***")) {
+                    data.cell.text[0] = text.slice(3, -3);
+                    data.cell.styles.fontStyle = "italic";
+                } else if (text.startsWith("**") && text.endsWith("**")) {
+                    data.cell.text[0] = text.slice(2, -2);
+                    data.cell.styles.fontStyle = "bold";
+                }
+            }
+
+            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                data.cell.styles.textColor = [255, 0, 0];
+                data.cell.styles.fontStyle = "bold";
+            }
+        }
+    });
+
+    doc.save(`${filename}_NECHE_Report.pdf`);
+}
+    function showReportModal(data) {
+        const requiredFields = [
+            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+            "Assignment Deadlines & Policies"
         ];
 
-        const formattingMap = {
-            "Assignment Deadlines & Policies": "regular",
-            "Technical Requirements": "regular",
-            "Attendance": "regular",
-            "Academic integrity/plagiarism/AI": "regular",
-            "Program Accreditation Info": "regular",
-            "Sensitive Course Content": "regular",
-            "Other required/recommended materials (e.g., software, clicker remote, etc.)": "regular",
-            "Course Number and Title": "bold",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)": "bold",
-            "Modality/Meeting Time and Place": "bold",
-            "Semester/Term (and start/end dates)": "bold",
-            "Course Description": "bold",
-            "Course Format": "bold",
-            "Course Topics and Schedule": "bold",
-            "Course Learning Outcomes": "bold",
-            "Credit Hour Workload": "bold",
-            "Coursework Types & Submission Methods": "bold",
-            "Grading Procedures & Final Grade Scale": "bold",
-            "Required/recommended textbook (or other source for course reference information)": "bold",
-            "Instructor Name": "italic-bold",
-            "Title or Rank": "italic-bold",
-            "Department or Program Affiliation": "italic-bold",
-            "Preferred Contact Method": "italic-bold",
-            "Email Address": "italic-bold",
-            "Phone Number": "italic-bold",
-            "Office Address": "italic-bold",
-            "Office Hours": "italic-bold",
-            "Location (Physical or Remote)": "italic-bold",
-            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)": "italic-bold",
-            "University requirements (i.e., DISC, WI,)": "italic-bold"
-        };
+        const minimumFields = [
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+            "Attendance", "Academic Integrity/Plagiarism/AI"
+        ];
 
-        let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
-        let professorName = reportData["Instructor Name"] || "Not Found";
-        let courseNumber = "";
-        let courseTitle = "";
-        if (courseNumberAndTitle !== "Not Found") {
-            const parts = courseNumberAndTitle.split(" ");
-            if (parts.length >= 2) {
-                const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                if (courseNumberMatch) {
-                    courseNumber = potentialCourseNumber;
-                    courseTitle = parts.slice(2).join(" ").trim();
-                } else {
-                    courseTitle = courseNumberAndTitle.trim();
-                }
-            } else {
-                courseTitle = courseNumberAndTitle.trim();
-            }
-        }
+        const optionalFields = [
+            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate)",
+            "Names and contact information for teaching assistants",
+            "Sensitive course content",
+            "Additional information as needed for program accreditation (and other program requirements)"
+        ];
 
+        const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+
+        let html = `<html><head>
+            <title>NECHE Report</title>
+            <style>
+                body { font-family: "Segoe UI", sans-serif; padding: 20px; background: #f9f9fb; color: #333; max-width: 1000px; margin: auto; }
+                h2 { font-size: 20px; text-align: center; margin-bottom: 20px; font-weight: 600; color: #2a2a2a; }
+                table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #ccc; font-size: 14px; }
+                th, td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: left; }
+                th { background-color: #3a17d8; color: white; font-weight: 600; }
+                .download-btn { margin-top: 20px; display: block; width: fit-content; margin-left: auto; margin-right: auto; background-color: #3a17d8; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.3s ease; }
+                .download-btn:hover { background-color: #2a0fa6; }
+            </style>
+        </head><body>`;
+
+        let courseTitleRaw = data["Course Number and Title"];
+        let instructor = data["Instructor Name"];
         let headingParts = [];
-        let coursePart = "";
-        if (courseTitle && courseNumber) {
-            coursePart = `${courseTitle} (${courseNumber})`;
-        } else if (courseTitle) {
-            coursePart = courseTitle;
-        } else if (courseNumber) {
-            coursePart = courseNumber;
-        }
 
-        if (coursePart) {
-            headingParts.push(coursePart);
-        }
-        if (professorName !== "Not Found") {
-            headingParts.push(`by Professor ${professorName}`);
-        }
+        if (courseTitleRaw && courseTitleRaw !== "Not Found") headingParts.push(courseTitleRaw);
+        if (instructor && instructor !== "Not Found") headingParts.push(`by Professor ${instructor}`);
 
-        let heading = "Syllabus Report";
-        if (headingParts.length > 0) {
-            heading += " for " + headingParts.join(" ");
-        }
+        let headingText = "NECHE Compliance Report";
+        if (headingParts.length) headingText += " – " + headingParts.join(" ");
 
-        const reportContent = document.createElement("div");
-        reportContent.className = "neche-detailed-report";
-        reportContent.style.marginTop = "20px";
-        reportContent.style.padding = "20px";
-        reportContent.style.backgroundColor = "#fff";
-        reportContent.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
-        reportContent.style.borderRadius = "8px";
-        reportContent.style.width = "100%";
-        reportContent.style.boxSizing = "border-box";
+        html += `<h2>${headingText}</h2>`;
+        html += `<table><thead><tr><th>Syllabus Items</th><th>Syllabus Details</th></tr></thead><tbody>`;
 
-        let html = `<h4 style="text-align:center; font-weight:bold;">${heading}</h4>
-        <table style="width: 100%; border-collapse: collapse; background: white;">
-            <thead>
-                <tr style="background-color: #3a17d8; color: white; text-align: left;">
-                    <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Syllabus Items</th>
-                    <th style="padding: 12px; width: 60%; border: 1px solid #ddd;">Syllabus Details</th>
-                </tr>
-            </thead>
-            <tbody>`;
+        allFields.forEach((field) => {
+            const value = data[field] || "Not Found";
+            const isOptional = optionalFields.includes(field);
 
-        let hasRows = false;
-        requiredOrder.forEach(key => {
-            const value = reportData[key] || "Not Found";
-            const format = formattingMap[key] || "regular";
-            if (format === "italic-bold" && value === "Not Found") {
-                return;
+            if (isOptional && value === "Not Found") return;
+
+            let formattedField = field;
+            if (requiredFields.includes(field)) {
+                formattedField = `<strong>${field}</strong>`;
+            } else if (optionalFields.includes(field)) {
+                formattedField = `<em><strong>${field}</strong></em>`;
             }
 
-            const displayValue = value === "Not Found"
-                ? `<span style="color: red; font-weight: bold;">Not Found</span>`
-                : value;
+            const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value;
 
-            let formattedKey = key;
-            if (format === "bold") {
-                formattedKey = `<strong>${key}</strong>`;
-            } else if (format === "italic-bold") {
-                formattedKey = `<strong><em>${key}</em></strong>`;
-            }
-
-            html += `<tr style="border: none;">
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: left; background-color: #f2f2f2;">${formattedKey}</td>
-                        <td style="padding: 12px; border: 1px solid #ddd; text-align: left; background-color: #ffffff;">${displayValue}</td>
-                     </tr>`;
-            hasRows = true;
+            html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
         });
 
         html += `</tbody></table>`;
-        reportContent.innerHTML = html;
+        const safeData = encodeURIComponent(JSON.stringify(data));
+        html += `<button class="download-btn" onclick="window.opener.downloadSingleReport(JSON.parse(decodeURIComponent('${safeData}')), '${data["Course Number and Title"] || "Report"}')">Download PDF</button>`;
+        html += `</body></html>`;
 
-        if (chatHistory && hasRows) {
-            chatHistory.appendChild(reportContent);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        } else if (!hasRows) {
-            addHTMLMessage("No syllabus information available to display.", false);
-        } else {
-            console.error("Chat history element not found.");
-        }
+        const newWin = window.open("", "_blank");
+        newWin.document.open();
+        newWin.document.write(html);
+        newWin.document.close();
     }
 
-    // Download all reports as a single PDF
     function downloadAllReports(results) {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const zip = new JSZip();
+
+        if (!jsPDF || !JSZip || !saveAs) {
+            console.error("Required libraries (jsPDF, JSZip, or FileSaver) are not loaded.");
+            addHTMLMessage("⚠️ Error: Required libraries not loaded.", false);
+            return;
+        }
 
         results.forEach((result, index) => {
-            if (index > 0) {
-                doc.addPage();
-            }
-
-            const filename = result.filename || `File ${index + 1}`;
+            const doc = new jsPDF();
+            const filename = result.filename || `File_${index + 1}`;
             const reportData = result.extracted_information || {};
 
-            doc.setFontSize(16);
-            doc.setFont("helvetica", "bold");
             let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
             let professorName = reportData["Instructor Name"] || "Not Found";
             let courseNumber = "";
@@ -1764,31 +1436,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             let headingParts = [];
-            let coursePart = "";
-            if (courseTitle && courseNumber) {
-                coursePart = `${courseTitle} (${courseNumber})`;
-            } else if (courseTitle) {
-                coursePart = courseTitle;
-            } else if (courseNumber) {
-                coursePart = courseNumber;
-            }
+            let coursePart = courseNumber ? `${courseTitle} (${courseNumber})` : courseTitle;
+            if (coursePart) headingParts.push(coursePart);
+            if (professorName !== "Not Found") headingParts.push(`by Professor ${professorName}`);
 
-            if (coursePart) {
-                headingParts.push(coursePart);
-            }
-            if (professorName !== "Not Found") {
-                headingParts.push(`by Professor ${professorName}`);
-            }
-
-            let heading = "Syllabus Report";
-            if (headingParts.length > 0) {
-                heading += " for " + headingParts.join(" ");
-            }
+            let heading = "NECHE Compliance Report";
+            if (headingParts.length > 0) heading += " – " + headingParts.join(" ");
 
             const pageWidth = doc.internal.pageSize.getWidth();
             const textWidth = doc.getTextWidth(heading);
-            const xPosition = (pageWidth - textWidth) / 2;
-            doc.text(`NECHE Compliance Report - ${filename}`, xPosition, 20);
+            doc.setFontSize(16);
+            doc.text(heading, (pageWidth - textWidth) / 2, 20);
 
             const tableColumn = ["Syllabus Items", "Syllabus Details"];
             const tableRows = [];
@@ -1836,17 +1494,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Phone Number": "italic-bold",
                 "Office Address": "italic-bold",
                 "Office Hours": "italic-bold",
-                "Location (Physical or Remote)": "italic-bold",
-                "Simultaneous 700/800 course designation (Graduate vs. Undergraduate standard in course)": "italic-bold",
-                "University requirements (i.e., DISC, WI,)": "italic-bold"
+                "Location (Physical or Remote)": "italic-bold"
             };
 
             requiredOrder.forEach(key => {
                 const value = reportData[key] || "Not Found";
                 const format = formattingMap[key] || "regular";
-                if (format === "italic-bold" && value === "Not Found") {
-                    return;
-                }
+                if (format === "italic-bold" && value === "Not Found") return;
 
                 let formattedKey = key;
                 if (format === "bold") {
@@ -1871,14 +1525,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     cellPadding: 4,
                 },
                 columnStyles: {
-                    0: {
-                        fillColor: [242, 242, 242],
-                        cellWidth: 70,
-                    },
-                    1: {
-                        fillColor: [255, 255, 255],
-                        cellWidth: 110,
-                    }
+                    0: { fillColor: [242, 242, 242], cellWidth: 70 },
+                    1: { fillColor: [255, 255, 255], cellWidth: 110 },
                 },
                 styles: {
                     fontSize: 10,
@@ -1904,21 +1552,166 @@ document.addEventListener("DOMContentLoaded", () => {
                 didDrawCell: function (data) {
                     doc.setDrawColor(221, 221, 221);
                     doc.setLineWidth(0.1);
-                    if (data.row.index === 0 && data.row.section === "head") {
-                        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                    } else {
-                        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                    }
+                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
                 }
             });
+
+            const pdfBlob = doc.output('blob');
+            zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
         });
 
-        doc.save("All_NECHE_Reports.pdf");
+        zip.generateAsync({ type: "blob" }).then(function (content) {
+            saveAs(content, "NECHE_Reports.zip");
+        });
     }
 });
-</script>
+function showCompliancePopupClean(data, filename, complianceStatus) {
+    const missingNECHE = [
+        "Coursework Types & Submission Methods",
+        "Credit Hour Workload",
+        "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies",
+        "Course SLOs"
+    ].filter(field => !data[field] || data[field] === "Not Found");
 
-    
+    const missingMinimum = [
+        "Technical Requirements",
+        "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+        "Format (e.g., lecture plus lab/discussion etc.)"
+    ].filter(field => !data[field] || data[field] === "Not Found");
+
+    const courseRaw = data["Course Number and Title"] || "Not Found";
+    const professor = data["Instructor Name"] || "Not Found";
+
+    // Try to separate number and title
+    let courseNumber = "";
+    let courseTitle = courseRaw;
+    const parts = courseRaw.split(" ");
+    if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+        courseNumber = parts[0] + " " + parts[1];
+        courseTitle = parts.slice(2).join(" ");
+    }
+
+    // Determine compliance status
+    const isCompliant = missingNECHE.length === 0 && missingMinimum.length === 0;
+    const statusColor = isCompliant ? "green" : "red";
+    const statusText = isCompliant ? "Pass" : "Fail";
+
+    const popupOverlay = document.createElement("div");
+    popupOverlay.id = "compliance-popup";
+    popupOverlay.style.position = "fixed";
+    popupOverlay.style.top = "0";
+    popupOverlay.style.left = "0";
+    popupOverlay.style.width = "100vw";
+    popupOverlay.style.height = "100vh";
+    popupOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+    popupOverlay.style.display = "flex";
+    popupOverlay.style.justifyContent = "center";
+    popupOverlay.style.alignItems = "center";
+    popupOverlay.style.zIndex = "9999";
+
+    const popup = document.createElement("div");
+    popup.style.background = "#ffffff"; // Light background (white)
+    popup.style.borderRadius = "10px";
+    popup.style.padding = "25px";
+    popup.style.width = "90%";
+    popup.style.maxWidth = "650px";
+    popup.style.maxHeight = "85vh";
+    popup.style.overflowY = "auto";
+    popup.style.fontFamily = "Segoe UI, sans-serif";
+    popup.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
+    popup.style.color = "#000000"; // Default text color to black
+
+    // Create the table for course details and compliance status
+    let popupContent = `
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Number</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${courseNumber || "N/A"}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Title</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${courseTitle || "N/A"}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Professor</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${professor}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Compliance Status</td>
+                <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
+            </tr>
+        </table>
+
+        <div style="font-weight: bold; color: red; margin-bottom: 20px; text-align: center;">
+            ${isCompliant ? "This syllabus is fully NECHE compliant." : "This syllabus is not fully NECHE compliant. Below is the list of missing items."}
+        </div>
+    `;
+
+    // Add missing NECHE requirements if any
+    if (missingNECHE.length > 0) {
+        popupContent += `
+            <div style="margin-top: 10px; text-align: left;">
+                <h5 style="margin-bottom: 10px; color: #000000;">Missing NECHE Requirements</h5>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Item</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${missingNECHE.map(item => `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd; color: red;">${item}</td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Add missing minimum requirements if any
+    if (missingMinimum.length > 0) {
+        popupContent += `
+            <div style="margin-top: 20px; text-align: left;">
+                <h5 style="margin-bottom: 10px; color: #000000;">Missing Minimum Requirements</h5>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Item</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${missingMinimum.map(item => `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd; color: red;">${item}</td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Add the Close button
+    popupContent += `
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="closeCompliancePopup" style="background-color: #000000; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+        </div>
+    `;
+
+    popup.innerHTML = popupContent;
+    popupOverlay.appendChild(popup);
+    document.body.appendChild(popupOverlay);
+
+    document.getElementById("closeCompliancePopup").addEventListener("click", () => {
+        popupOverlay.remove();
+    });
+}
+
+</script>
     
 </body>
 </html>
