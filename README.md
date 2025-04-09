@@ -161,6 +161,49 @@ Each test case consists of the following:
 
 **Retrieval Context**: Relevant information that the chatbot uses to formulate its evaluation of the PDF.
 
+
+
+## System Architecture
+
+This system helps check if a syllabus meets NECHE standards. It works like this:
+
+### Main Parts
+
+- **Frontend (Web Page)**  
+  This is what the user sees. It lets the user upload a syllabus file (PDF or DOCX), shows results if it NECHE compliant or not , and allows chatbot interaction.
+
+- **Backend (Python Flask App)**  
+  This is the engine that handles uploads, extracts text, checks for NECHE fields, and creates a report.
+
+- **Compliance Checker**  
+  It looks through the syllabus content and tries to find important details like instructor name, office hours, grading policy, etc.
+
+- **Chatbot with AI**  
+  The chatbot lets users ask questions about the syllabus. It uses OpenAI (GPT-4) and Langchain to find relevant answers.
+
+- **Test & Report System**  
+  You can run test syllabus files and download reports to check how well the chatbot is doing. Reports are saved and reviewed.
+
+---
+
+### How It All Works (Data Flow)
+
+1. A user uploads a syllabus file (it might be a pdf or document and also bulk files like zip folders)
+2. The frontend sends it to the backend  
+3. The backend reads the content and checks for required information  
+4. The system shows results to the user (whether the pdf or the document is NECHE compliant or not)
+5. A chatbot is available to ask syllabus-related questions  
+6. A report can be viewed or downloaded
+
+---
+
+### Diagram
+
+<img width="694" alt="flow diagram" src="https://github.com/user-attachments/assets/8533fc2b-0b71-494b-ba13-40b064dbd747" />
+
+
+
+
 ## How to Perform Automated Testing
 ## Installation and Setup
 ### Prerequisites
