@@ -677,7 +677,7 @@ Date:
                     <div class="chat-container">
                         <div class="chat-header">
                             <div class="header-content">
-                                <h1 class="chat-header-title">NECHE Syllabus Assistant
+                                <h1 class="chat-header-title">Syllabus Assistant
  </h1>
                             <!-- Additional Logo -->
                         </div>
@@ -976,36 +976,44 @@ document.addEventListener("DOMContentLoaded", () => {
     micButton.addEventListener("click", handleVoiceInput);
 
     function handleSend() {
-        const message = userInput.value.trim();
-        if (!message) return;
+    const message = userInput.value.trim();
+    if (!message) return;
 
-        addHTMLMessage(message, true);
-        userInput.value = "";
+    addHTMLMessage(message, true);
+    userInput.value = "";
 
-        fetch("/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            const userMessage = message.toLowerCase().trim();
-            const casualGreetings = {
-                "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
-                "hello": "Hello! How can I assist you today?",
-                "hey": "Hey there! Need help with NECHE syllabus compliance?",
-                "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
-                "how are you?": "I'm great! Thanks for asking. How can I help you?"
-            };
+    // Define predefined responses for specific prompts
+    const casualGreetings = {
+        "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
+        "hello": "Hello! How can I assist you today?",
+        "hey": "Hey there! Need help with NECHE syllabus compliance?",
+        "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
+        "how are you?": "I'm great! Thanks for asking. How can I help you?",
+        "what is your purpose?": "I'm here to help you check if your syllabus meets NECHE compliance, and minimal syllabus requirements!",
+        "what type of document can I upload?": "You can upload DOC, PDF, or a ZIP file that contains DOC and PDF files.",
+        "can i upload pdf?": "Yep! Feel free to upload a PDF.",
+        "tell me about chatbot features?": "Sure! I check if your uploaded documents meet NECHE compliance, minimal syllabus, and optional syllabus requirements. You can send text, upload files, or even send audio!"
+    };
 
-            if (casualGreetings[userMessage]) {
-                addHTMLMessage(casualGreetings[userMessage], false);
-            } else {
-                addHTMLMessage(data.response, false);
-            }
-        })
-        .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
+    // Check if the user message matches any predefined prompt
+    const userMessage = message.toLowerCase().trim();
+    if (casualGreetings[userMessage]) {
+        addHTMLMessage(casualGreetings[userMessage], false);
+        return; // Exit the function after responding to the predefined prompt
     }
+
+    // If no predefined response, proceed with the usual fetch request
+    fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        addHTMLMessage(data.response, false);
+    })
+    .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
+}
 
     function handleVoiceInput() {
         if (!('webkitSpeechRecognition' in window)) {
@@ -1105,14 +1113,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tbody = document.createElement("tbody");
 
                 allResults.forEach((result, index) => {
+                    
                     const filename = result.filename || `File_${index + 1}`;
                     const passFail = result.compliance_check.includes("Compliant") ? "Pass" : "Fail";
+                    const statusColor = passFail === "Pass" ? "green" : "red"; // Set color based on status
                     const reportData = result.extracted_information || {};
 
                     let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
                     let professorName = reportData["Instructor Name"] || "Not Found";
                     let courseNumber = "";
                     let courseTitle = "";
+
                     if (courseNumberAndTitle !== "Not Found") {
                         const parts = courseNumberAndTitle.split(" ");
                         if (parts.length >= 2) {
@@ -1165,7 +1176,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     statusCell.style.padding = "10px";
                     statusCell.style.textAlign = "center";
                     statusCell.style.border = "1px solid #ddd";
-                    statusCell.innerHTML = `<strong>${passFail}</strong>`;
+                    statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
                     row.appendChild(statusCell);
 
                     const buttonCell = document.createElement("td");
