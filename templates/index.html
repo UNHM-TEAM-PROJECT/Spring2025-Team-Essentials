@@ -13,6 +13,11 @@ Date:
     <title>NECHE Compliance Assistant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Add jsPDF and jsPDF-AutoTable Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         /* Global variables for consistent styling throughout the application */
         :root {
@@ -662,8 +667,7 @@ Date:
         
     </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 </head>
 <body>
     <div class="page-container">
@@ -930,7 +934,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadButton = document.getElementById("uploadButton");
     const micButton = document.getElementById("mic-button");
     console.log("jsPDF loaded:", !!window.jspdf);
-console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
+    console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
+
+    
 
     let latestReportData = null;
     let allResults = [];
@@ -1168,7 +1174,7 @@ console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
                     buttonCell.style.border = "1px solid #ddd";
 
                     const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
-                    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, filename));
+                    const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, "Sample_Report"));
                     const statusBtn = createStyledButton("Status", "modern-btn", () => {
     showCompliancePopupClean(reportData, filename, result.compliance_check);
 });
@@ -1213,113 +1219,149 @@ console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
     }
 
     function downloadSingleReport(data, filename) {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-        console.error("jsPDF is not loaded.");
-        addHTMLMessage("⚠️ Error: jsPDF library not loaded.", false);
-        return;
+    // Ensure jsPDF and jsPDF-AutoTable are loaded
+    function loadScript(src, callback) {
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = callback;
+        script.onerror = () => {
+            console.error(`Failed to load script: ${src}`);
+            alert(`⚠️ Error: Failed to load required library: ${src}`);
+        };
+        document.head.appendChild(script);
     }
-    if (!window.jspdfAutoTable) {
-        console.error("jspdf-autotable is not loaded.");
-        addHTMLMessage("⚠️ Error: jspdf-autotable library not loaded.", false);
-        return;
+
+    if (!window.jspdf) {
+        console.warn("jsPDF is not loaded. Loading it now...");
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", () => {
+            console.log("jsPDF loaded successfully.");
+            if (!window.jspdfAutoTable) {
+                console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+                    console.log("jsPDF-AutoTable loaded successfully.");
+                    generateReport(data, filename); // Call the report generation function after loading
+                });
+            } else {
+                generateReport(data, filename); // Call the report generation function if jsPDF-AutoTable is already loaded
+            }
+        });
+    } else if (!window.jspdfAutoTable) {
+        console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+            console.log("jsPDF-AutoTable loaded successfully.");
+            generateReport(data, filename); // Call the report generation function after loading
+        });
+    } else {
+        generateReport(data, filename); // Call the report generation function if both libraries are already loaded
     }
 
-    const doc = new jsPDF();
+    function generateReport(data, filename) {
+        const { jsPDF } = window.jspdf;
 
-    const requiredFields = [
-        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
-        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-        "Assignment Deadlines & Policies"
-    ];
+        // Create a new jsPDF instance
+        const doc = new jsPDF();
 
-    const minimumFields = [
-        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-        "Attendance", "Academic Integrity/Plagiarism/AI"
-    ];
+        // Define the fields for the report
+        const requiredFields = [
+            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+            "Assignment Deadlines & Policies"
+        ];
 
-    const optionalFields = [
-        "Simultaneous 700/800 course designation (Graduate vs. Undergraduate)",
-        "Names and contact information for teaching assistants",
-        "Sensitive course content",
-        "Additional information as needed for program accreditation (and other program requirements)"
-    ];
+        const minimumFields = [
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+            "Attendance", "Academic Integrity/Plagiarism/AI"
+        ];
 
-    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-    const tableColumn = ["Syllabus Items", "Syllabus Details"];
-    const tableRows = [];
+        const optionalFields = [
+            "Simultaneous 700/800 course designation (Graduate vs. Undergraduate)",
+            "Names and contact information for teaching assistants",
+            "Sensitive course content",
+            "Additional information as needed for program accreditation (and other program requirements)"
+        ];
 
-    allFields.forEach(field => {
-        const value = data[field] || "Not Found";
-        const isOptional = optionalFields.includes(field);
+        const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+        const tableColumn = ["Syllabus Items", "Syllabus Details"];
+        const tableRows = [];
 
-        if (isOptional && value === "Not Found") return;
+        // Populate the table rows with data
+        allFields.forEach(field => {
+            const value = data[field] || "Not Found";
+            const isOptional = optionalFields.includes(field);
 
-        let displayField = field;
-        if (requiredFields.includes(field)) {
-            displayField = `**${field}**`;
-        } else if (optionalFields.includes(field)) {
-            displayField = `***${field}***`;
-        }
+            // Skip optional fields if not found
+            if (isOptional && value === "Not Found") return;
 
-        const displayValue = value === "Not Found" ? "Not Found" : value;
-        tableRows.push([displayField, displayValue]);
-    });
+            let displayField = field;
+            if (requiredFields.includes(field)) {
+                displayField = `**${field}**`; // Bold for required fields
+            } else if (optionalFields.includes(field)) {
+                displayField = `***${field}***`; // Italic for optional fields
+            }
 
-    let title = "NECHE Compliance Report";
-    const course = data["Course Number and Title"];
-    const professor = data["Instructor Name"];
+            const displayValue = value === "Not Found" ? "Not Found" : value;
+            tableRows.push([displayField, displayValue]);
+        });
 
-    const headingParts = [];
-    if (course && course !== "Not Found") headingParts.push(course);
-    if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
+        // Add a title to the report
+        let title = "NECHE Compliance Report";
+        const course = data["Course Number and Title"];
+        const professor = data["Instructor Name"];
 
-    if (headingParts.length > 0) title += " – " + headingParts.join(" ");
+        const headingParts = [];
+        if (course && course !== "Not Found") headingParts.push(course);
+        if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const textWidth = doc.getTextWidth(title);
-    doc.setFontSize(16);
-    doc.text(title, (pageWidth - textWidth) / 2, 20);
+        if (headingParts.length > 0) title += " – " + headingParts.join(" ");
 
-    doc.autoTable({
-        startY: 30,
-        head: [tableColumn],
-        body: tableRows,
-        theme: "grid",
-        headStyles: {
-            fillColor: [58, 23, 216],
-            textColor: [255, 255, 255],
-            fontSize: 10,
-        },
-        styles: {
-            fontSize: 10,
-            cellPadding: 4,
-        },
-        didParseCell: function (data) {
-            if (data.column.index === 0) {
-                let text = data.cell.text[0];
-                if (text.startsWith("***") && text.endsWith("***")) {
-                    data.cell.text[0] = text.slice(3, -3);
-                    data.cell.styles.fontStyle = "italic";
-                } else if (text.startsWith("**") && text.endsWith("**")) {
-                    data.cell.text[0] = text.slice(2, -2);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const textWidth = doc.getTextWidth(title);
+        doc.setFontSize(16);
+        doc.text(title, (pageWidth - textWidth) / 2, 20);
+
+        // Add the table to the PDF
+        doc.autoTable({
+            startY: 30,
+            head: [tableColumn],
+            body: tableRows,
+            theme: "grid",
+            headStyles: {
+                fillColor: [58, 23, 216],
+                textColor: [255, 255, 255],
+                fontSize: 10,
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 4,
+            },
+            didParseCell: function (data) {
+                if (data.column.index === 0) {
+                    let text = data.cell.text[0];
+                    if (text.startsWith("***") && text.endsWith("***")) {
+                        data.cell.text[0] = text.slice(3, -3);
+                        data.cell.styles.fontStyle = "italic";
+                    } else if (text.startsWith("**") && text.endsWith("**")) {
+                        data.cell.text[0] = text.slice(2, -2);
+                        data.cell.styles.fontStyle = "bold";
+                    }
+                }
+
+                if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                    data.cell.styles.textColor = [255, 0, 0];
                     data.cell.styles.fontStyle = "bold";
                 }
             }
+        });
 
-            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                data.cell.styles.textColor = [255, 0, 0];
-                data.cell.styles.fontStyle = "bold";
-            }
-        }
-    });
-
-    doc.save(`${filename}_NECHE_Report.pdf`);
+        // Save the PDF with the given filename
+        doc.save(`${filename}_NECHE_Report.pdf`);
+    }
 }
+
     function showReportModal(data) {
         const requiredFields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
@@ -1401,12 +1443,79 @@ console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
     }
 
     function downloadAllReports(results) {
+    // Function to dynamically load a script
+    function loadScript(src, callback) {
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = callback;
+        script.onerror = () => {
+            console.error(`Failed to load script: ${src}`);
+            alert(`⚠️ Error: Failed to load required library: ${src}`);
+        };
+        document.head.appendChild(script);
+    }
+
+    // Check and load jsPDF, jsPDF-AutoTable, and JSZip dynamically
+    if (!window.jspdf) {
+        console.warn("jsPDF is not loaded. Loading it now...");
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", () => {
+            console.log("jsPDF loaded successfully.");
+            if (!window.jspdfAutoTable) {
+                console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+                    console.log("jsPDF-AutoTable loaded successfully.");
+                    if (!window.JSZip) {
+                        console.warn("JSZip is not loaded. Loading it now...");
+                        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                            console.log("JSZip loaded successfully.");
+                            generateAllReports(results); // Call the report generation function after loading
+                        });
+                    } else {
+                        generateAllReports(results); // Call the report generation function if JSZip is already loaded
+                    }
+                });
+            } else if (!window.JSZip) {
+                console.warn("JSZip is not loaded. Loading it now...");
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                    console.log("JSZip loaded successfully.");
+                    generateAllReports(results); // Call the report generation function after loading
+                });
+            } else {
+                generateAllReports(results); // Call the report generation function if all libraries are already loaded
+            }
+        });
+    } else if (!window.jspdfAutoTable) {
+        console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+            console.log("jsPDF-AutoTable loaded successfully.");
+            if (!window.JSZip) {
+                console.warn("JSZip is not loaded. Loading it now...");
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                    console.log("JSZip loaded successfully.");
+                    generateAllReports(results); // Call the report generation function after loading
+                });
+            } else {
+                generateAllReports(results); // Call the report generation function if JSZip is already loaded
+            }
+        });
+    } else if (!window.JSZip) {
+        console.warn("JSZip is not loaded. Loading it now...");
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+            console.log("JSZip loaded successfully.");
+            generateAllReports(results); // Call the report generation function after loading
+        });
+    } else {
+        generateAllReports(results); // Call the report generation function if all libraries are already loaded
+    }
+
+    // Function to generate all reports and download as a ZIP
+    function generateAllReports(results) {
         const { jsPDF } = window.jspdf;
         const zip = new JSZip();
 
-        if (!jsPDF || !JSZip || !saveAs) {
-            console.error("Required libraries (jsPDF, JSZip, or FileSaver) are not loaded.");
-            addHTMLMessage("⚠️ Error: Required libraries not loaded.", false);
+        if (!jsPDF || !JSZip) {
+            console.error("Required libraries (jsPDF or JSZip) are not loaded.");
+            alert("⚠️ Error: Required libraries not loaded.");
             return;
         }
 
@@ -1415,106 +1524,22 @@ console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
             const filename = result.filename || `File_${index + 1}`;
             const reportData = result.extracted_information || {};
 
-            let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
-            let professorName = reportData["Instructor Name"] || "Not Found";
-            let courseNumber = "";
-            let courseTitle = "";
-            if (courseNumberAndTitle !== "Not Found") {
-                const parts = courseNumberAndTitle.split(" ");
-                if (parts.length >= 2) {
-                    const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                    const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                    if (courseNumberMatch) {
-                        courseNumber = potentialCourseNumber;
-                        courseTitle = parts.slice(2).join(" ").trim();
-                    } else {
-                        courseTitle = courseNumberAndTitle.trim();
-                    }
-                } else {
-                    courseTitle = courseNumberAndTitle.trim();
-                }
-            }
-
-            let headingParts = [];
-            let coursePart = courseNumber ? `${courseTitle} (${courseNumber})` : courseTitle;
-            if (coursePart) headingParts.push(coursePart);
-            if (professorName !== "Not Found") headingParts.push(`by Professor ${professorName}`);
-
-            let heading = "NECHE Compliance Report";
-            if (headingParts.length > 0) heading += " – " + headingParts.join(" ");
-
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const textWidth = doc.getTextWidth(heading);
+            // Add title to the PDF
+            const title = `NECHE Compliance Report - ${filename}`;
             doc.setFontSize(16);
-            doc.text(heading, (pageWidth - textWidth) / 2, 20);
+            doc.text(title, 10, 10);
 
+            // Add table content
             const tableColumn = ["Syllabus Items", "Syllabus Details"];
             const tableRows = [];
 
-            const requiredOrder = [
-                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                "Preferred Contact Method", "Email Address", "Phone Number",
-                "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-                "Course Description", "Course Format", "Course Topics and Schedule",
-                "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
-                "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-                "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
-                "Program Accreditation Info", "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
-            ];
-
-            const formattingMap = {
-                "Assignment Deadlines & Policies": "regular",
-                "Technical Requirements": "regular",
-                "Attendance": "regular",
-                "Academic integrity/plagiarism/AI": "regular",
-                "Program Accreditation Info": "regular",
-                "Sensitive Course Content": "regular",
-                "Other required/recommended materials (e.g., software, clicker remote, etc.)": "regular",
-                "Course Number and Title": "bold",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)": "bold",
-                "Modality/Meeting Time and Place": "bold",
-                "Semester/Term (and start/end dates)": "bold",
-                "Course Description": "bold",
-                "Course Format": "bold",
-                "Course Topics and Schedule": "bold",
-                "Course Learning Outcomes": "bold",
-                "Credit Hour Workload": "bold",
-                "Coursework Types & Submission Methods": "bold",
-                "Grading Procedures & Final Grade Scale": "bold",
-                "Required/recommended textbook (or other source for course reference information)": "bold",
-                "Instructor Name": "italic-bold",
-                "Title or Rank": "italic-bold",
-                "Department or Program Affiliation": "italic-bold",
-                "Preferred Contact Method": "italic-bold",
-                "Email Address": "italic-bold",
-                "Phone Number": "italic-bold",
-                "Office Address": "italic-bold",
-                "Office Hours": "italic-bold",
-                "Location (Physical or Remote)": "italic-bold"
-            };
-
-            requiredOrder.forEach(key => {
+            Object.keys(reportData).forEach((key) => {
                 const value = reportData[key] || "Not Found";
-                const format = formattingMap[key] || "regular";
-                if (format === "italic-bold" && value === "Not Found") return;
-
-                let formattedKey = key;
-                if (format === "bold") {
-                    formattedKey = `**${key}**`;
-                } else if (format === "italic-bold") {
-                    formattedKey = `***${key}***`;
-                }
-
-                const displayValue = value === "Not Found" ? "Not Found" : value;
-                tableRows.push([formattedKey, displayValue]);
+                tableRows.push([key, value]);
             });
 
             doc.autoTable({
-                startY: 30,
+                startY: 20,
                 head: [tableColumn],
                 body: tableRows,
                 theme: "grid",
@@ -1522,49 +1547,31 @@ console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
                     fillColor: [58, 23, 216],
                     textColor: [255, 255, 255],
                     fontSize: 10,
-                    cellPadding: 4,
-                },
-                columnStyles: {
-                    0: { fillColor: [242, 242, 242], cellWidth: 70 },
-                    1: { fillColor: [255, 255, 255], cellWidth: 110 },
                 },
                 styles: {
                     fontSize: 10,
                     cellPadding: 4,
-                    textColor: [0, 0, 0],
                 },
-                didParseCell: function (data) {
-                    if (data.column.index === 0) {
-                        let text = data.cell.text[0];
-                        if (text.startsWith("***") && text.endsWith("***")) {
-                            data.cell.text[0] = text.slice(3, -3);
-                            data.cell.styles.fontStyle = "italicbold";
-                        } else if (text.startsWith("**") && text.endsWith("**")) {
-                            data.cell.text[0] = text.slice(2, -2);
-                            data.cell.styles.fontStyle = "bold";
-                        }
-                    }
-                    if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                        data.cell.styles.textColor = [255, 0, 0];
-                        data.cell.styles.fontStyle = "bold";
-                    }
-                },
-                didDrawCell: function (data) {
-                    doc.setDrawColor(221, 221, 221);
-                    doc.setLineWidth(0.1);
-                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-                }
             });
 
-            const pdfBlob = doc.output('blob');
+            // Add the PDF to the ZIP file
+            const pdfBlob = doc.output("blob");
             zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
         });
 
-        zip.generateAsync({ type: "blob" }).then(function (content) {
-            saveAs(content, "NECHE_Reports.zip");
+        // Generate the ZIP file and trigger download
+        zip.generateAsync({ type: "blob" }).then((content) => {
+            const zipBlob = new Blob([content], { type: "application/zip" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(zipBlob);
+            link.download = "NECHE_Reports.zip";
+            link.click();
         });
     }
+}
 });
+
+
 function showCompliancePopupClean(data, filename, complianceStatus) {
     const missingNECHE = [
         "Coursework Types & Submission Methods",
