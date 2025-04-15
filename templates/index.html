@@ -17,6 +17,8 @@ Date:
     <!-- Add jsPDF and jsPDF-AutoTable Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
     <style>
         /* Global variables for consistent styling throughout the application */
@@ -1122,22 +1124,95 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.appendChild(statusCell);
 
                 const buttonCell = document.createElement("td");
-                buttonCell.style.padding = "10px";
-                buttonCell.style.textAlign = "center";
-                buttonCell.style.border = "1px solid #ddd";
+buttonCell.style.padding = "10px";
+buttonCell.style.textAlign = "center";
+buttonCell.style.border = "1px solid #ddd";
 
-                const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
-                const downloadBtn = createStyledButton("Download", "modern-btn", () => downloadSingleReport(reportData, "Sample_Report"));
-                const statusBtn = createStyledButton("Status", "modern-btn", () => {
-                    showCompliancePopupClean(reportData, filename, result.compliance_check);
-                });
-                viewBtn.style.marginRight = "8px";
-                downloadBtn.style.marginRight = "8px";
+const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
+const summaryBtn = createStyledButton("Summary", "modern-btn", () => {
+    showCompliancePopupClean(reportData, filename, result.compliance_check);
+});
+const shareBtn = createStyledButton("Share", "modern-btn", () => {
+    shareBtn.removeEventListener("click", shareBtn.onclick); // Prevent duplicate listeners
+shareBtn.addEventListener("click", () => {
+    const professorEmail = reportData["Email Address"] || "";
+    const course = reportData["Course Number and Title"] || "Course";
+    const professorName = reportData["Instructor Name"] || "Professor";
 
-                buttonCell.appendChild(viewBtn);
-                buttonCell.appendChild(downloadBtn);
-                buttonCell.appendChild(statusBtn);
-                row.appendChild(buttonCell);
+    // Validate professor email
+    if (!professorEmail) {
+        alert("⚠️ No professor email found in the syllabus data.");
+        return;
+    }
+
+    // Show confirmation pop-up
+    const confirmed = confirm("Do you want to share this report via Outlook?");
+    if (!confirmed) return;
+
+    // Prepare compliance data
+    const summaryStatus = result.compliance_check || "Compliance status not available.";
+
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+        "Preferred Contact Method", "Email Address", "Phone Number",
+        "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+    ];
+
+    const minimumFields = [
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place",
+        "Semester/Term (and start/end dates)",
+        "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)",
+        "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates",
+        "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements",
+        "Attendance",
+        "Academic Integrity/Plagiarism/AI"
+    ];
+
+    const isMissing = (value) => {
+        return value === undefined || value === null || value === "Not Found" || (typeof value === "string" && value.trim() === "");
+    };
+
+    const missingNECHE = requiredFields.filter(field => isMissing(reportData[field]));
+    const missingMinimum = minimumFields.filter(field => isMissing(reportData[field]));
+
+    // Prepare email body
+    const subject = `NECHE Syllabus Review for ${course}`;
+    let body;
+    if (missingNECHE.length === 0 && missingMinimum.length === 0) {
+        body = `Dear ${professorName},\n\n` +
+               `I’m pleased to inform you that your syllabus for ${course} is fully compliant with all NECHE and minimum requirements.\n\n` +
+               `Best regards,\nSai Shiva\njsaishiva@unh.com`;
+    } else {
+        body = `Dear ${professorName},\n\n` +
+               `The NECHE compliance review for your syllabus for ${course} identified the following missing requirements:\n\n` +
+               `${missingNECHE.length > 0 ? `**NECHE Requirements**:\n- ${missingNECHE.join("\n- ")}\n` : ""}` +
+               `${missingMinimum.length > 0 ? `**Minimum Requirements**:\n- ${missingMinimum.join("\n- ")}\n` : ""}` +
+               `Please address these items and let me know if you need assistance.\n\n` +
+               `Best regards,\nSai Shiva\njsaishiva@unh.com`;
+    }
+
+    // Open Outlook
+    const mailtoLink = `mailto:${encodeURIComponent(professorEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+});
+});
+
+viewBtn.style.marginRight = "8px";
+summaryBtn.style.marginRight = "8px";
+shareBtn.style.marginRight = "8px";
+
+buttonCell.appendChild(viewBtn);
+buttonCell.appendChild(summaryBtn);
+buttonCell.appendChild(shareBtn);
+row.appendChild(buttonCell);
 
                 tbody.appendChild(row);
             });
@@ -1335,6 +1410,7 @@ document.addEventListener("DOMContentLoaded", () => {
         doc.save(`${filename}_NECHE_Report.pdf`);
     }
 }
+
 function showReportModal(data) {
     const requiredFields = [
         "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
@@ -1558,21 +1634,20 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
     ];
 
     const minimumFields = [
-    "Course Number and Title",
-    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-    "Modality/Meeting Time and Place",
-    "Semester/Term (and start/end dates)",
-    "Department/Program",
-    "Format (e.g., lecture plus lab/discussion etc.)",
-    "Course Description (minimum course catalog description)",
-    "Sequence of Course Topics and Important Dates",
-    "Required/Recommended Textbook (or other source for course reference information)",
-    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
-    "Technical Requirements",
-    "Attendance",
-    "Academic Integrity/Plagiarism/AI"
-];
-
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place",
+        "Semester/Term (and start/end dates)",
+        "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)",
+        "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates",
+        "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements",
+        "Attendance",
+        "Academic Integrity/Plagiarism/AI"
+    ];
 
     const missingNECHE = requiredFields.filter(field => data[field] === "Not Found" || !data[field]);
     const missingMinimum = minimumFields.filter(field => data[field] === "Not Found" || !data[field]);
@@ -1624,25 +1699,24 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Number</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${courseNumber || "N/A"}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${courseNumber ? courseNumber : "N/A"}</td>
             </tr>
             <tr>
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Title</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${courseTitle || "N/A"}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${courseTitle !== "Not Found" ? courseTitle : "N/A"}</td>
             </tr>
             <tr>
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Professor</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${professor}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${professor !== "Not Found" ? professor : "N/A"}</td>
             </tr>
             <tr>
                 <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Compliance Status</td>
                 <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
             </tr>
-        </table>`;
-
-    popupContent += `<div style="font-weight: bold; color: ${statusColor}; margin-bottom: 20px; text-align: center;">
-        The compliance check is complete. The syllabus is ${isCompliant ? "NECHE compliant." : "not NECHE compliant.<br>Here is the missing information."}
-    </div>`;
+        </table>
+        <div style="font-weight: bold; color: ${statusColor}; margin-bottom: 20px; text-align: center;">
+            The compliance check is complete. The syllabus is ${isCompliant ? "NECHE compliant." : "not NECHE compliant.<br>Here is the missing information."}
+        </div>`;
 
     if (missingNECHE.length > 0) {
         popupContent += `
@@ -1654,7 +1728,10 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${missingNECHE.map(field => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${field}</td></tr>`).join("")}
+                        ${missingNECHE.map(field => `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
+                            </tr>`).join("")}
                     </tbody>
                 </table>
             </div>`;
@@ -1670,7 +1747,10 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${missingMinimum.map(field => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${field}</td></tr>`).join("")}
+                        ${missingMinimum.map(field => `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
+                            </tr>`).join("")}
                     </tbody>
                 </table>
             </div>`;
