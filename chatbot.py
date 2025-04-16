@@ -298,7 +298,8 @@ required_compliance_items = {
 
 "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)": [
     r"(?i)\b(required\s+materials|recommended\s+materials|course\s+materials|equipment|supplies|hardware|software|required\s+tools|resources\s+needed)\b.*",
-    r"(?i)\b(you\s+will\s+need\s+to\s+bring|must\s+have\s+access\s+to|clicker|calculator|online\s+tools|learning\s+management\s+system)\b.*"
+    r"(?i)\b(you\s+will\s+need\s+to\s+bring|must\s+have\s+access\s+to|clicker|calculator|online\s+tools|learning\s+management\s+system|dissection\s+kits|lab\s+coats|protective\s+gear|lab\s+equipment|required\s+supplies|essential\s+materials)\b.*",
+    r"(?i)\b(lab\s+coats|dissection\s+kits|safety\s+gear|required\s+tools|mandatory\s+equipment)\b.*"
 ],
 "Technical Requirements": [
     r"(?i)\b(technical\s+requirements|tech\s+requirements|technology\s+needs|system\s+requirements|technical\s+specifications|hardware\s+and\s+software)\b.*",
@@ -341,15 +342,6 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
-def extract_text_from_pdf(pdf_path):
-    try:
-        with pdfplumber.open(pdf_path) as pdf:
-            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-                text_list = pool.map(process_page, pdf.pages)
-            return "\n".join(text_list).strip() if text_list else None
-    except Exception as e:
-        print(f"⚠️ Error processing PDF: {str(e)}")
-        return None
 
 
 # Function to extract text from PDFs
