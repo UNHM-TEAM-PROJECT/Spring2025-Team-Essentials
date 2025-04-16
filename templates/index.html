@@ -543,7 +543,7 @@ Date:
 }
 
 /* Microphone Button Styling */
-#mic-button {
+/* #mic-button {
     width: 45px;
     height: 45px;
     border-radius: 50%;
@@ -564,7 +564,7 @@ Date:
 
 #mic-button i {
     font-size: 18px;
-}
+} */
 /* Ensure the chat-history container doesn't interfere with the table */
 .chat-history {
     background: none !important; /* Remove background image and gradient */
@@ -691,12 +691,12 @@ Date:
                         <div class="input-area">
                             <div class="input-group">
                                 <button id="uploadButton" class="plus-icon">+</button>
-                                <input type="file" id="fileInput" accept=".pdf, .docx, .zip" multiple>
+                                <input type="file" id="fileInput" accept=".pdf, .docx, .zip" multiple webkitdirectory directory>
                                 
                                 <!-- Microphone Button for Voice Input -->
-                                <button id="mic-button" class="btn btn-primary">
+                                <!-- <button id="mic-button" class="btn btn-primary">
                                     <i class="fas fa-microphone"></i>
-                                </button>
+                                </button> -->
                                 
                                 <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
                                 <button id="send-button" class="btn">
@@ -742,9 +742,9 @@ Date:
                         <div class="input-area">
                             <div class="input-group">
                                 <!-- Microphone Button for Voice Input -->
-                                <button id="mic-button" class="btn btn-primary">
+                                <!-- <button id="mic-button" class="btn btn-primary">
                                     <i class="fas fa-microphone"></i>
-                                </button>
+                                </button> -->
                                 <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
                                 <button id="send-button" class="btn">
                                     <i class="fas fa-paper-plane"></i>
@@ -838,7 +838,7 @@ Date:
     <button id="send-button">Send</button>
     <input type="file" id="fileInput" accept=".pdf,.docx,.zip">
     <button id="uploadButton">Upload</button>
-    <button id="mic-button"><i class="fas fa-microphone"></i></button>
+    <!-- <button id="mic-button"><i class="fas fa-microphone"></i></button> -->
 </div>
 </div>
 
@@ -849,7 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendButton = document.getElementById("send-button");
     const fileInput = document.getElementById("fileInput");
     const uploadButton = document.getElementById("uploadButton");
-    const micButton = document.getElementById("mic-button");
+    // const micButton = document.getElementById("mic-button");
     console.log("jsPDF loaded:", !!window.jspdf);
     console.log("jspdf-autotable loaded:", !!window.jspdfAutoTable);
 
@@ -859,7 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let allResults = [];
 
     function displayWelcomeMessage() {
-        addHTMLMessage("Welcome! I can assist with NECHE compliance. How can I help you today?", false);
+        addHTMLMessage("Welcome to the NECHE Compliance and Minimal Syllabus Requirement Assistant. I'm here to assist you in reviewing your syllabus for NECHE compliance. Feel free to upload your files, documents, zip files and folders or ask any questions to get started.", false);
     }
     window.addEventListener("load", displayWelcomeMessage);
 
@@ -890,7 +890,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    micButton.addEventListener("click", handleVoiceInput);
+    // micButton.addEventListener("click", handleVoiceInput);
 
     function handleSend() {
     const message = userInput.value.trim();
@@ -969,25 +969,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fileInput.addEventListener("change", function (e) {
-        const files = e.target.files;
-        if (!files.length) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-        const file = files[0];
-        if (
-            file &&
-            (
-                file.type === "application/pdf" ||
-                file.name.endsWith(".docx") ||
-                file.name.endsWith(".zip")
-            )
-        ) {
-            addHTMLMessage(`<strong>Uploaded:</strong> ${file.name}`, true);
-            handleFileUpload(file);
-        } else {
-            addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
-            fileInput.value = "";
-        }
+    const allowedExtensions = [".pdf", ".docx", ".zip"];
+
+    // Filter out only allowed files
+    const validFiles = files.filter(file => {
+        const name = file.name.toLowerCase();
+        return allowedExtensions.some(ext => name.endsWith(ext));
     });
+
+    if (!validFiles.length) {
+        addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
+        fileInput.value = ""; // Reset input
+        return;
+    }
+
+    validFiles.forEach(file => {
+        addHTMLMessage(`<strong>Uploaded:</strong> ${file.name}`, true);
+        handleFileUpload(file);
+    });
+});
+
 
     function handleFileUpload(file) {
     // Clear previous state to ensure a fresh start for each upload
@@ -1011,24 +1015,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update the state with the new data
             allResults = data.results || [{ filename: file.name, extracted_information: data.extracted_information, compliance_check: data.compliance_check }];
             latestReportData = data.extracted_information || {};
-            // Filter out optional fields with invalid values
-const optionalFields = [
-    "University Requirements",
-            "Course Prerequisites",
-            "Simultaneous 700/800 Course Designation (Graduate vs. Undergraduate standard in course)",
-            "Names and Contact Information for Teaching Assistants",
-            "Sensitive Course Content",
-            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
-        
-];
-const isInvalidValue = (value) => ["n/a", "na", "none", "not found", ""].includes(value.toLowerCase());
-
-// Remove invalid optional fields from the data
-Object.keys(latestReportData).forEach((field) => {
-    if (optionalFields.includes(field) && isInvalidValue(latestReportData[field])) {
-        delete latestReportData[field]; // Remove the field from the data
-    }
-});
 
             const scrollWrapper = document.createElement("div");
             scrollWrapper.className = "scroll-wrapper";
@@ -1712,7 +1698,7 @@ function showCompliancePopupClean(data, filename, complianceStatus) {
 
     let popupContent = `
         <div style="background-color: #003591; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 18px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-            Status
+            Summary
         </div>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
