@@ -1011,6 +1011,24 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update the state with the new data
             allResults = data.results || [{ filename: file.name, extracted_information: data.extracted_information, compliance_check: data.compliance_check }];
             latestReportData = data.extracted_information || {};
+            // Filter out optional fields with invalid values
+const optionalFields = [
+    "University Requirements",
+            "Course Prerequisites",
+            "Simultaneous 700/800 Course Designation (Graduate vs. Undergraduate standard in course)",
+            "Names and Contact Information for Teaching Assistants",
+            "Sensitive Course Content",
+            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
+        
+];
+const isInvalidValue = (value) => ["n/a", "na", "none", "not found", ""].includes(value.toLowerCase());
+
+// Remove invalid optional fields from the data
+Object.keys(latestReportData).forEach((field) => {
+    if (optionalFields.includes(field) && isInvalidValue(latestReportData[field])) {
+        delete latestReportData[field]; // Remove the field from the data
+    }
+});
 
             const scrollWrapper = document.createElement("div");
             scrollWrapper.className = "scroll-wrapper";
