@@ -114,17 +114,16 @@ initialize_chroma()
 
 # Compliance Criteria: Key Information to Check
 required_compliance_items = {
-    "Instructor Name": [
-        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor|dr\.|mr\.|ms\.)[:\-]?", 
-        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"
-    ],
     "Title or Rank": [
-        # Expanded patterns to include variations and abbreviations
-        r"(?i)\b(title|rank|position|role)\b\s*[:-]?\s*",  # Matches "Title: Assistant Professor"
-        r"(?i)\b(professor|dr|doctor|mr|ms|mrs|senior lecturer|lecturer|instructor|adjunct|faculty|adjunct)\b",
-        r"(?i)\b(assistant professor|associate professor|full professor|teaching fellow|grad assistant)\b",
-        r"(?i)\b(ph\.?d|m\.?sc|m\.?a|b\.?a)\b"  # Academic degrees often indicate rank
-    ],
+    r"(?i)\b(professor|Professor|assistant professor|associate professor|full professor|senior lecturer|lecturer|instructor|adjunct|faculty|teaching fellow|grad assistant)\b",  # Matches standalone titles
+    r"(?i)\b(ph\.?d|phd|dr\.||Professor|professor)\b",  # Matches "Ph.D.", "PhD", "Dr.", or "Professor"
+    r"(?i)\b(professor\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*,\s*ph\.?d)\b",  # Matches "Professor Patricia A. Halpin, Ph.D."
+    r"(?i)\b([a-zA-Z]+\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*\s*(professor|ph\.?d))\b",  # Matches "Patricia A. Halpin, Professor" or "Patricia A. Halpin, Ph.D."
+],
+    "Instructor Name": [
+    r"(?i)\b(name|instructor|dr\.|mr\.|ms\.|mrs\.)[:\-]?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)+)(?=,|\s|$)",  # Matches "Name: Patricia A. Halpin" but stops before ", Ph.D."
+    r"(?i)^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"  # Matches standalone names like "Patricia A. Halpin"
+],
     "Department or Program Affiliation": [
         # Broader patterns to catch department/program mentions
         r"(?i)\b(department|program|school|college|division|faculty|institute)\b\s*(of|for)?\s*[a-zA-Z]+",  # Matches "Department of Computer Science"
@@ -525,6 +524,7 @@ def extract_course_information(text):
         for pattern in patterns:
             match = re.search(pattern, formatted_text, re.MULTILINE | re.DOTALL)  # DOTALL for multi-line matches
             if match:
+                print(f"✅ Match found for '{field}': {match.group()}")  # Debug log
                 start = match.start()
                 end = formatted_text.find("\n\n", start)  # Look for section break instead of single newline
                 if end == -1:
@@ -532,8 +532,21 @@ def extract_course_information(text):
                 pre_extracted[field] = formatted_text[start:end].strip()
                 print(f"🔍 Pre-extracted '{field}': {pre_extracted[field]}")  # Debug log
                 break
+    
+
+        # Normalize "Title or Rank" to "Professor" if applicable
+        # Normalize "Title or Rank" to "Professor" if applicable
+        if "Title or Rank" in pre_extracted:
+            title_text = pre_extracted["Title or Rank"]
+            if "professor" in title_text.lower() or "ph.d" in title_text.lower():
+                pre_extracted["Title or Rank"] = "Professor"
+
+        
         if field not in pre_extracted:
             pre_extracted[field] = "Not Found"
+
+
+
 
     prompt = f"""
 You are a strict NECHE syllabus compliance inspector.
@@ -662,13 +675,14 @@ def upload_file():
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload","Assignments & Delivery","Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
-            "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
-            "Required/recommended textbook (or other source for course reference information)",
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
+            "Course Description", "Course Format", "Course Topics and Schedule",
+            "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI", "Program Accreditation Info",
-            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
+            "Program Accreditation Info", "Course Number and Title",
+            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
             "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
 
@@ -676,65 +690,10 @@ def upload_file():
             "Course Prerequisites",
             "Simultaneous 700/800 Course Designation",
             "University Requirements",
-            "Teaching Assistants (Names and Contact Information)"
+            "Teaching Assistants (Names and Contact Information)",
+            "Sensitive Course Content",
+            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
         ]
-
-        # ✅ ZIP file support
-        if filename.endswith('.zip'):
-            import zipfile
-            import tempfile
-
-            results = []
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    zip_ref.extractall(temp_dir)
-
-                    for root, _, files in os.walk(temp_dir):
-                        for name in files:
-                            if name.lower().endswith('.pdf') or name.lower().endswith('.docx'):
-                                inner_path = os.path.join(root, name)
-                                print(f"🔍 Processing file inside ZIP: {name}")
-
-                                if name.endswith('.pdf'):
-                                    text = extract_text_from_pdf(inner_path)
-                                else:
-                                    text = extract_text_from_docx(inner_path)
-
-                                if not text:
-                                    print(f"❌ Skipping file (no text extracted): {name}")
-                                    continue
-
-                                extracted_info = extract_course_information(text)
-
-                                for field in required_fields:
-                                    value = extracted_info.get(field, "").strip()
-                                    if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
-                                        extracted_info[field] = "Not Found"
-
-                                for key, value in extracted_info.items():
-                                    if isinstance(value, list):
-                                        extracted_info[key] = ", ".join(map(str, value))
-                                    elif isinstance(value, dict):
-                                        extracted_info[key] = " ".join(map(str, value.values()))
-                                    elif not isinstance(value, str):
-                                        extracted_info[key] = str(value)
-
-                                compliance = check_neche_compliance(extracted_info)
-
-                                results.append({
-                                    "filename": name,
-                                    "extracted_information": extracted_info,
-                                    "compliance_check": compliance["compliance_check"],
-                                    "missing_fields": compliance["missing_fields"]
-                                })
-                            else:
-                                print(f"⚠️ Skipping unsupported file inside ZIP: {name}")
-
-            return jsonify({
-                "success": True,
-                "message": f"✅ ZIP file processed: {filename}",
-                "results": results
-            })
 
         # ✅ Handle single PDF or DOCX
         if filename.endswith('.pdf'):
@@ -760,6 +719,13 @@ def upload_file():
             if field in extracted_info and extracted_info[field] != "Not Found"
         }
 
+        # Filter optional fields with invalid values
+        filtered_optional_info = {
+            field: value
+            for field, value in optional_info.items()
+            if value.lower() not in ["n/a", "na", "none", ""]
+        }
+
         for key, value in extracted_info.items():
             if isinstance(value, list):
                 extracted_info[key] = ", ".join(map(str, value))
@@ -772,7 +738,7 @@ def upload_file():
 
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
-        extracted_info.update(optional_info)
+        extracted_info.update(filtered_optional_info)
 
         return jsonify({
             "success": True,
@@ -783,8 +749,7 @@ def upload_file():
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
-    
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
 
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
