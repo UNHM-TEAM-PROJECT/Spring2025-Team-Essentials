@@ -291,7 +291,7 @@
                     <div class="chat-container">
                         <div class="chat-header">
                             <div class="header-content">
-                                <h1 class="chat-header-title">Syllabus Assistant</h1>
+                                <h1 class="chat-header-title">NECHE Syllabus Assistant</h1>
                             </div>
                         </div>
                         <div class="chat-history" id="chat-history"></div>
@@ -347,14 +347,14 @@
             const fileInput = document.getElementById("fileInput");
             const uploadFiles    = document.getElementById("uploadFiles");
             const uploadFolder   = document.getElementById("uploadFolder");
-            const fileNamesBadge = document.getElementById("fileNames");
 
 
             let latestReportData = null;
             let allResults = [];
 
             function displayWelcomeMessage() {
-                addHTMLMessage("Welcome to the NECHE Compliance and Minimal Syllabus Requirement Assistant. I'm here to assist you in reviewing your syllabus for NECHE compliance. Feel free to upload your files, documents, zip files and folders or ask any questions to get started.", false);                }
+                addHTMLMessage("Welcome to the NECHE Compliance Assistant. Upload a PDF, DOCX, ZIP file, or a folder containing these files to check compliance.", false);
+            }
             window.addEventListener("load", displayWelcomeMessage);
 
             function addHTMLMessage(htmlContent, isUser) {
@@ -446,28 +446,18 @@
                     allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
                 );
 
-                // ← badge‑update goes here
                 if (!validFiles.length) {
-                    fileNamesBadge.textContent = "No files selected";
                     addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
                     fileInput.value = "";
                     return;
-                } else {
-                    fileNamesBadge.textContent = validFiles.map(f => f.name).join(", ");
                 }
 
-                const isFolderUpload = validFiles.some(file =>
-                    file.webkitRelativePath && file.webkitRelativePath.includes("/")
-                );
+                const isFolderUpload = validFiles.some(file => file.webkitRelativePath && file.webkitRelativePath.includes("/"));
                 const fileNames = validFiles.map(f => f.name).join(", ");
-                addHTMLMessage(
-                    `<strong>Uploaded ${isFolderUpload ? "folder containing" : "files"}:</strong> ${fileNames}`,
-                    true
-                );
+                addHTMLMessage(`<strong>Uploaded ${isFolderUpload ? "folder containing" : "files"}:</strong> ${fileNames}`, true);
 
                 handleFileUpload(validFiles);
             });
-
 
             function handleFileUpload(files) {
                 latestReportData = null;
