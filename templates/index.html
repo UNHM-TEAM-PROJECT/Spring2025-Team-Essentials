@@ -401,11 +401,11 @@
 
                 const userMessage = message.toLowerCase().trim();
                 if (casualGreetings[userMessage]) {
-                    addHTMLMessage(casualGreetings[userMessage], false);
+                    addHTMLM7essage(casualGreetings[userMessage], false);
                     return;
                 }
 
-                fetch("/ask", {
+                fetch("/Essentials/ask", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message }),
@@ -464,7 +464,7 @@
 
                 addHTMLMessage(`Processing ${files.length} file(s) for NECHE compliance check...`, false);
 
-                fetch("/upload", {
+                fetch("/Essentials/upload", {
                     method: "POST",
                     body: formData,
                 })

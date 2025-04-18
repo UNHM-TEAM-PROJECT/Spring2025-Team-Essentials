@@ -752,8 +752,8 @@ def upload_file():
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
 
 # Chatbot API: Handles user queries
-@app.route('/ask', methods=['POST'])
-def ask():
+@app.route('/Essentials/ask', methods=['POST'])
+def askstuff():
     global latest_syllabus_info
     data = request.get_json()
     user_question = data.get('message', '').strip().lower()
@@ -822,7 +822,7 @@ def ask():
         return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
     
     
-from flask import send_file
+from flask import send_file, Flask, request, jsonify, render_template
 
 @app.route("/download_all_reports_zip", methods=["GET"])
 def download_all_reports_zip():
@@ -830,9 +830,34 @@ def download_all_reports_zip():
     return send_file(zip_path, as_attachment=True)
 
 # Serve frontend page
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def home():
     return render_template('index.html')
 
+@app.route("/ask", methods=["POST"])
+def ask():
+    try:
+        data = request.get_json()
+        message = data.get("message", "").strip()
+
+        if not message:
+            return jsonify({"response": "Please enter a valid question."})
+
+        # Add extracted syllabus info to prompt (from latest upload)
+        syllabus_summary = "\n".join([f"{k}: {v}" for k, v in latest_syllabus_info.items()])
+        context = f"Here is the latest extracted syllabus data:\n{syllabus_summary}"
+
+        # Construct full prompt
+        prompt = PROMPT_TEMPLATE + "\n" + context + "\n\nUser: " + message
+
+        response = llm([HumanMessage(content=prompt)])
+
+        return jsonify({"response": response.content})
+
+    except Exception as e:
+        return jsonify({"response": f"⚠️ Server error: {str(e)}"}), 500
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8001)
