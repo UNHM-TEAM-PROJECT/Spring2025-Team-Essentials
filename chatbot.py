@@ -833,10 +833,80 @@ def upload_file():
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
+
+# Chatbot API: Handles user queries
+@app.route('/ask', methods=['POST'])
+def ask():
+    global latest_syllabus_info
+    data = request.get_json()
+    user_question = data.get('message', '').strip().lower()
+
+    # Natural responses for greetings and casual questions
+    casual_responses = {
+        "hey": "Hey! How’s your day going?",
+        "hello": "Hello! Hope you're having a great day.",
+        "hi": "Hi there! How can I assist you today?",
+        "how are you": "I'm doing great! Thanks for asking. How about you?",
+        "what's up": "Not much, just here to assist with NECHE compliance! What’s up with you?",
+        "who are you": "I'm your assistant for NECHE syllabus compliance. I help check syllabus requirements and guide you on accreditation standards.",
+        "what do you do": "I assist with NECHE compliance by checking syllabi for required information. Let me know if you need help with that!"
+    }
+
+    # Check if user's question is casual/small talk
+    if user_question in casual_responses:
+        return jsonify({"response": casual_responses[user_question]})
+
+    # NECHE compliance-related keywords
+    neche_keywords = [
+        "neche", "syllabus", "compliance", "instructor", "credit hours",
+        "grading policy", "program SLOs", "assignments", "office hours",
+        "submission", "deadlines", "policies", "assessment", "course objectives"
+    ]
+
+    # General inquiries about bot's purpose
+    general_inquiries = [
+        "how can you assist me", "what can you do for me", "tell me about yourself", "what is your purpose"
+    ]
+
+    is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
+
+    if is_neche_related or latest_syllabus_info:
+        prompt = f"""
+        You are a **NECHE syllabus compliance chatbot**.
+        🎯 **Your job:** Verify syllabus compliance, identify missing NECHE requirements, and guide users on necessary improvements.
+
+        **User's Question:** {user_question}
+
+        **Latest NECHE Compliance Information (from uploaded syllabus):**
+        {json.dumps(latest_syllabus_info, indent=2)}
+
+        **Response Guidelines:**
+        - If the syllabus **is missing required elements**, list what is missing and how to correct it.
+        - If the syllabus **meets NECHE compliance**, confirm compliance and summarize why.
+        - **For general inquiries (e.g., "Tell me about yourself," "What is your purpose?"),** respond naturally and then transition into explaining that you specialize in NECHE compliance.
+        - Keep responses **short, professional, and NECHE-focused**.
+        """
+
+    else:
+        # Redirect ALL unrelated questions back to NECHE compliance
+        prompt = """
+        I specialize in NECHE syllabus compliance.
+        I can check if your syllabus meets NECHE standards, identify missing elements, 
+        and guide you on compliance improvements.
+
+        Please ask about syllabus requirements, instructor details, grading policies, or coursework submissions.
+        """
+
+    try:
+        response = llm.invoke([HumanMessage(content=prompt)])
+        return jsonify({"response": response.content})
+
+    except Exception as e:
+        return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
     
     
-from flask import send_file
+from flask import send_file, Flask, request, jsonify, render_template
 
 @app.route("/download_all_reports_zip", methods=["GET"])
 def download_all_reports_zip():
@@ -844,9 +914,34 @@ def download_all_reports_zip():
     return send_file(zip_path, as_attachment=True)
 
 # Serve frontend page
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def home():
     return render_template('index.html')
 
+@app.route("/ask", methods=["POST"])
+def ask():
+    try:
+        data = request.get_json()
+        message = data.get("message", "").strip()
+
+        if not message:
+            return jsonify({"response": "Please enter a valid question."})
+
+        # Add extracted syllabus info to prompt (from latest upload)
+        syllabus_summary = "\n".join([f"{k}: {v}" for k, v in latest_syllabus_info.items()])
+        context = f"Here is the latest extracted syllabus data:\n{syllabus_summary}"
+
+        # Construct full prompt
+        prompt = PROMPT_TEMPLATE + "\n" + context + "\n\nUser: " + message
+
+        response = llm([HumanMessage(content=prompt)])
+
+        return jsonify({"response": response.content})
+
+    except Exception as e:
+        return jsonify({"response": f"⚠️ Server error: {str(e)}"}), 500
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8001)
