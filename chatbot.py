@@ -327,7 +327,7 @@ required_compliance_items = {
 
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'zip'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -675,14 +675,13 @@ def upload_file():
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-            "Course Description", "Course Format", "Course Topics and Schedule",
-            "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
+            "Course SLOs", "Credit Hour Workload","Assignments & Delivery","Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
+            "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
+            "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
-            "Program Accreditation Info", "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI", "Program Accreditation Info",
+            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
             "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
 
@@ -690,10 +689,65 @@ def upload_file():
             "Course Prerequisites",
             "Simultaneous 700/800 Course Designation",
             "University Requirements",
-            "Teaching Assistants (Names and Contact Information)",
-            "Sensitive Course Content",
-            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
+            "Teaching Assistants (Names and Contact Information)"
         ]
+
+        # ✅ ZIP file support
+        if filename.endswith('.zip'):
+            import zipfile
+            import tempfile
+
+            results = []
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    zip_ref.extractall(temp_dir)
+
+                    for root, _, files in os.walk(temp_dir):
+                        for name in files:
+                            if name.lower().endswith('.pdf') or name.lower().endswith('.docx'):
+                                inner_path = os.path.join(root, name)
+                                print(f"🔍 Processing file inside ZIP: {name}")
+
+                                if name.endswith('.pdf'):
+                                    text = extract_text_from_pdf(inner_path)
+                                else:
+                                    text = extract_text_from_docx(inner_path)
+
+                                if not text:
+                                    print(f"❌ Skipping file (no text extracted): {name}")
+                                    continue
+
+                                extracted_info = extract_course_information(text)
+
+                                for field in required_fields:
+                                    value = extracted_info.get(field, "").strip()
+                                    if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                                        extracted_info[field] = "Not Found"
+
+                                for key, value in extracted_info.items():
+                                    if isinstance(value, list):
+                                        extracted_info[key] = ", ".join(map(str, value))
+                                    elif isinstance(value, dict):
+                                        extracted_info[key] = " ".join(map(str, value.values()))
+                                    elif not isinstance(value, str):
+                                        extracted_info[key] = str(value)
+
+                                compliance = check_neche_compliance(extracted_info)
+
+                                results.append({
+                                    "filename": name,
+                                    "extracted_information": extracted_info,
+                                    "compliance_check": compliance["compliance_check"],
+                                    "missing_fields": compliance["missing_fields"]
+                                })
+                            else:
+                                print(f"⚠️ Skipping unsupported file inside ZIP: {name}")
+
+            return jsonify({
+                "success": True,
+                "message": f"✅ ZIP file processed: {filename}",
+                "results": results
+            })
 
         # ✅ Handle single PDF or DOCX
         if filename.endswith('.pdf'):
@@ -719,13 +773,6 @@ def upload_file():
             if field in extracted_info and extracted_info[field] != "Not Found"
         }
 
-        # Filter optional fields with invalid values
-        filtered_optional_info = {
-            field: value
-            for field, value in optional_info.items()
-            if value.lower() not in ["n/a", "na", "none", ""]
-        }
-
         for key, value in extracted_info.items():
             if isinstance(value, list):
                 extracted_info[key] = ", ".join(map(str, value))
@@ -738,7 +785,7 @@ def upload_file():
 
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
-        extracted_info.update(filtered_optional_info)
+        extracted_info.update(optional_info)
 
         return jsonify({
             "success": True,
@@ -749,77 +796,7 @@ def upload_file():
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
-
-# Chatbot API: Handles user queries
-@app.route('/ask', methods=['POST'])
-def ask():
-    global latest_syllabus_info
-    data = request.get_json()
-    user_question = data.get('message', '').strip().lower()
-
-    # Natural responses for greetings and casual questions
-    casual_responses = {
-        "hey": "Hey! How’s your day going?",
-        "hello": "Hello! Hope you're having a great day.",
-        "hi": "Hi there! How can I assist you today?",
-        "how are you": "I'm doing great! Thanks for asking. How about you?",
-        "what's up": "Not much, just here to assist with NECHE compliance! What’s up with you?",
-        "who are you": "I'm your assistant for NECHE syllabus compliance. I help check syllabus requirements and guide you on accreditation standards.",
-        "what do you do": "I assist with NECHE compliance by checking syllabi for required information. Let me know if you need help with that!"
-    }
-
-    # Check if user's question is casual/small talk
-    if user_question in casual_responses:
-        return jsonify({"response": casual_responses[user_question]})
-
-    # NECHE compliance-related keywords
-    neche_keywords = [
-        "neche", "syllabus", "compliance", "instructor", "credit hours",
-        "grading policy", "program SLOs", "assignments", "office hours",
-        "submission", "deadlines", "policies", "assessment", "course objectives"
-    ]
-
-    # General inquiries about bot's purpose
-    general_inquiries = [
-        "how can you assist me", "what can you do for me", "tell me about yourself", "what is your purpose"
-    ]
-
-    is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
-
-    if is_neche_related or latest_syllabus_info:
-        prompt = f"""
-        You are a **NECHE syllabus compliance chatbot**.
-        🎯 **Your job:** Verify syllabus compliance, identify missing NECHE requirements, and guide users on necessary improvements.
-
-        **User's Question:** {user_question}
-
-        **Latest NECHE Compliance Information (from uploaded syllabus):**
-        {json.dumps(latest_syllabus_info, indent=2)}
-
-        **Response Guidelines:**
-        - If the syllabus **is missing required elements**, list what is missing and how to correct it.
-        - If the syllabus **meets NECHE compliance**, confirm compliance and summarize why.
-        - **For general inquiries (e.g., "Tell me about yourself," "What is your purpose?"),** respond naturally and then transition into explaining that you specialize in NECHE compliance.
-        - Keep responses **short, professional, and NECHE-focused**.
-        """
-
-    else:
-        # Redirect ALL unrelated questions back to NECHE compliance
-        prompt = """
-        I specialize in NECHE syllabus compliance.
-        I can check if your syllabus meets NECHE standards, identify missing elements, 
-        and guide you on compliance improvements.
-
-        Please ask about syllabus requirements, instructor details, grading policies, or coursework submissions.
-        """
-
-    try:
-        response = llm.invoke([HumanMessage(content=prompt)])
-        return jsonify({"response": response.content})
-
-    except Exception as e:
-        return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
+        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500
     
     
 from flask import send_file
