@@ -327,7 +327,7 @@ required_compliance_items = {
 
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'zip'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -341,7 +341,44 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
+@app.route('/ask', methods=['POST'])
+def ask_question():
+    global latest_syllabus_info, llm
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "No message provided"}), 400
 
+        message = data['message'].strip().lower()
+
+        # Handle professor-related questions
+        if "who is the professor" in message or "professor's name" in message:
+            professor_name = latest_syllabus_info.get("Instructor Name", "Not Found")
+            if professor_name == "Not Found":
+                return jsonify({"response": "No professor information found in the most recent syllabus. Please upload a valid syllabus."})
+            return jsonify({"response": f"The professor listed in the most recent syllabus is {professor_name}."})
+
+        # Handle compliance check questions
+        elif "is this syllabus compliant" in message:
+            compliance_result = check_neche_compliance(latest_syllabus_info)
+            return jsonify({"response": compliance_result["compliance_check"]})
+
+        # Handle greetings based on PROMPT_TEMPLATE
+        elif message in ["hi", "hello", "hey"]:
+            return jsonify({"response": "Hello! I assist with NECHE syllabus compliance. How can I help you today?"})
+
+        # Handle other syllabus-related questions using LLM
+        else:
+            prompt = PROMPT_TEMPLATE + f"""
+            Question: {message}
+            Syllabus Info: {json.dumps(latest_syllabus_info, indent=2)}
+            """
+            response = llm.invoke([HumanMessage(content=prompt)])
+            return jsonify({"response": response.content.strip()})
+
+    except Exception as e:
+        print(f"Error processing question: {str(e)}")
+        return jsonify({"error": f"Failed to process question: {str(e)}"}), 500
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
@@ -675,14 +712,13 @@ def upload_file():
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
-            "Course Description", "Course Format", "Course Topics and Schedule",
-            "Sensitive Course Content", "Required/recommended textbook (or other source for course reference information)",
+            "Course SLOs", "Credit Hour Workload","Assignments & Delivery","Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
+            "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
+            "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI",
-            "Program Accreditation Info", "Course Number and Title",
-            "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI", "Program Accreditation Info",
+            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
             "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
 
@@ -690,10 +726,65 @@ def upload_file():
             "Course Prerequisites",
             "Simultaneous 700/800 Course Designation",
             "University Requirements",
-            "Teaching Assistants (Names and Contact Information)",
-            "Sensitive Course Content",
-            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
+            "Teaching Assistants (Names and Contact Information)"
         ]
+
+        # ✅ ZIP file support
+        if filename.endswith('.zip'):
+            import zipfile
+            import tempfile
+
+            results = []
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    zip_ref.extractall(temp_dir)
+
+                    for root, _, files in os.walk(temp_dir):
+                        for name in files:
+                            if name.lower().endswith('.pdf') or name.lower().endswith('.docx'):
+                                inner_path = os.path.join(root, name)
+                                print(f"🔍 Processing file inside ZIP: {name}")
+
+                                if name.endswith('.pdf'):
+                                    text = extract_text_from_pdf(inner_path)
+                                else:
+                                    text = extract_text_from_docx(inner_path)
+
+                                if not text:
+                                    print(f"❌ Skipping file (no text extracted): {name}")
+                                    continue
+
+                                extracted_info = extract_course_information(text)
+
+                                for field in required_fields:
+                                    value = extracted_info.get(field, "").strip()
+                                    if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                                        extracted_info[field] = "Not Found"
+
+                                for key, value in extracted_info.items():
+                                    if isinstance(value, list):
+                                        extracted_info[key] = ", ".join(map(str, value))
+                                    elif isinstance(value, dict):
+                                        extracted_info[key] = " ".join(map(str, value.values()))
+                                    elif not isinstance(value, str):
+                                        extracted_info[key] = str(value)
+
+                                compliance = check_neche_compliance(extracted_info)
+
+                                results.append({
+                                    "filename": name,
+                                    "extracted_information": extracted_info,
+                                    "compliance_check": compliance["compliance_check"],
+                                    "missing_fields": compliance["missing_fields"]
+                                })
+                            else:
+                                print(f"⚠️ Skipping unsupported file inside ZIP: {name}")
+
+            return jsonify({
+                "success": True,
+                "message": f"✅ ZIP file processed: {filename}",
+                "results": results
+            })
 
         # ✅ Handle single PDF or DOCX
         if filename.endswith('.pdf'):
@@ -719,13 +810,6 @@ def upload_file():
             if field in extracted_info and extracted_info[field] != "Not Found"
         }
 
-        # Filter optional fields with invalid values
-        filtered_optional_info = {
-            field: value
-            for field, value in optional_info.items()
-            if value.lower() not in ["n/a", "na", "none", ""]
-        }
-
         for key, value in extracted_info.items():
             if isinstance(value, list):
                 extracted_info[key] = ", ".join(map(str, value))
@@ -738,7 +822,7 @@ def upload_file():
 
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
-        extracted_info.update(filtered_optional_info)
+        extracted_info.update(optional_info)
 
         return jsonify({
             "success": True,
@@ -752,8 +836,8 @@ def upload_file():
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
 
 # Chatbot API: Handles user queries
-@app.route('/Essentials/ask', methods=['POST'])
-def askstuff():
+@app.route('/ask', methods=['POST'])
+def ask():
     global latest_syllabus_info
     data = request.get_json()
     user_question = data.get('message', '').strip().lower()
