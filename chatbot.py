@@ -341,7 +341,44 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
+@app.route('/ask', methods=['POST'])
+def ask_question():
+    global latest_syllabus_info, llm
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "No message provided"}), 400
 
+        message = data['message'].strip().lower()
+
+        # Handle professor-related questions
+        if "who is the professor" in message or "professor's name" in message:
+            professor_name = latest_syllabus_info.get("Instructor Name", "Not Found")
+            if professor_name == "Not Found":
+                return jsonify({"response": "No professor information found in the most recent syllabus. Please upload a valid syllabus."})
+            return jsonify({"response": f"The professor listed in the most recent syllabus is {professor_name}."})
+
+        # Handle compliance check questions
+        elif "is this syllabus compliant" in message:
+            compliance_result = check_neche_compliance(latest_syllabus_info)
+            return jsonify({"response": compliance_result["compliance_check"]})
+
+        # Handle greetings based on PROMPT_TEMPLATE
+        elif message in ["hi", "hello", "hey"]:
+            return jsonify({"response": "Hello! I assist with NECHE syllabus compliance. How can I help you today?"})
+
+        # Handle other syllabus-related questions using LLM
+        else:
+            prompt = PROMPT_TEMPLATE + f"""
+            Question: {message}
+            Syllabus Info: {json.dumps(latest_syllabus_info, indent=2)}
+            """
+            response = llm.invoke([HumanMessage(content=prompt)])
+            return jsonify({"response": response.content.strip()})
+
+    except Exception as e:
+        print(f"Error processing question: {str(e)}")
+        return jsonify({"error": f"Failed to process question: {str(e)}"}), 500
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
