@@ -19,10 +19,23 @@ import os
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from docx import Document as DocxDocument
-
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from email.mime.application import MIMEApplication
+from io import BytesIO
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 latest_syllabus_info = {}
 
-
+SENDER_EMAIL = "Essentials2025UNH@gmail.com"
+SENDER_APP_PASSWORD = "prpa flfb znbk oglt"
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
 
 #Define the custom prompt template for friendly, conversational tone
 PROMPT_TEMPLATE = """
@@ -341,44 +354,7 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
-@app.route('/ask', methods=['POST'])
-def ask_question():
-    global latest_syllabus_info, llm
-    try:
-        data = request.get_json()
-        if not data or 'message' not in data:
-            return jsonify({"error": "No message provided"}), 400
 
-        message = data['message'].strip().lower()
-
-        # Handle professor-related questions
-        if "who is the professor" in message or "professor's name" in message:
-            professor_name = latest_syllabus_info.get("Instructor Name", "Not Found")
-            if professor_name == "Not Found":
-                return jsonify({"response": "No professor information found in the most recent syllabus. Please upload a valid syllabus."})
-            return jsonify({"response": f"The professor listed in the most recent syllabus is {professor_name}."})
-
-        # Handle compliance check questions
-        elif "is this syllabus compliant" in message:
-            compliance_result = check_neche_compliance(latest_syllabus_info)
-            return jsonify({"response": compliance_result["compliance_check"]})
-
-        # Handle greetings based on PROMPT_TEMPLATE
-        elif message in ["hi", "hello", "hey"]:
-            return jsonify({"response": "Hello! I assist with NECHE syllabus compliance. How can I help you today?"})
-
-        # Handle other syllabus-related questions using LLM
-        else:
-            prompt = PROMPT_TEMPLATE + f"""
-            Question: {message}
-            Syllabus Info: {json.dumps(latest_syllabus_info, indent=2)}
-            """
-            response = llm.invoke([HumanMessage(content=prompt)])
-            return jsonify({"response": response.content.strip()})
-
-    except Exception as e:
-        print(f"Error processing question: {str(e)}")
-        return jsonify({"error": f"Failed to process question: {str(e)}"}), 500
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
@@ -439,7 +415,117 @@ def extract_text_from_docx(docx_path):
         return None
 
     return "\n".join(text).strip() if text else None
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    global latest_syllabus_info
+    try:
+        data = request.get_json()
+        to_email = data.get('to', "SJ1203@usnh.edu")
+        course_name = latest_syllabus_info.get("Course Number and Title", "Unknown Course")
+        subject = data.get('subject', f'NECHE Compliance and Minimum Syllabus Report - {course_name}')
+        body = data.get('body', '')
 
+        # Prepare PDF of the View table (same as in showReportModal)
+        required_fields = [
+            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+            "Assignment Deadlines & Policies"
+        ]
+        minimum_fields = [
+            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+            "Attendance", "Academic Integrity/Plagiarism/AI"
+        ]
+        optional_fields = [
+            "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+            "Teaching Assistants (Names and Contact Information)"
+        ]
+        all_fields = required_fields + minimum_fields + optional_fields
+
+        table_data = [["Syllabus Items", "Syllabus Details"]]
+        max_field_length = 0
+        max_value_length = 0
+        for field in all_fields:
+            value = latest_syllabus_info.get(field, "Not Found")
+            if field in optional_fields and value == "Not Found":
+                continue
+            display_field = field
+            if field in required_fields:
+                display_field = f"**{field}**"
+            elif field in optional_fields:
+                display_field = f"***{field}***"
+            display_value = value if value != "Not Found" else "Not Found"
+            table_data.append([display_field, display_value])
+            # Calculate max lengths for dynamic column widths
+            max_field_length = max(max_field_length, len(display_field.replace("*", "")))
+            max_value_length = max(max_value_length, len(display_value))
+
+        # Dynamically adjust column widths based on content length
+        total_width = 500  # Total available width in points (letter page width - margins)
+        field_width = min(200, total_width * (max_field_length / (max_field_length + max_value_length)))
+        value_width = total_width - field_width
+
+        # Generate PDF with title
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30, leftMargin=30, rightMargin=30)
+        elements = []
+
+        # Add title
+        styles = getSampleStyleSheet()
+        title = Paragraph(f"NECHE Compliance Report - {course_name}", styles['Title'])
+        elements.append(title)
+
+        # Add table with dynamic widths and better formatting
+        table = Table(table_data, colWidths=[field_width, value_width])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3a17d8')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f5f5f5')),
+            ('BACKGROUND', (1, 1), (1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),  # Reduced font size for better fit
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEADING', (0, 0), (-1, -1), 10),  # Reduced leading for tighter spacing
+            ('WORDWRAP', (0, 0), (-1, -1), 'CJK'),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('ROWHEIGHT', (0, 0), (-1, -1), 10),  # Minimum row height
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica'),  # Regular font for items
+            ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),  # Regular font for details
+        ]))
+        elements.append(table)
+        doc.build(elements)
+        pdf_data = buffer.getvalue()
+        buffer.close()
+
+        # Create email with attachment
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Attach PDF
+        pdf_attachment = MIMEApplication(pdf_data, _subtype="pdf")
+        pdf_attachment.add_header('Content-Disposition', 'attachment', filename="NECHE_Requirements_Table.pdf")
+        msg.attach(pdf_attachment)
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SENDER_EMAIL, SENDER_APP_PASSWORD)
+            server.sendmail(SENDER_EMAIL, to_email, msg.as_string())
+
+        return jsonify({"success": True, "message": "Email sent successfully!"})
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
 def process_uploaded_pdf(file_path, file_name):
     global db
     try:
@@ -835,75 +921,89 @@ def upload_file():
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
 
-# Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
     global latest_syllabus_info
-    data = request.get_json()
-    user_question = data.get('message', '').strip().lower()
-
-    # Natural responses for greetings and casual questions
-    casual_responses = {
-        "hey": "Hey! How’s your day going?",
-        "hello": "Hello! Hope you're having a great day.",
-        "hi": "Hi there! How can I assist you today?",
-        "how are you": "I'm doing great! Thanks for asking. How about you?",
-        "what's up": "Not much, just here to assist with NECHE compliance! What’s up with you?",
-        "who are you": "I'm your assistant for NECHE syllabus compliance. I help check syllabus requirements and guide you on accreditation standards.",
-        "what do you do": "I assist with NECHE compliance by checking syllabi for required information. Let me know if you need help with that!"
-    }
-
-    # Check if user's question is casual/small talk
-    if user_question in casual_responses:
-        return jsonify({"response": casual_responses[user_question]})
-
-    # NECHE compliance-related keywords
-    neche_keywords = [
-        "neche", "syllabus", "compliance", "instructor", "credit hours",
-        "grading policy", "program SLOs", "assignments", "office hours",
-        "submission", "deadlines", "policies", "assessment", "course objectives"
-    ]
-
-    # General inquiries about bot's purpose
-    general_inquiries = [
-        "how can you assist me", "what can you do for me", "tell me about yourself", "what is your purpose"
-    ]
-
-    is_neche_related = any(keyword in user_question for keyword in neche_keywords) or any(inquiry in user_question for inquiry in general_inquiries)
-
-    if is_neche_related or latest_syllabus_info:
-        prompt = f"""
-        You are a **NECHE syllabus compliance chatbot**.
-        🎯 **Your job:** Verify syllabus compliance, identify missing NECHE requirements, and guide users on necessary improvements.
-
-        **User's Question:** {user_question}
-
-        **Latest NECHE Compliance Information (from uploaded syllabus):**
-        {json.dumps(latest_syllabus_info, indent=2)}
-
-        **Response Guidelines:**
-        - If the syllabus **is missing required elements**, list what is missing and how to correct it.
-        - If the syllabus **meets NECHE compliance**, confirm compliance and summarize why.
-        - **For general inquiries (e.g., "Tell me about yourself," "What is your purpose?"),** respond naturally and then transition into explaining that you specialize in NECHE compliance.
-        - Keep responses **short, professional, and NECHE-focused**.
-        """
-
-    else:
-        # Redirect ALL unrelated questions back to NECHE compliance
-        prompt = """
-        I specialize in NECHE syllabus compliance.
-        I can check if your syllabus meets NECHE standards, identify missing elements, 
-        and guide you on compliance improvements.
-
-        Please ask about syllabus requirements, instructor details, grading policies, or coursework submissions.
-        """
-
     try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "No message provided"}), 400
+
+        message = data.get('message', '').strip().lower()
+
+        # Casual responses for greetings and small talk
+        casual_responses = {
+            "hey": "Hey! How’s your day going?",
+            "hello": "Hello! Hope you're having a great day.",
+            "hi": "Hi there! How can I assist you today?",
+            "how are you": "I'm doing great! Thanks for asking. How about you?",
+            "what's up": "Not much, just here to assist with NECHE compliance! What’s up with you?",
+            "who are you": "I'm your assistant for NECHE syllabus compliance. I help check syllabus requirements and guide you on accreditation standards.",
+            "what do you do": "I assist with NECHE compliance by checking syllabi for required information. Let me know if you need help with that!"
+        }
+
+        # Handle casual greetings
+        if message in casual_responses:
+            return jsonify({"response": casual_responses[message]})
+
+        # Handle professor-related questions
+        if "who is the professor" in message or "professor's name" in message:
+            professor_name = latest_syllabus_info.get("Instructor Name", "Not Found")
+            if professor_name == "Not Found":
+                return jsonify({"response": "No professor information found in the most recent syllabus. Please upload a valid syllabus."})
+            return jsonify({"response": f"The professor listed in the most recent syllabus is {professor_name}."})
+
+        # Handle compliance check questions
+        if "is this syllabus compliant" in message:
+            compliance_result = check_neche_compliance(latest_syllabus_info)
+            return jsonify({"response": compliance_result["compliance_check"]})
+
+        # NECHE compliance-related keywords
+        neche_keywords = [
+            "neche", "syllabus", "compliance", "instructor", "credit hours",
+            "grading policy", "program SLOs", "assignments", "office hours",
+            "submission", "deadlines", "policies", "assessment", "course objectives"
+        ]
+
+        # General inquiries about bot's purpose
+        general_inquiries = [
+            "how can you assist me", "what can you do for me", "tell me about yourself", "what is your purpose"
+        ]
+
+        is_neche_related = any(keyword in message for keyword in neche_keywords) or any(inquiry in message for inquiry in general_inquiries)
+
+        # Construct the prompt
+        if is_neche_related or latest_syllabus_info:
+            syllabus_summary = "\n".join([f"{k}: {v}" for k, v in latest_syllabus_info.items()])
+            prompt = PROMPT_TEMPLATE + f"""
+            Latest NECHE Compliance Information (from uploaded syllabus):
+            {json.dumps(latest_syllabus_info, indent=2)}
+
+            User's Question: {message}
+
+            Response Guidelines:
+            - If the syllabus is missing required elements, list what is missing and how to correct it.
+            - If the syllabus meets NECHE compliance, confirm compliance and summarize why.
+            - For general inquiries (e.g., "Tell me about yourself," "What is your purpose?"), respond naturally and then transition into explaining that you specialize in NECHE compliance.
+            - Keep responses short, professional, and NECHE-focused.
+            """
+        else:
+            # Redirect unrelated questions to NECHE compliance
+            prompt = """
+            I specialize in NECHE syllabus compliance.
+            I can check if your syllabus meets NECHE standards, identify missing elements, 
+            and guide you on compliance improvements.
+
+            Please ask about syllabus requirements, instructor details, grading policies, or coursework submissions.
+            """
+
+        # Invoke LLM
         response = llm.invoke([HumanMessage(content=prompt)])
-        return jsonify({"response": response.content})
+        return jsonify({"response": response.content.strip()})
 
     except Exception as e:
-        return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
+        print(f"Error processing question: {str(e)}")
+        return jsonify({"error": f"Failed to process question: {str(e)}"}), 500
     
     
 from flask import send_file, Flask, request, jsonify, render_template
@@ -918,28 +1018,6 @@ def download_all_reports_zip():
 def home():
     return render_template('index.html')
 
-@app.route("/ask", methods=["POST"])
-def ask():
-    try:
-        data = request.get_json()
-        message = data.get("message", "").strip()
-
-        if not message:
-            return jsonify({"response": "Please enter a valid question."})
-
-        # Add extracted syllabus info to prompt (from latest upload)
-        syllabus_summary = "\n".join([f"{k}: {v}" for k, v in latest_syllabus_info.items()])
-        context = f"Here is the latest extracted syllabus data:\n{syllabus_summary}"
-
-        # Construct full prompt
-        prompt = PROMPT_TEMPLATE + "\n" + context + "\n\nUser: " + message
-
-        response = llm([HumanMessage(content=prompt)])
-
-        return jsonify({"response": response.content})
-
-    except Exception as e:
-        return jsonify({"response": f"⚠️ Server error: {str(e)}"}), 500
 
 
 
