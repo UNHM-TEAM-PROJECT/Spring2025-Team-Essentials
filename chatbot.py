@@ -2,6 +2,9 @@ import json
 import os
 import re
 import pdfplumber
+import zipfile
+import tempfile
+
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -111,17 +114,16 @@ initialize_chroma()
 
 # Compliance Criteria: Key Information to Check
 required_compliance_items = {
-    "Instructor Name": [
-        r"(instructor|name|senior lecturer|professor|assistant professor|associate professor|dr\.|mr\.|ms\.)[:\-]?", 
-        r"^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"
-    ],
     "Title or Rank": [
-        # Expanded patterns to include variations and abbreviations
-        r"(?i)\b(title|rank|position|role)\b\s*[:-]?\s*",  # Matches "Title: Assistant Professor"
-        r"(?i)\b(professor|dr|doctor|mr|ms|mrs|senior lecturer|lecturer|instructor|adjunct|faculty|adjunct)\b",
-        r"(?i)\b(assistant professor|associate professor|full professor|teaching fellow|grad assistant)\b",
-        r"(?i)\b(ph\.?d|m\.?sc|m\.?a|b\.?a)\b"  # Academic degrees often indicate rank
-    ],
+    r"(?i)\b(professor|Professor|assistant professor|associate professor|full professor|senior lecturer|lecturer|instructor|adjunct|faculty|teaching fellow|grad assistant)\b",  # Matches standalone titles
+    r"(?i)\b(ph\.?d|phd|dr\.||Professor|professor)\b",  # Matches "Ph.D.", "PhD", "Dr.", or "Professor"
+    r"(?i)\b(professor\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*,\s*ph\.?d)\b",  # Matches "Professor Patricia A. Halpin, Ph.D."
+    r"(?i)\b([a-zA-Z]+\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*\s*(professor|ph\.?d))\b",  # Matches "Patricia A. Halpin, Professor" or "Patricia A. Halpin, Ph.D."
+],
+    "Instructor Name": [
+    r"(?i)\b(name|instructor|dr\.|mr\.|ms\.|mrs\.)[:\-]?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)+)(?=,|\s|$)",  # Matches "Name: Patricia A. Halpin" but stops before ", Ph.D."
+    r"(?i)^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"  # Matches standalone names like "Patricia A. Halpin"
+],
     "Department or Program Affiliation": [
         # Broader patterns to catch department/program mentions
         r"(?i)\b(department|program|school|college|division|faculty|institute)\b\s*(of|for)?\s*[a-zA-Z]+",  # Matches "Department of Computer Science"
@@ -162,7 +164,7 @@ required_compliance_items = {
     "Location (Physical or Remote)": [
         r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
     ],
-    "Course Learning Outcomes": [
+    "Course SLOs": [
         r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs)\b.*",
         r"(?i)\b(learning\s+objectives|outcomes|course\s+objectives|expected\s+learning\s+outcomes)\b.*",
         r"(?i)\b(this\s+course\s+aims\s+to|upon\s+successful\s+completion|students\s+will\s+be\s+able\s+to)\b.*",
@@ -174,7 +176,7 @@ required_compliance_items = {
         r"(?i)\b(course\s+workload|time\s+spent\s+per\s+credit\s+hour|study\s+hours\s+per\s+week)\b.*",
         r"(?i)\b(federal\s+definition\s+of\s+a\s+credit\s+hour|weekly\s+engagement\s+expectations)\b.*"
     ],
-    "Coursework Types & Submission Methods": [
+    "Assignments & Delivery": [
         r"(?i)\b(assignments|exams|projects|final\s+paper|graded\s+work)\b.*",
         r"(?i)\b(Canvas|Turnitin|remote\s+proctoring|on\s+paper|submission|assessment\s+methods)\b.*",
         r"(?i)\b(quiz|midterm|final\s+exam|group\s+project|presentation|lab\s+reports|discussion\s+posts)\b.*",
@@ -193,6 +195,12 @@ required_compliance_items = {
         r"(?i)\b(late\s+penalty|missed\s+exams|penalty\s+for\s+late\s+work|grace\s+period|extension\s+requests)\b.*",
         r"(?i)\b(assignment\s+turn-in\s+policy|strict\s+submission\s+guidelines|deadline\s+requirements)\b.*"
     ],
+    "Assignments & Delivery": [
+    r"(?i)\b(assignments|coursework|homework|projects|quizzes|exams|assessments|tasks)\b.*",
+    r"(?i)\b(submission\s+methods|delivery\s+methods|how\s+to\s+submit|submit\s+via|due\s+via|turn\s+in)\b.*",
+    r"(?i)\b(online\s+submission|canvas|blackboard|email\s+submission|in\s+class\s+delivery|dropbox)\b.*",
+    r"(?i)\b(assignment\s+details|coursework\s+requirements|expectations\s+for\s+submission)\b.*"
+],
 
 
     "Course Summary": [
@@ -215,6 +223,9 @@ required_compliance_items = {
         r"(?i)\b(trigger\s+warning|sensitive\s+content|potentially\s+disturbing\s+material|controversial\s+topics)\b.*",
         r"(?i)\b(we\s+will\s+discuss\s+topics\s+that\s+may\s+be\s+upsetting)\b.*"
     ],
+    "Course and program SLOs":[
+        r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs|program\s+learning\s+outcomes|PLOs)\b.*",
+        r"(?i)\b(upon\s+successful\s+completion|students\s+will\s+be\s+able\s+to|learning\s+goals)\b.*"],
 
     "Learning Resources & Technical Requirements": [
     # Textbooks
@@ -259,9 +270,48 @@ required_compliance_items = {
     r"(?i)\b(this\s+course\s+is\s+(designed|aligned)\s+to\s+meet\s+.*program\s+requirements)\b.*",
     r"(?i)\b(required\s+for\s+(ABET|ACEN|CACREP|AACSB|NCATE|CCNE|program-level\s+accreditation))\b.*",
     r"(?i)\b(additional\s+information\s+(for|related\s+to)\s+program\s+accreditation)\b.*"
-]
+],
+"Department/Program": [
+    r"(?i)\b(department|program|school|college|division|faculty|institute)\b\s*(of|for)?\s*[a-zA-Z]+",
+    r"(?i)\b(affiliated with|affiliation|under)\b\s*[a-zA-Z\s]+"
+],
 
-    
+"Format (e.g., lecture plus lab/discussion etc.)": [
+    r"(?i)\b(course\s+format|class\s+format|mode\s+of\s+instruction|lecture\s+plus\s+lab|discussion\s+based|seminar|hybrid|in-person|online)\b.*"
+],
+
+"Course Description (minimum course catalog description)": [
+    r"(?i)\b(course\s+description|course\s+summary|course\s+overview|introduction\s+to\s+the\s+course)\b.*",
+    r"(?i)\b(this\s+course\s+(covers|introduces|examines|explores|is\s+designed\s+to))\b.*"
+],
+
+"Sequence of Course Topics and Important Dates": [
+    r"(?i)\b(schedule\s+of\s+topics|course\s+schedule|tentative\s+schedule|important\s+dates|calendar|timeline|week\s+by\s+week)\b.*",
+    r"(?i)\b(topics\s+covered|topics\s+and\s+dates|class\s+agenda|subject\s+schedule)\b.*"
+],
+
+"Required/Recommended Textbook (or other source for course reference information)": [
+    r"(?i)\b(required\s+texts?|textbooks?|recommended\s+books?|course\s+readings?|assigned\s+books?)\b.*",
+    r"(?i)\b(this\s+course\s+uses|the\s+required\s+book\s+is|you\s+must\s+read|textbook\s+requirement)\b.*"
+],
+
+"Other Required/Recommended Materials (e.g., software, clicker remote, etc.)": [
+    r"(?i)\b(required\s+materials|recommended\s+materials|course\s+materials|equipment|supplies|hardware|software|required\s+tools|resources\s+needed)\b.*",
+    r"(?i)\b(you\s+will\s+need\s+to\s+bring|must\s+have\s+access\s+to|clicker|calculator|online\s+tools|learning\s+management\s+system|dissection\s+kits|lab\s+coats|protective\s+gear|lab\s+equipment|required\s+supplies|essential\s+materials)\b.*",
+    r"(?i)\b(lab\s+coats|dissection\s+kits|safety\s+gear|required\s+tools|mandatory\s+equipment)\b.*"
+],
+"Technical Requirements": [
+    r"(?i)\b(technical\s+requirements|tech\s+requirements|technology\s+needs|system\s+requirements|technical\s+specifications|hardware\s+and\s+software)\b.*",
+    r"(?i)\b(internet\s+access|zoom|webcam|microphone|laptop|computer\s+requirements|online\s+platform|software\s+needed)\b.*"
+],
+
+    "Course Prerequisites": [
+    r"(?i)\b(prerequisites?|pre[-\s]?reqs?)\b\s*[:\-]?\s*.*",
+    r"(?i)\b(required\s+prior\s+coursework|prior\s+completion\s+of)\b\s*.*",
+    r"(?i)\b(you\s+must\s+have\s+(completed|taken)|must\s+complete|should\s+have\s+taken)\b\s*.*",
+    r"(?i)\b(this\s+course\s+(requires|assumes|expects)\s+(knowledge|completion|background|understanding)\s+of)\b\s*.*",
+    r"(?i)\b(students\s+should\s+be\s+(familiar|comfortable)\s+with)\b\s*.*"
+]
 
     
 
@@ -277,7 +327,7 @@ required_compliance_items = {
 
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'zip'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -291,16 +341,44 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
-def extract_text_from_pdf(pdf_path):
+@app.route('/ask', methods=['POST'])
+def ask_question():
+    global latest_syllabus_info, llm
     try:
-        with pdfplumber.open(pdf_path) as pdf:
-            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-                text_list = pool.map(process_page, pdf.pages)
-            return "\n".join(text_list).strip() if text_list else None
-    except Exception as e:
-        print(f"⚠️ Error processing PDF: {str(e)}")
-        return None
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "No message provided"}), 400
 
+        message = data['message'].strip().lower()
+
+        # Handle professor-related questions
+        if "who is the professor" in message or "professor's name" in message:
+            professor_name = latest_syllabus_info.get("Instructor Name", "Not Found")
+            if professor_name == "Not Found":
+                return jsonify({"response": "No professor information found in the most recent syllabus. Please upload a valid syllabus."})
+            return jsonify({"response": f"The professor listed in the most recent syllabus is {professor_name}."})
+
+        # Handle compliance check questions
+        elif "is this syllabus compliant" in message:
+            compliance_result = check_neche_compliance(latest_syllabus_info)
+            return jsonify({"response": compliance_result["compliance_check"]})
+
+        # Handle greetings based on PROMPT_TEMPLATE
+        elif message in ["hi", "hello", "hey"]:
+            return jsonify({"response": "Hello! I assist with NECHE syllabus compliance. How can I help you today?"})
+
+        # Handle other syllabus-related questions using LLM
+        else:
+            prompt = PROMPT_TEMPLATE + f"""
+            Question: {message}
+            Syllabus Info: {json.dumps(latest_syllabus_info, indent=2)}
+            """
+            response = llm.invoke([HumanMessage(content=prompt)])
+            return jsonify({"response": response.content.strip()})
+
+    except Exception as e:
+        print(f"Error processing question: {str(e)}")
+        return jsonify({"error": f"Failed to process question: {str(e)}"}), 500
 
 # Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
@@ -398,9 +476,9 @@ def check_neche_compliance(course_info):
         "Office Address",
         "Office Hours",
         "Location (Physical or Remote)",
-        "Course Learning Outcomes",
+        "Course SLOs",
         "Credit Hour Workload",
-        "Coursework Types & Submission Methods",
+        "Assignments & Delivery",
         "Grading Procedures & Final Grade Scale",
         "Assignment Deadlines & Policies",
         "Course Description",
@@ -475,102 +553,136 @@ from langchain.schema import HumanMessage
 
 
 def extract_course_information(text):
-    """
-    Extracts structured course and instructor details in JSON format.
-    Ensures full syllabus details are captured.
-    """
-    # ✅ Format text into bullet points before passing it to the LLM
     formatted_text = format_text_as_bullets(text)
+    
+    # Pre-extract with regex to assist LLM
+    pre_extracted = {}
+    for field, patterns in required_compliance_items.items():
+        for pattern in patterns:
+            match = re.search(pattern, formatted_text, re.MULTILINE | re.DOTALL)  # DOTALL for multi-line matches
+            if match:
+                print(f"✅ Match found for '{field}': {match.group()}")  # Debug log
+                start = match.start()
+                end = formatted_text.find("\n\n", start)  # Look for section break instead of single newline
+                if end == -1:
+                    end = len(formatted_text)
+                pre_extracted[field] = formatted_text[start:end].strip()
+                print(f"🔍 Pre-extracted '{field}': {pre_extracted[field]}")  # Debug log
+                break
+    
+
+        # Normalize "Title or Rank" to "Professor" if applicable
+        # Normalize "Title or Rank" to "Professor" if applicable
+        if "Title or Rank" in pre_extracted:
+            title_text = pre_extracted["Title or Rank"]
+            if "professor" in title_text.lower() or "ph.d" in title_text.lower():
+                pre_extracted["Title or Rank"] = "Professor"
+
+        
+        if field not in pre_extracted:
+            pre_extracted[field] = "Not Found"
+
+
+
 
     prompt = f"""
-    You are an AI assistant specializing in NECHE syllabus compliance.
-    
-    **TASK:** Extract ALL relevant course and instructor details from the given text in a structured JSON format.
-    - Ensure ALL fields are included.
-    - If information is missing, return `"Not Found"` explicitly.
-    - If paragraphs are long, break them into bullet points.
-    - If information is in tables or lists, extract them properly.
-    - For **Department or Program Affiliation**, only extract the actual department or program name.
-    - Ignore any mention of **"University of New Hampshire"**, **"UNH"**, **"Manchester"**, or other **institution names**.
+You are a strict NECHE syllabus compliance inspector.
 
-    **JSON Structure:**
-    {{
-    "Instructor Name": "",
-    "Title or Rank": "",
-    "Department or Program Affiliation": "",
-    "Preferred Contact Method": "",
-    "Email Address": "",
-    "Phone Number": "",
-    "Office Address": "",
-    "Office Hours": "",
-    "Location (Physical or Remote)": "",
-    "Course Learning Outcomes": "",
-    "Credit Hour Workload": "",
-    "Coursework Types & Submission Methods": "",
-    "Grading Procedures & Final Grade Scale": "",
-    "Assignment Deadlines & Policies": "",
-    "Course Description": "",
-    "Course Format": "",
-    "Course Topics and Schedule": "",
-    "Sensitive Course Content": "",
-    "Required/recommended textbook (or other source for course reference information)": "",
-    "Other required/recommended materials (e.g., software, clicker remote, etc.)": "",
-    "Technical Requirements": "",
-    "Attendance": "",
-    "Academic integrity/plagiarism/AI": "",
-    "Program Accreditation Info": "",
-    "Course Number and Title": "",
-    "Number of Credits/Units (include a link to the federal definition of a credit hour)": "",
-    "Modality/Meeting Time and Place": "",
-    "Semester/Term (and start/end dates)": "",
-    "Course Prerequisites": "",
-    "Simultaneous 700/800 Course Designation": "",
-    "University Requirements": "",
-    "Teaching Assistants (Names and Contact Information)": ""
-    }}
+Your task is to extract all the following fields from the syllabus content exactly as written, without summarizing or modifying. For each field:
+- Return the exact text if found in the syllabus.
+- Return "Not Found" if the field is completely missing.
+- Output must be a clean JSON object — no extra comments or text.
 
-    **Full Extracted Text:**
-    {formatted_text}
+Syllabus text:
+{formatted_text}
 
-    **Return ONLY the JSON object. Do NOT add any explanations.**
-    """
+Return JSON with these fields:
+{json.dumps({
+  "Instructor Name": "",
+  "Title or Rank": "",
+  "Department or Program Affiliation": "",
+  "Preferred Contact Method": "",
+  "Email Address": "",
+  "Phone Number": "",
+  "Office Address": "",
+  "Office Hours": "",
+  "Location (Physical or Remote)": "",
+  "Course SLOs": "",
+  "Credit Hour Workload": "",
+  "Assignments & Delivery": "",
+  "Grading Procedures & Final Grade Scale": "",
+  "Assignment Deadlines & Policies": "",
+  "Course Number and Title": "",
+  "Number of Credits/Units (include a link to the federal definition of a credit hour)": "",
+  "Modality/Meeting Time and Place": "",
+  "Semester/Term (and start/end dates)": "",
+  "Department/Program": "",
+  "Format (e.g., lecture plus lab/discussion etc.)": "",
+  "Course Description (minimum course catalog description)": "",
+  "Sequence of Course Topics and Important Dates": "",
+  "Required/Recommended Textbook (or other source for course reference information)": "",
+  "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)": "",
+  "Technical Requirements": "",
+  "Attendance": "",
+  "Academic Integrity/Plagiarism/AI": "",
+  "Course Prerequisites": "",
+  "Simultaneous 700/800 Course Designation": "",
+  "University Requirements": "",
+  "Teaching Assistants (Names and Contact Information)": ""
+}, indent=2)}
+"""
 
     response = llm.invoke([HumanMessage(content=prompt)])
     raw_text = response.content.strip()
 
-    # ✅ Ensure JSON format is valid before parsing
     if not raw_text.startswith("{"):
         raw_text = raw_text[raw_text.find("{"):]
     if not raw_text.endswith("}"):
         raw_text = raw_text[:raw_text.rfind("}") + 1]
-
     try:
         extracted_info = json.loads(raw_text)
-
-        # ✅ Standardizing extracted fields
+    # Ensure all required fields are present
+        required_fields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+        "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+    ]
+        minimum_fields = [
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ]
+        optional_fields = [
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ]
+        all_fields = required_fields + minimum_fields + optional_fields
+        for field in all_fields:
+            if field not in extracted_info or not extracted_info[field]:
+                extracted_info[field] = "Not Found"
+    # Normalize keys (if needed)
         if "Professor's Email Address" in extracted_info:
             extracted_info["Email Address"] = extracted_info.pop("Professor's Email Address")
         if "Professor's Phone Number" in extracted_info:
             extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
-
-        # ✅ Cleaning up Department or Program Affiliation
+    # Sanitize department field
         department_text = extracted_info.get("Department or Program Affiliation", "").lower()
-        invalid_keywords = ["university of new hampshire", "unh", "manchester", "college", "school", "institute", "university"]
-        if any(keyword in department_text for keyword in invalid_keywords):
+        if any(x in department_text for x in ["university", "unh", "manchester"]):
             extracted_info["Department or Program Affiliation"] = "Not Found"
-
-        # ✅ Convert all non-string values to strings
+    # Convert all values to strings
         for key, value in extracted_info.items():
             if not isinstance(value, str):
-                extracted_info[key] = json.dumps(value)  # Convert lists/dictionaries to JSON strings
+                extracted_info[key] = json.dumps(value)
 
-        print(f"📊 Extracted Course Information: {json.dumps(extracted_info, indent=2)}")  # Debugging Output
-    except json.JSONDecodeError:
+    except Exception as e:
+        print("❌ Failed to parse response:", e)
         extracted_info = {"error": "Failed to parse OpenAI response"}
 
     return extracted_info
-
-
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -580,7 +692,6 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_overlap=200,
     separators=["\n\n", "\n", " "]
 )
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global latest_syllabus_info
@@ -597,31 +708,20 @@ def upload_file():
     file.save(file_path)
 
     try:
-        if filename.endswith('.pdf'):
-            extracted_text = extract_text_from_pdf(file_path)
-        elif filename.endswith('.docx'):
-            extracted_text = extract_text_from_docx(file_path)
-        else:
-            return jsonify({"error": "❌ Unsupported file type"}), 400
-
-        extracted_info = extract_course_information(extracted_text)
-
-        # Ensure all required NECHE fields exist
         required_fields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course Learning Outcomes", "Credit Hour Workload", "Coursework Types & Submission Methods",
+            "Course SLOs", "Credit Hour Workload","Assignments & Delivery","Assignments & Delivery",
             "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
             "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
             "Required/recommended textbook (or other source for course reference information)",
             "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI","Program Accreditation Info",
+            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI", "Program Accreditation Info",
             "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
             "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
         ]
 
-        # Optional fields
         optional_fields = [
             "Course Prerequisites",
             "Simultaneous 700/800 Course Designation",
@@ -629,36 +729,99 @@ def upload_file():
             "Teaching Assistants (Names and Contact Information)"
         ]
 
-        # Fill missing fields with "Not Found" for required fields
+        # ✅ ZIP file support
+        if filename.endswith('.zip'):
+            import zipfile
+            import tempfile
+
+            results = []
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    zip_ref.extractall(temp_dir)
+
+                    for root, _, files in os.walk(temp_dir):
+                        for name in files:
+                            if name.lower().endswith('.pdf') or name.lower().endswith('.docx'):
+                                inner_path = os.path.join(root, name)
+                                print(f"🔍 Processing file inside ZIP: {name}")
+
+                                if name.endswith('.pdf'):
+                                    text = extract_text_from_pdf(inner_path)
+                                else:
+                                    text = extract_text_from_docx(inner_path)
+
+                                if not text:
+                                    print(f"❌ Skipping file (no text extracted): {name}")
+                                    continue
+
+                                extracted_info = extract_course_information(text)
+
+                                for field in required_fields:
+                                    value = extracted_info.get(field, "").strip()
+                                    if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                                        extracted_info[field] = "Not Found"
+
+                                for key, value in extracted_info.items():
+                                    if isinstance(value, list):
+                                        extracted_info[key] = ", ".join(map(str, value))
+                                    elif isinstance(value, dict):
+                                        extracted_info[key] = " ".join(map(str, value.values()))
+                                    elif not isinstance(value, str):
+                                        extracted_info[key] = str(value)
+
+                                compliance = check_neche_compliance(extracted_info)
+
+                                results.append({
+                                    "filename": name,
+                                    "extracted_information": extracted_info,
+                                    "compliance_check": compliance["compliance_check"],
+                                    "missing_fields": compliance["missing_fields"]
+                                })
+                            else:
+                                print(f"⚠️ Skipping unsupported file inside ZIP: {name}")
+
+            return jsonify({
+                "success": True,
+                "message": f"✅ ZIP file processed: {filename}",
+                "results": results
+            })
+
+        # ✅ Handle single PDF or DOCX
+        if filename.endswith('.pdf'):
+            extracted_text = extract_text_from_pdf(file_path)
+        elif filename.endswith('.docx'):
+            extracted_text = extract_text_from_docx(file_path)
+        else:
+            return jsonify({"error": "❌ Unsupported file type"}), 400
+
+        if not extracted_text:
+            raise ValueError(f"❌ No text could be extracted from: {filename}")
+
+        extracted_info = extract_course_information(extracted_text)
+
         for field in required_fields:
             value = extracted_info.get(field, "").strip()
-        if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
-               extracted_info[field] = "Not Found"
+            if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                extracted_info[field] = "Not Found"
 
+        optional_info = {
+            field: extracted_info[field]
+            for field in optional_fields
+            if field in extracted_info and extracted_info[field] != "Not Found"
+        }
 
-        # Include optional fields only if they are present
-        optional_info = {field: extracted_info[field] for field in optional_fields if field in extracted_info and extracted_info[field] != "Not Found"}
-
-        # ✅ Flatten lists and dictionaries into plain text
         for key, value in extracted_info.items():
-            # Convert lists to comma-separated strings
             if isinstance(value, list):
-                extracted_info[key] = ", ".join(map(str, value))  # Ensure all elements are strings before joining
-            # Convert dictionaries to space-separated strings of their values
+                extracted_info[key] = ", ".join(map(str, value))
             elif isinstance(value, dict):
-                extracted_info[key] = " ".join(map(str, value.values()))  # Ensure all values are strings before joining
-            # Convert other non-string types to strings
+                extracted_info[key] = " ".join(map(str, value.values()))
             elif not isinstance(value, str):
                 extracted_info[key] = str(value)
 
-        # Perform NECHE compliance check
         compliance_check_result = check_neche_compliance(extracted_info)
 
-        # Update latest syllabus info
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
-
-        # Add optional fields to the response
         extracted_info.update(optional_info)
 
         return jsonify({
@@ -671,7 +834,7 @@ def upload_file():
 
     except Exception as e:
         return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
-    
+
 # Chatbot API: Handles user queries
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -741,12 +904,44 @@ def ask():
 
     except Exception as e:
         return jsonify({"response": f"❌ OpenAI Error: {str(e)}"}), 500
+    
+    
+from flask import send_file, Flask, request, jsonify, render_template
 
+@app.route("/download_all_reports_zip", methods=["GET"])
+def download_all_reports_zip():
+    zip_path = "/path/to/generated/NECHE_All_Reports.zip"  # Update this path accordingly
+    return send_file(zip_path, as_attachment=True)
 
 # Serve frontend page
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def home():
     return render_template('index.html')
 
+@app.route("/ask", methods=["POST"])
+def ask():
+    try:
+        data = request.get_json()
+        message = data.get("message", "").strip()
+
+        if not message:
+            return jsonify({"response": "Please enter a valid question."})
+
+        # Add extracted syllabus info to prompt (from latest upload)
+        syllabus_summary = "\n".join([f"{k}: {v}" for k, v in latest_syllabus_info.items()])
+        context = f"Here is the latest extracted syllabus data:\n{syllabus_summary}"
+
+        # Construct full prompt
+        prompt = PROMPT_TEMPLATE + "\n" + context + "\n\nUser: " + message
+
+        response = llm([HumanMessage(content=prompt)])
+
+        return jsonify({"response": response.content})
+
+    except Exception as e:
+        return jsonify({"response": f"⚠️ Server error: {str(e)}"}), 500
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8001)

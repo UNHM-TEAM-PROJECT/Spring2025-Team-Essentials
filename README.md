@@ -3,7 +3,7 @@
 # NECHE Compliance Assistant Chatbot
 
 ## Overview
-This chatbot allows users to upload PDFs and document(.docx) files, extracts the text, checks for NECHE compliance based on predefined criteria (such as instructor name, title, department, contact details, etc.), and uses AI-powered responses to user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
+This chatbot allows users to upload individual PDFs, document (.docx) files, or zip files containing multiple PDFs and documents. It extracts the text from the uploaded files and checks for compliance with various requirements, including NECHE compliance, minimal syllabus requirements, and optional syllabus requirements. The chatbot uses AI-powered responses to answer user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
 
 ## Features
 - PDF and .DOCX Upload & Text Extraction: Upload PDFs and extract text.
@@ -11,7 +11,16 @@ This chatbot allows users to upload PDFs and document(.docx) files, extracts the
 - AI Chatbot: Ask questions related to the document's content and receive AI-powered responses.
 - Document Vectorization: Uses Chroma to store and search document chunks for relevance to user queries.
 
-## Technologies Used
+## Technologies Stack 
+###  Frontend
+- HTML5 – Structure for the interactive chat interface.
+- CSS3 – Custom styling for layout, responsiveness, and animation.
+- Bootstrap – Responsive design framework.
+- JavaScript – Client-side logic, chat rendering, speech-to-text, and file handling.
+- Web Speech API – Voice input via microphone.
+
+ ### Backend
+- Python 3.10+ – Core language.
 - Flask: Web framework for handling HTTP requests.
 - pdfplumber: For extracting text from PDFs.
 - Pytesseract: For OCR to extract text from images within PDFs.
@@ -20,7 +29,62 @@ This chatbot allows users to upload PDFs and document(.docx) files, extracts the
 - Chroma: For storing document embeddings and performing similarity search.
 - DocxDocument: for text extraction for documents.
 
-## Setup
+### Libraries & Utilities
+- json – Formatting and response structure.
+- multiprocessing – Speeding up PDF processing.
+- os – File management.
+- werkzeug – Safe file uploads.
+
+## Directory Structure
+- The project is organized as follows:
+
+```
+Spring2025-Team-Essentials/
+|
+├── .vscode/                     # VS Code configuration files
+│   └── extensions.json          # Extensions configuration for the project
+│
+├── automated_testing/           # Automated testing module
+│   ├── README.md                # Documentation for automated testing
+│   ├── test_rag.py              # Script to run automated tests
+│   ├── outputs/                 # Folder for storing compliance reports
+│   │   └── compliance_reports/  # JSON reports for each test case
+│   ├── Syllabi_sp2025/          # Folder containing test case PDFs
+│       ├── chatbot-doc.pdf
+│       ├── COMP 802 Spring 2024 Syllabus.pdf
+│       ├── Comp693.pdf
+│       ├── niche_compliance.pdf
+│       └── ...                  # Additional test case PDFs
+│
+├── data/                       
+│   ├── chatbot-bg.png           # Background image for the chatbot UI
+│   └── ...                      # Additional static files
+│
+├── db/                          # Database-related files (if any)
+│   └── ...                      # Placeholder for database files
+│
+├── templates/                   # HTML templates for the chatbot frontend
+│   ├── index.html               # Main HTML file for the chatbot UI
+│   └── ...                      
+│
+├── uploads/                     # Folder for storing uploaded files
+│   └── ...                    
+│
+├── venv/                        # Python virtual environment
+│   ├── bin/                     # Executables for the virtual environment
+│   ├── lib/                     # Installed Python packages
+│   │   └── python3.11/          # Python 3.11 site-packages
+│   └── ...                      # Other virtual environment files
+│
+├── chat_history.json            # JSON file to store chatbot conversation history
+├── chatbot.py                   # Main script to run the chatbot backend
+├── conversation_memory.json     # JSON file to store chatbot memory
+├── requirements.txt             # Python dependencies for the project
+└── README.md                    # High-level project documentation
+
+```
+
+## Local Setup
 
 ### Prerequisites
 Ensure you have the following installed:
@@ -97,6 +161,49 @@ Each test case consists of the following:
 
 **Retrieval Context**: Relevant information that the chatbot uses to formulate its evaluation of the PDF.
 
+
+
+## System Architecture
+
+This system helps check if a syllabus meets NECHE standards. It works like this:
+
+### Main Parts
+
+- **Frontend (Web Page)**  
+  This is what the user sees. It lets the user upload a syllabus file (PDF or DOCX), shows results if it NECHE compliant or not , and allows chatbot interaction.
+
+- **Backend (Python Flask App)**  
+  This is the engine that handles uploads, extracts text, checks for NECHE fields, and creates a report.
+
+- **Compliance Checker**  
+  It looks through the syllabus content and tries to find important details like instructor name, office hours, grading policy, etc.
+
+- **Chatbot with AI**  
+  The chatbot lets users ask questions about the syllabus. It uses OpenAI (GPT-4) and Langchain to find relevant answers.
+
+- **Test & Report System**  
+  You can run test syllabus files and download reports to check how well the chatbot is doing. Reports are saved and reviewed.
+
+---
+
+### How It All Works (Data Flow)
+
+1. A user uploads a syllabus file (it might be a pdf or document and also bulk files like zip folders)
+2. The frontend sends it to the backend  
+3. The backend reads the content and checks for required information  
+4. The system shows results to the user (whether the pdf or the document is NECHE compliant or not)
+5. A chatbot is available to ask syllabus-related questions  
+6. A report can be viewed or downloaded
+
+---
+
+### Diagram
+
+<img width="694" alt="flow diagram" src="https://github.com/user-attachments/assets/8533fc2b-0b71-494b-ba13-40b064dbd747" />
+
+
+
+
 ## How to Perform Automated Testing
 ## Installation and Setup
 ### Prerequisites
@@ -164,14 +271,15 @@ This guide provides step-by-step instructions for deploying applications on Amaz
       - Choose an Amazon Machine Image (AMI): Select Amazon Linux 2.
 4. Select an instance type: Use t3.2xlarge or similar for performance.
 
-5. Create a new key pair (.pem file) during the instance setup.
-6. Download and save the .pem file securely on your local machine. This file will be used for SSH access.
-7. Add storage: Allocate at least 100GB.
+6. Create a new key pair (.pem file) during the instance setup.
+7. Download and save the .pem file securely on your local machine. This file will be used for SSH access.
+8. Add storage: Allocate at least 100GB.
 
-8. Configure security group to allow the following:
-      - Open ports 22 (SSH) and 80 (HTTP).
+9. Configure security group to allow the following:
+      - Open ports 22 (SSH) and 8000 (HTTP).
+      - Or make it accept all forms of traffic
 
-9. Launch the instance.
+10. Launch the instance.
 
 ### 3. Start the EC2 Instance
 1. From EC2 Dashboard, select your instance
@@ -295,6 +403,89 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - The EC2 Linux terminal may require different versions of dependencies listed in `requirements.txt`.  
    - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
    - If issues persist, run the primary `chatbot.py` program to identify missing packages.
+
+## Accessing the School Server, Cloning a Git Repository, and Running the Chatbot
+
+These steps outline how to access the school server via VPN, generate an SSH key, add it to your GitHub account, clone a repository using SSH, install dependencies, and run a chatbot application.
+
+**Prerequisites:**
+
+* Access to the school's VPN.
+* Access to the command prompt/terminal.
+* Your school credentials.
+* A GitHub account.
+* Python 3 and pip3 installed.
+
+**Steps:**
+
+1.  **Connect to the School's VPN:**
+    * Use the link provided: [https://td.usnh.edu/TDClient/60/Portal/KB/ArticleDet?ID=4787](https://td.usnh.edu/TDClient/60/Portal/KB/ArticleDet?ID=4787) to acquire and setup the school's VPN.
+2.  **Access the School Server via SSH:**
+    * Open your command prompt or terminal.
+    * Connect to the server using the following command, replacing `username` with your school username:
+        ```bash
+        ssh username@whitemount.sr.unh.edu
+        ```
+    * Enter your school password when prompted.
+3.  **Generate an SSH Key:**
+    * In your command prompt or terminal, execute the following command:
+        ```bash
+        ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
+        ```
+        * **Note:** Replace `"your-email@example.com"` with your actual email address.
+    * Press Enter for all prompts to use the default settings (no passphrase, default file locations).
+4.  **Verify SSH Key Generation:**
+    * List the contents of the `.ssh` directory to confirm the key files were created:
+        ```bash
+        ls -al ~/.ssh
+        ```
+        * You should see `id_rsa` and `id_rsa.pub` files.
+5.  **Copy the Public SSH Key:**
+    * Display the contents of the public key file (`id_rsa.pub`) and copy the entire output:
+        ```bash
+        cat ~/.ssh/id_rsa.pub
+        ```
+6.  **Add the SSH Key to your GitHub Account:**
+    * Go to your GitHub account settings.
+    * Navigate to "SSH and GPG keys."
+    * Click "New SSH key" or "Add SSH key."
+    * Give your key a descriptive title.
+    * Paste the copied SSH key into the "Key" field.
+    * Click "Add SSH key"
+7.  **Clone the Git Repository via SSH:**
+    * Use the following command to clone the repository, replacing the repository URL with the one you want to clone:
+        ```bash
+        git clone git@github.com:UNHM-TEAM-PROJECT/Spring2025-Team-Essentials.git
+        ```
+    * If this is the first time you are connecting to github via ssh, you will be prompted to confirm the authenticity of the host. Type "yes" and press enter.
+8.  **Navigate to the Repository:**
+    * Once the clone is complete, navigate into the cloned repository using:
+        ```bash
+        cd Spring2025-Team-Essentials
+        ```
+9.  **Install Required Packages:**
+    * Install the necessary Python packages listed in the `requirements.txt` file:
+        ```bash
+        pip3 install -r requirements.txt
+        ```
+10. **Run the Chatbot Application:**
+    * Execute the chatbot script:
+        ```bash
+        python3 chatbot.py
+        ```
+        * **Note:** replace chatbot.py with the correct python file name.
+11. **Install Additional Packages (If Needed):**
+    * If the chatbot application encounters missing package errors, install the required packages using `pip3 install <package_name>`.
+12. **Modify Imports (If Needed):**
+    * If there are any errors relating to imports, modify the python files as needed, to correct the import statements.
+
+**Important Notes:**
+
+* Cloning via HTTPS may not function correctly due to changes implemented since 2021.
+* Using SSH keys is the recommended and reliable method for cloning Git repositories in this environment.
+* Make sure to keep your private key (`id_rsa`) secure. Do not share it with anyone.
+* Pay close attention to any error messages during the installation and execution phases, as they will provide valuable information for troubleshooting.
+* The python file name may not always be chatbot.py, so check the file name.
 
     
 
