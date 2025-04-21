@@ -1,5 +1,4 @@
-<!--
-File: Index.html
+<!--File: Index.html
 Authors: 
 Contributors: SAI SHIVA
 Date: 
@@ -1065,263 +1064,193 @@ Date:
         });
     
         function handleFileUpload(files) {
-            latestReportData = null;
-            allResults = [];
-            const reportButtons = document.getElementById("reportButtons");
-            if (reportButtons) reportButtons.style.display = "none";
-    
-            const fileArray = Array.isArray(files) ? files : [files];
-    
-            addHTMLMessage(`Processing ${fileArray.length} file(s) for NECHE compliance check...`, false);
-    
-            const uploadPromises = fileArray.map(file => {
-                const formData = new FormData();
-                formData.append("file", file);
-    
-                return fetch("/upload", {
-                    method: "POST",
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => ({ file, data }));
-            });
-    
-            Promise.all(uploadPromises)
-                .then(results => {
-                    const successfulResults = results.filter(({ data }) => data.success);
-                    if (successfulResults.length === 0) {
-                        throw new Error("No files processed successfully.");
-                    }
-    
-                    successfulResults.forEach(({ file, data }) => {
-                        const resultFiles = data.results || [{ filename: file.name, extracted_information: data.extracted_information, compliance_check: data.compliance_check }];
-                        allResults.push(...resultFiles);
-                        latestReportData = data.extracted_information || {};
-                        
-                        const optionalFields = [
-                            "University Requirements",
-                            "Course Prerequisites",
-                            "Simultaneous 700/800 Course Designation (Graduate vs. Undergraduate standard in course)",
-                            "Names and Contact Information for Teaching Assistants",
-                            "Sensitive Course Content",
-                            "Additional Information as Needed for Program Accreditation (and Other Program Requirements)"
-                        ];
-                        const isInvalidValue = (value) => ["n/a", "na", "none", "not found", ""].includes(value.toLowerCase());
-    
-                        Object.keys(latestReportData).forEach((field) => {
-                            if (optionalFields.includes(field) && isInvalidValue(latestReportData[field])) {
-                                delete latestReportData[field];
-                            }
-                        });
-                    });
-    
-                    const scrollWrapper = document.createElement("div");
-                    scrollWrapper.className = "scroll-wrapper";
-                    scrollWrapper.style.border = "1px solid #ddd";
-                    scrollWrapper.style.marginTop = "20px";
-                    scrollWrapper.style.marginBottom = "20px";
-                    scrollWrapper.style.padding = "10px";
-                    scrollWrapper.style.backgroundColor = "white";
-    
-                    const table = document.createElement("table");
-                    table.className = "table table-bordered";
-                    table.style.marginBottom = "0";
-                    table.style.borderCollapse = "collapse";
-    
-                    const thead = document.createElement("thead");
-                    thead.innerHTML = `
-                        <tr style="background-color: #003591; color: white; text-align: center;">
-                            <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
-                            <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
-                            <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
-                        </tr>`;
-                    table.appendChild(thead);
-    
-                    const tbody = document.createElement("tbody");
-    
-                    allResults.forEach((result, index) => {
-                        const filename = result.filename || `File_${index + 1}`;
-                        const reportData = result.extracted_information || {};
-    
-                        const requiredNECHEFields = [
-                            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                            "Preferred Contact Method", "Email Address", "Phone Number",
-                            "Office Address", "Office Hours", "Location (Physical or Remote)",
-                            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-                            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-                        ];
-    
-                        const minimumFields = [
-                            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-                            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-                            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-                            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-                            "Attendance", "Academic Integrity/Plagiarism/AI"
-                        ];
-    
-                        const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-                        const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-    
-                        const passFail = (missingNECHE.length === 0 && missingMinimum.length === 0) ? "Pass" : "Fail";
-                        const statusColor = passFail === "Pass" ? "green" : "red";
-    
-                        let courseNumberAndTitle = reportData["Course Number and Title"] || "Not Found";
-                        let professorName = reportData["Instructor Name"] || "Not Found";
-                        let courseNumber = "";
-                        let courseTitle = "";
-    
-                        if (courseNumberAndTitle !== "Not Found") {
-                            const parts = courseNumberAndTitle.split(" ");
-                            if (parts.length >= 2) {
-                                const potentialCourseNumber = parts[0] + (parts[1].match(/^\d+$/) ? " " + parts[1] : "");
-                                const courseNumberMatch = potentialCourseNumber.match(/^[A-Z]+ \d+$/);
-                                if (courseNumberMatch) {
-                                    courseNumber = potentialCourseNumber;
-                                    courseTitle = parts.slice(2).join(" ").trim();
-                                } else {
-                                    courseTitle = courseNumberAndTitle.trim();
-                                }
-                            } else {
-                                courseTitle = courseNumberAndTitle.trim();
-                            }
-                        }
-    
-                        let courseDetails = [];
-                        if (courseNumber) courseDetails.push(`<span style="font-weight: bold;">Course Number:</span> ${courseNumber}`);
-                        if (courseTitle) courseDetails.push(`<span style="font-weight: bold;">Course Title:</span> ${courseTitle}`);
-                        if (professorName !== "Not Found") courseDetails.push(`<span style="font-weight: bold;">Professor:</span> ${professorName}`);
-    
-                        let statusHeading = courseDetails.length > 0 ? `
-                            <div style="margin-bottom: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
-                                ${courseDetails.join("<br>")}
-                            </div>` : "";
-    
-                        let formattedComplianceMessage = result.compliance_check || "Compliance status not available.";
-                        const urlRegex = /(https?:\/\/[^\s]+)/g;
-                        formattedComplianceMessage = formattedComplianceMessage.replace(urlRegex, url => {
-                            return `<a href="${url}" target="_blank" style="color: #1a73e8; text-decoration: underline; word-break: break-all;">${url}</a>`;
-                        });
-    
-                        const fullStatusMessage = `
-                            <div style="line-height: 1.5;">
-                                ${statusHeading}
-                                <div style="margin-top: 10px;">
-                                    ${formattedComplianceMessage}
-                                </div>
-                            </div>`;
-    
-                        const row = document.createElement("tr");
-    
-                        const nameCell = document.createElement("td");
-                        nameCell.style.padding = "10px";
-                        nameCell.style.border = "1px solid #ddd";
-                        nameCell.innerHTML = `<strong>${filename}</strong>`;
-                        row.appendChild(nameCell);
-                        
-                        const statusCell = document.createElement("td");
-                        statusCell.style.padding = "10px";
-                        statusCell.style.textAlign = "center";
-                        statusCell.style.border = "1px solid #ddd";
-                        statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
-                        row.appendChild(statusCell);
-    
-                        const buttonCell = document.createElement("td");
-                        buttonCell.style.padding = "10px";
-                        buttonCell.style.textAlign = "center";
-                        buttonCell.style.border = "1px solid #ddd";
-    
-                        const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData));
-                        const summaryBtn = createStyledButton("Summary", "modern-btn", () => {
-                            showCompliancePopupClean(reportData, filename, result.compliance_check);
-                        });
-                        const shareBtn = createStyledButton("Share", "modern-btn", () => {
-    const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-    const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-    let body = "The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information:\n";
-    if (missingNECHE.length > 0) {
-        body += "Missing NECHE Requirements:\n" + missingNECHE.map(field => `- ${field}`).join("\n") + "\n";
-    }
-    if (missingMinimum.length > 0) {
-        body += "Missing Minimum Requirements:\n" + missingMinimum.map(field => `- ${field}`).join("\n");
-    }
-    if (!missingNECHE.length && !missingMinimum.length) {
-        body = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present.";
-    }
+    latestReportData = null;
+    allResults = [];
+    const reportButtons = document.getElementById("reportButtons");
+    if (reportButtons) reportButtons.style.display = "none";
 
-    const courseName = reportData["Course Number and Title"] || "Unknown Course";
-    document.getElementById("email-to").value = "SJ1203@usnh.edu";
-    document.getElementById("email-subject").value = `NECHE Compliance and Minimum Syllabus Report - ${courseName}`;
-    document.getElementById("email-body").value = body;
+    const fileArray = Array.isArray(files) ? files : [files];
+    addHTMLMessage(`Processing ${fileArray.length} file(s) for NECHE compliance check...`, false);
 
-    const emailModalElement = document.getElementById("emailModal");
-    const emailModal = new bootstrap.Modal(emailModalElement, {
-        backdrop: 'static',
-        keyboard: false
-    });
-    emailModal.show();
+    const formData = new FormData();
+    fileArray.forEach(file => formData.append("file", file));
 
-    const sendEmailBtn = document.getElementById("send-email-btn");
-    const newSendEmailBtn = sendEmailBtn.cloneNode(true);
-    sendEmailBtn.parentNode.replaceChild(newSendEmailBtn, sendEmailBtn);
-
-    newSendEmailBtn.addEventListener("click", () => {
-        const updatedTo = document.getElementById("email-to").value;
-        const updatedSubject = document.getElementById("email-subject").value;
-        const updatedBody = document.getElementById("email-body").value;
-
-        fetch("/send_email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                to: updatedTo,
-                subject: updatedSubject,
-                body: updatedBody
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            addHTMLMessage(data.success ? "✅ Email sent successfully!" : `⚠️ Error: ${data.error}`, false);
-            emailModal.hide();
-        })
-        .catch(() => {
-            addHTMLMessage("⚠️ Error: Unable to send email.", false);
-            emailModal.hide();
-        });
-    });
-
-    emailModalElement.addEventListener('hidden.bs.modal', () => {
-        emailModal.dispose();
-    });
-});
-                        viewBtn.style.marginRight = "8px";
-                        summaryBtn.style.marginRight = "8px";
-                        shareBtn.style.marginRight = "8px";
-    
-                        buttonCell.appendChild(viewBtn);
-                        buttonCell.appendChild(summaryBtn);
-                        buttonCell.appendChild(shareBtn);
-                        row.appendChild(buttonCell);
-    
-                        tbody.appendChild(row);
-                    });
-    
-                    table.appendChild(tbody);
-                    scrollWrapper.appendChild(table);
-                    chatHistory.appendChild(scrollWrapper);
-    
-                    if (allResults.length > 1) {
-                        const allBtnWrapper = document.createElement("div");
-                        allBtnWrapper.style.textAlign = "center";
-                        allBtnWrapper.style.marginTop = "20px";
-    
-                        const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => downloadAllReports(allResults));
-                        allBtnWrapper.appendChild(allReportsBtn);
-                        chatHistory.appendChild(allBtnWrapper);
-                    }
-                })
-                .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
+    fetch("/upload", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.error || "Failed to process files");
         }
+
+        allResults = data.results || [];
+        if (allResults.length === 0) {
+            throw new Error("No valid files processed inside the upload");
+        }
+
+        latestReportData = allResults[allResults.length - 1].extracted_information || {};
+
+        const scrollWrapper = document.createElement("div");
+        scrollWrapper.className = "scroll-wrapper";
+        scrollWrapper.style.border = "1px solid #ddd";
+        scrollWrapper.style.marginTop = "20px";
+        scrollWrapper.style.marginBottom = "20px";
+        scrollWrapper.style.padding = "10px";
+        scrollWrapper.style.backgroundColor = "white";
+
+        const table = document.createElement("table");
+        table.className = "table table-bordered";
+        table.style.marginBottom = "0";
+        table.style.borderCollapse = "collapse";
+
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+            <tr style="background-color:#003591; color: white; text-align: center;">
+                <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
+                <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
+                <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
+            </tr>`;
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+
+        allResults.forEach((result, index) => {
+            const filename = result.filename || `File_${index + 1}`;
+            const reportData = result.extracted_information || {};
+
+            const requiredNECHEFields = [
+                "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                "Preferred Contact Method", "Email Address", "Phone Number",
+                "Office Address", "Office Hours", "Location (Physical or Remote)",
+                "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+            ];
+
+            const minimumFields = [
+                "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+                "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+                "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+                "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+                "Attendance", "Academic Integrity/Plagiarism/AI"
+            ];
+
+            const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+            const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+
+            const passFail = (missingNECHE.length === 0 && missingMinimum.length === 0) ? "Pass" : "Fail";
+            const statusColor = passFail === "Pass" ? "green" : "red";
+
+            const row = document.createElement("tr");
+
+            const nameCell = document.createElement("td");
+            nameCell.style.padding = "10px";
+            nameCell.style.border = "1px solid #ddd";
+            nameCell.innerHTML = `<strong>${filename}</strong>`;
+            row.appendChild(nameCell);
+
+            const statusCell = document.createElement("td");
+            statusCell.style.padding = "10px";
+            statusCell.style.textAlign = "center";
+            statusCell.style.border = "1px solid #ddd";
+            statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
+            row.appendChild(statusCell);
+
+            const buttonCell = document.createElement("td");
+            buttonCell.style.padding = "10px";
+            buttonCell.style.textAlign = "center";
+            buttonCell.style.border = "1px solid #ddd";
+
+            const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData, filename));
+            const summaryBtn = createStyledButton("Summary", "modern-btn", () => showCompliancePopupClean(reportData, filename, result.compliance_check));
+            const shareBtn = createStyledButton("Share", "modern-btn", () => {
+                const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+                const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+                let body = "The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information:\n";
+                if (missingNECHE.length > 0) {
+                    body += "Missing NECHE Requirements:\n" + missingNECHE.map(field => `- ${field}`).join("\n") + "\n";
+                }
+                if (missingMinimum.length > 0) {
+                    body += "Missing Minimum Requirements:\n" + missingMinimum.map(field => `- ${field}`).join("\n");
+                }
+                if (!missingNECHE.length && !missingMinimum.length) {
+                    body = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present.";
+                }
+
+                const courseName = reportData["Course Number and Title"] || "Unknown Course";
+                document.getElementById("email-to").value = "SJ1203@usnh.edu";
+                document.getElementById("email-subject").value = `NECHE Compliance Report - ${courseName}`;
+                document.getElementById("email-body").value = body;
+
+                const emailModalElement = document.getElementById("emailModal");
+                const emailModal = new bootstrap.Modal(emailModalElement, { backdrop: 'static', keyboard: false });
+                emailModal.show();
+
+                const sendEmailBtn = document.getElementById("send-email-btn");
+                const newSendEmailBtn = sendEmailBtn.cloneNode(true);
+                sendEmailBtn.parentNode.replaceChild(newSendEmailBtn, sendEmailBtn);
+
+                newSendEmailBtn.addEventListener("click", () => {
+                    const updatedTo = document.getElementById("email-to").value;
+                    const updatedSubject = document.getElementById("email-subject").value;
+                    const updatedBody = document.getElementById("email-body").value;
+
+                    fetch("/send_email", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            to: updatedTo,
+                            subject: updatedSubject,
+                            body: updatedBody,
+                            filename: filename
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        addHTMLMessage(data.success ? "✅ Email sent successfully!" : `⚠️ Error: ${data.error}`, false);
+                        emailModal.hide();
+                    })
+                    .catch(() => {
+                        addHTMLMessage("⚠️ Error: Unable to send email.", false);
+                        emailModal.hide();
+                    });
+                });
+
+                emailModalElement.addEventListener('hidden.bs.modal', () => {
+                    emailModal.dispose();
+                });
+            });
+
+            viewBtn.style.marginRight = "8px";
+            summaryBtn.style.marginRight = "8px";
+            shareBtn.style.marginRight = "8px";
+
+            buttonCell.appendChild(viewBtn);
+            buttonCell.appendChild(summaryBtn);
+            buttonCell.appendChild(shareBtn);
+            row.appendChild(buttonCell);
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        scrollWrapper.appendChild(table);
+        chatHistory.appendChild(scrollWrapper);
+
+        if (allResults.length > 1) {
+            const allBtnWrapper = document.createElement("div");
+            allBtnWrapper.style.textAlign = "center";
+            allBtnWrapper.style.marginTop = "20px";
+
+            const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => downloadAllReports(allResults));
+            allBtnWrapper.appendChild(allReportsBtn);
+            chatHistory.appendChild(allBtnWrapper);
+        }
+    })
+    .catch(error => addHTMLMessage(`⚠️ ${error.message}`, false));
+}
     
         function createStyledButton(text, classes, clickHandler) {
             const button = document.createElement("button");
@@ -1569,7 +1498,7 @@ Date:
             doc.save(`${filename}_NECHE_Report.pdf`);
         }
     
-        function showReportModal(data) {
+        function showReportModal(data, filename) {
     const requiredFields = [
         "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
         "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
@@ -1578,8 +1507,7 @@ Date:
     ];
 
     const minimumFields = [
-        "Course Number and Title",
-        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
         "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
         "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
         "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
@@ -1588,15 +1516,13 @@ Date:
     ];
 
     const optionalFields = [
-        "Course Prerequisites",
-        "Simultaneous 700/800 Course Designation",
-        "University Requirements",
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
         "Teaching Assistants (Names and Contact Information)"
     ];
     const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
 
     let html = `<html><head>
-        <title>NECHE Report</title>
+        <title>NECHE Report - ${filename}</title>
         <style>
             body { font-family: "Segoe UI", sans-serif; padding: 20px; background: #f9f9fb; color: #333; max-width: 1000px; margin: auto; }
             h2 { font-size: 20px; text-align: center; margin-bottom: 20px; font-weight: 600; color: #2a2a2a; }
@@ -1605,23 +1531,23 @@ Date:
             th { background-color: #003591; color: white; font-weight: 600; }
             td:first-child { background-color: #f5f5f5; }
             td:last-child { background-color: #ffffff; }
-            .download-btn { position: absolute; top: 20px; right: 20px; background-color: #3a17d8; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.3s ease; }
+            .download-btn { position: absolute; top: 20px; right: 20px; background-color: #003591; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.3s ease; }
             .download-btn:hover { background-color: #003591; }
             .table-container { position: relative; margin-top: 50px; }
         </style>
     </head><body>`;
 
-    let courseTitleRaw = data["Course Number and Title"];
-    let instructor = data["Instructor Name"];
+    let courseTitleRaw = data["Course Number and Title"] || "Not Found";
+    let instructor = data["Instructor Name"] || "Not Found";
     let headingParts = [];
 
     if (courseTitleRaw && courseTitleRaw !== "Not Found") headingParts.push(courseTitleRaw);
     if (instructor && instructor !== "Not Found") headingParts.push(`by Professor ${instructor}`);
 
-    let headingText = "NECHE Compliance Report";
+    let headingText = `NECHE Compliance Report - ${filename}`;
     if (headingParts.length) headingText += " – " + headingParts.join(" ");
 
-    html += `<button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${data["Course Number and Title"] || "Report"}')">Download PDF</button>`;
+    html += `<button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${filename}')">Download PDF</button>`;
     html += `<h2>${headingText}</h2>`;
     html += `<div class="table-container"><table><thead><tr><th>Syllabus Items</th><th>Syllabus Details</th></tr></thead><tbody>`;
 
@@ -1638,7 +1564,7 @@ Date:
             formattedField = `<em>${field}</em>`;
         }
 
-        const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value;
+        const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
 
         html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
     });
@@ -1649,10 +1575,7 @@ Date:
     const newWin = window.open("", "_blank");
     newWin.document.open();
     newWin.document.write(html);
-
-    // Attach the downloadSingleReport function to the new window
     newWin.downloadSingleReport = downloadSingleReport;
-
     newWin.document.close();
 }
     

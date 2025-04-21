@@ -415,22 +415,30 @@ def extract_text_from_docx(docx_path):
         return None
 
     return "\n".join(text).strip() if text else None
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph
+processed_results = {}  # 🔁 GLOBAL dictionary to store all file data
 @app.route('/send_email', methods=['POST'])
 def send_email():
-    global latest_syllabus_info
     try:
         data = request.get_json()
+        filename = data.get('filename')
         to_email = data.get('to', "SJ1203@usnh.edu")
-        course_name = latest_syllabus_info.get("Course Number and Title", "Unknown Course")
-        subject = data.get('subject', f'NECHE Compliance and Minimum Syllabus Report - {course_name}')
+        subject = data.get('subject', f'NECHE Compliance Report - {filename}')
         body = data.get('body', '')
 
-        # Prepare PDF of the View table (same as in showReportModal)
+        if not filename or filename not in processed_results:
+            return jsonify({"error": "No valid syllabus data to share. Please upload a file first."}), 400
+
+        extracted_info = processed_results[filename]['extracted_information']
+
         required_fields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
             "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-            "Assignment Deadlines & Policies"
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
         ]
         minimum_fields = [
             "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
@@ -446,86 +454,82 @@ def send_email():
         ]
         all_fields = required_fields + minimum_fields + optional_fields
 
+        from reportlab.platypus import Paragraph
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_LEFT
+
+        styles = getSampleStyleSheet()
+        base_style = ParagraphStyle('Base', parent=styles['Normal'], fontSize=9, leading=12, alignment=TA_LEFT)
+
         table_data = [["Syllabus Items", "Syllabus Details"]]
-        max_field_length = 0
-        max_value_length = 0
         for field in all_fields:
-            value = latest_syllabus_info.get(field, "Not Found")
+            value = extracted_info.get(field, "Not Found")
             if field in optional_fields and value == "Not Found":
                 continue
-            display_field = field
+
+            # Highlight "Not Found" in red
+            if value == "Not Found":
+                value_paragraph = Paragraph('<font color="red"><b>Not Found</b></font>', base_style)
+            else:
+                value_paragraph = Paragraph(value.replace("\n", "<br />"), base_style)
+
+            # Apply formatting to field names
             if field in required_fields:
-                display_field = f"**{field}**"
+                field_label = Paragraph(f"<b>{field}</b>", base_style)
             elif field in optional_fields:
-                display_field = f"***{field}***"
-            display_value = value if value != "Not Found" else "Not Found"
-            table_data.append([display_field, display_value])
-            # Calculate max lengths for dynamic column widths
-            max_field_length = max(max_field_length, len(display_field.replace("*", "")))
-            max_value_length = max(max_value_length, len(display_value))
+                field_label = Paragraph(f"<i>{field}</i>", base_style)
+            else:
+                field_label = Paragraph(field, base_style)
 
-        # Dynamically adjust column widths based on content length
-        total_width = 500  # Total available width in points (letter page width - margins)
-        field_width = min(200, total_width * (max_field_length / (max_field_length + max_value_length)))
-        value_width = total_width - field_width
+            table_data.append([field_label, value_paragraph])
 
-        # Generate PDF with title
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30, leftMargin=30, rightMargin=30)
-        elements = []
+        elements = [Paragraph(f"NECHE Compliance Report - {filename}", styles['Title'])]
 
-        # Add title
-        styles = getSampleStyleSheet()
-        title = Paragraph(f"NECHE Compliance Report - {course_name}", styles['Title'])
-        elements.append(title)
-
-        # Add table with dynamic widths and better formatting
-        table = Table(table_data, colWidths=[field_width, value_width])
+        table = Table(table_data, colWidths=[180, 360])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3a17d8')),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#003591')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f5f5f5')),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#F5F5F5')),
             ('BACKGROUND', (1, 1), (1, -1), colors.white),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8),  # Reduced font size for better fit
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEADING', (0, 0), (-1, -1), 10),  # Reduced leading for tighter spacing
-            ('WORDWRAP', (0, 0), (-1, -1), 'CJK'),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-            ('ROWHEIGHT', (0, 0), (-1, -1), 10),  # Minimum row height
-            ('FONTNAME', (0, 1), (0, -1), 'Helvetica'),  # Regular font for items
-            ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),  # Regular font for details
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ]))
+
         elements.append(table)
         doc.build(elements)
         pdf_data = buffer.getvalue()
         buffer.close()
 
-        # Create email with attachment
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
         msg['To'] = to_email
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
 
-        # Attach PDF
-        pdf_attachment = MIMEApplication(pdf_data, _subtype="pdf")
-        pdf_attachment.add_header('Content-Disposition', 'attachment', filename="NECHE_Requirements_Table.pdf")
-        msg.attach(pdf_attachment)
+        attachment = MIMEApplication(pdf_data, _subtype="pdf")
+        attachment.add_header('Content-Disposition', 'attachment', filename=f"{filename}_NECHE_Report.pdf")
+        msg.attach(attachment)
 
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()
             server.login(SENDER_EMAIL, SENDER_APP_PASSWORD)
             server.sendmail(SENDER_EMAIL, to_email, msg.as_string())
 
-        return jsonify({"success": True, "message": "Email sent successfully!"})
+        return jsonify({"success": True, "message": f"Email sent with {filename} NECHE report!"})
 
     except Exception as e:
         return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
+
+
 def process_uploaded_pdf(file_path, file_name):
     global db
     try:
@@ -780,14 +784,14 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    global latest_syllabus_info
+    global latest_syllabus_info, processed_results
 
     if 'file' not in request.files:
-        return jsonify({"error": "❌ No file provided"}), 400
+        return jsonify({"error": "No file provided"}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "❌ No selected file"}), 400
+        return jsonify({"error": "No selected file"}), 400
 
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -798,129 +802,90 @@ def upload_file():
             "Instructor Name", "Title or Rank", "Department or Program Affiliation",
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload","Assignments & Delivery","Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies", "Course Description",
-            "Course Format", "Course Topics and Schedule", "Sensitive Course Content",
-            "Required/recommended textbook (or other source for course reference information)",
-            "Other required/recommended materials (e.g., software, clicker remote, etc.)",
-            "Technical Requirements", "Attendance", "Academic integrity/plagiarism/AI", "Program Accreditation Info",
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies",
             "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)"
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+            "Attendance", "Academic Integrity/Plagiarism/AI"
         ]
-
         optional_fields = [
-            "Course Prerequisites",
-            "Simultaneous 700/800 Course Designation",
-            "University Requirements",
+            "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
             "Teaching Assistants (Names and Contact Information)"
         ]
 
-        # ✅ ZIP file support
         if filename.endswith('.zip'):
-            import zipfile
-            import tempfile
-
             results = []
+            processed_results.clear()  # Clear to avoid stale data
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 with tempfile.TemporaryDirectory() as temp_dir:
                     zip_ref.extractall(temp_dir)
-
                     for root, _, files in os.walk(temp_dir):
                         for name in files:
-                            if name.lower().endswith('.pdf') or name.lower().endswith('.docx'):
+                            if name.lower().endswith(('.pdf', '.docx')):
                                 inner_path = os.path.join(root, name)
-                                print(f"🔍 Processing file inside ZIP: {name}")
-
-                                if name.endswith('.pdf'):
-                                    text = extract_text_from_pdf(inner_path)
-                                else:
-                                    text = extract_text_from_docx(inner_path)
-
+                                text = extract_text_from_pdf(inner_path) if name.endswith('.pdf') else extract_text_from_docx(inner_path)
                                 if not text:
-                                    print(f"❌ Skipping file (no text extracted): {name}")
                                     continue
-
                                 extracted_info = extract_course_information(text)
-
-                                for field in required_fields:
+                                for field in required_fields + optional_fields:
                                     value = extracted_info.get(field, "").strip()
                                     if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
                                         extracted_info[field] = "Not Found"
-
                                 for key, value in extracted_info.items():
-                                    if isinstance(value, list):
-                                        extracted_info[key] = ", ".join(map(str, value))
-                                    elif isinstance(value, dict):
-                                        extracted_info[key] = " ".join(map(str, value.values()))
-                                    elif not isinstance(value, str):
-                                        extracted_info[key] = str(value)
-
+                                    extracted_info[key] = str(value) if not isinstance(value, str) else value
                                 compliance = check_neche_compliance(extracted_info)
-
+                                processed_results[name] = {
+                                    "extracted_information": extracted_info,
+                                    "compliance_check": compliance["compliance_check"],
+                                    "missing_fields": compliance["missing_fields"]
+                                }
                                 results.append({
                                     "filename": name,
                                     "extracted_information": extracted_info,
                                     "compliance_check": compliance["compliance_check"],
                                     "missing_fields": compliance["missing_fields"]
                                 })
-                            else:
-                                print(f"⚠️ Skipping unsupported file inside ZIP: {name}")
+            return jsonify({"success": True, "message": f"ZIP file processed: {filename}", "results": results})
 
-            return jsonify({
-                "success": True,
-                "message": f"✅ ZIP file processed: {filename}",
-                "results": results
-            })
-
-        # ✅ Handle single PDF or DOCX
         if filename.endswith('.pdf'):
             extracted_text = extract_text_from_pdf(file_path)
         elif filename.endswith('.docx'):
             extracted_text = extract_text_from_docx(file_path)
         else:
-            return jsonify({"error": "❌ Unsupported file type"}), 400
+            return jsonify({"error": "Unsupported file type"}), 400
 
         if not extracted_text:
-            raise ValueError(f"❌ No text could be extracted from: {filename}")
+            raise ValueError(f"No text could be extracted from: {filename}")
 
         extracted_info = extract_course_information(extracted_text)
-
-        for field in required_fields:
+        for field in required_fields + optional_fields:
             value = extracted_info.get(field, "").strip()
             if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
                 extracted_info[field] = "Not Found"
-
-        optional_info = {
-            field: extracted_info[field]
-            for field in optional_fields
-            if field in extracted_info and extracted_info[field] != "Not Found"
-        }
-
         for key, value in extracted_info.items():
-            if isinstance(value, list):
-                extracted_info[key] = ", ".join(map(str, value))
-            elif isinstance(value, dict):
-                extracted_info[key] = " ".join(map(str, value.values()))
-            elif not isinstance(value, str):
-                extracted_info[key] = str(value)
-
+            extracted_info[key] = str(value) if not isinstance(value, str) else value
         compliance_check_result = check_neche_compliance(extracted_info)
-
         latest_syllabus_info.clear()
         latest_syllabus_info.update(extracted_info)
-        extracted_info.update(optional_info)
-
+        processed_results.clear()  # Clear to avoid stale data
+        processed_results[filename] = {
+            "extracted_information": extracted_info,
+            "compliance_check": compliance_check_result["compliance_check"],
+            "missing_fields": compliance_check_result["missing_fields"]
+        }
         return jsonify({
             "success": True,
-            "message": f"✅ File uploaded successfully: {filename}",
+            "message": f"File uploaded successfully: {filename}",
             "extracted_information": extracted_info,
             "compliance_check": compliance_check_result["compliance_check"],
             "missing_fields": compliance_check_result["missing_fields"]
         })
 
     except Exception as e:
-        return jsonify({"error": f"❌ Failed to process file: {str(e)}"}), 500 
-
+        return jsonify({"error": f"Failed to process file: {str(e)}"}), 500
 @app.route('/ask', methods=['POST'])
 def ask():
     global latest_syllabus_info
@@ -1023,4 +988,5 @@ def home():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8001)
+
 
