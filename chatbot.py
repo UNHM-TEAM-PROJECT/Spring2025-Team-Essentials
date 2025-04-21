@@ -426,7 +426,7 @@ def send_email():
         data = request.get_json()
         filename = data.get('filename')
         to_email = data.get('to', "SJ1203@usnh.edu")
-        subject = data.get('subject', f'NECHE Compliance Report - {filename}')
+        subject = data.get('subject', f'Syllabus Compliance Report - {filename}')
         body = data.get('body', '')
 
         if not filename or filename not in processed_results:
@@ -437,8 +437,8 @@ def send_email():
         required_fields = [
             "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
             "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+            "Assignment Deadlines & Policies"
         ]
         minimum_fields = [
             "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
@@ -454,61 +454,89 @@ def send_email():
         ]
         all_fields = required_fields + minimum_fields + optional_fields
 
-        from reportlab.platypus import Paragraph
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_LEFT
+        # Course details parsing
+        course_title_raw = extracted_info.get("Course Number and Title", "Not Found")
+        course_id = ""
+        course_name = course_title_raw
+        if course_title_raw != "Not Found":
+            parts = course_title_raw.split(" ")
+            if len(parts) >= 2 and re.match(r'^[A-Z]{2,}\d{2,}', parts[0] + parts[1]):
+                course_id = parts[0] + " " + parts[1]
+                course_name = " ".join(parts[2:])
+            else:
+                course_id = course_title_raw
+        semester = extracted_info.get("Semester/Term (and start/end dates)", "Not Found")
+        if semester != "Not Found":
+            semester = semester.split(" ")[0]
+        instructor = extracted_info.get("Instructor Name", "Not Found")
+
+        # Generate PDF with ReportLab
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30, leftMargin=30, rightMargin=30)
+        elements = []
 
         styles = getSampleStyleSheet()
-        base_style = ParagraphStyle('Base', parent=styles['Normal'], fontSize=9, leading=12, alignment=TA_LEFT)
+        title_style = ParagraphStyle('Title', parent=styles['Title'], fontSize=20, spaceAfter=10, alignment=1)  # Centered
+        detail_style = ParagraphStyle('Detail', parent=styles['Normal'], fontSize=12, spaceAfter=6, alignment=1)  # Centered
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#003591')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 14),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f5f5f5')),
+            ('BACKGROUND', (1, 1), (1, -1), colors.white),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])
 
+        # Heading
+        elements.append(Paragraph("Syllabus Complain Report", title_style))
+
+        # Course details
+        course_details = []
+        if course_id != "Not Found":
+            course_details.append(f"Course ID: {course_id}")
+        if course_name != "Not Found":
+            course_details.append(f"Course Name: {course_name}")
+        if semester != "Not Found":
+            course_details.append(f"Semester: {semester}")
+        if instructor != "Not Found":
+            course_details.append(f"Instructor Name: {instructor}")
+
+        if course_details:
+            for detail in course_details:
+                elements.append(Paragraph(detail, detail_style))
+        else:
+            elements.append(Paragraph("No course details available", detail_style))
+
+        # Table
         table_data = [["Syllabus Items", "Syllabus Details"]]
         for field in all_fields:
             value = extracted_info.get(field, "Not Found")
             if field in optional_fields and value == "Not Found":
                 continue
-
-            # Highlight "Not Found" in red
-            if value == "Not Found":
-                value_paragraph = Paragraph('<font color="red"><b>Not Found</b></font>', base_style)
-            else:
-                value_paragraph = Paragraph(value.replace("\n", "<br />"), base_style)
-
-            # Apply formatting to field names
+            field_label = field
             if field in required_fields:
-                field_label = Paragraph(f"<b>{field}</b>", base_style)
+                field_label = f"<b>{field}</b>"
             elif field in optional_fields:
-                field_label = Paragraph(f"<i>{field}</i>", base_style)
-            else:
-                field_label = Paragraph(field, base_style)
-
-            table_data.append([field_label, value_paragraph])
-
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=30, bottomMargin=30, leftMargin=30, rightMargin=30)
-        elements = [Paragraph(f"NECHE Compliance Report - {filename}", styles['Title'])]
+                field_label = f"<i>{field}</i>"
+            value_text = f"<font color=red><b>Not Found</b></font>" if value == "Not Found" else value.replace("\n", "<br />")
+            table_data.append([Paragraph(field_label, styles['Normal']), Paragraph(value_text, styles['Normal'])])
 
         table = Table(table_data, colWidths=[180, 360])
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#003591')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#F5F5F5')),
-            ('BACKGROUND', (1, 1), (1, -1), colors.white),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
-
+        table.setStyle(table_style)
         elements.append(table)
+
         doc.build(elements)
         pdf_data = buffer.getvalue()
         buffer.close()
 
+        # Send email
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
         msg['To'] = to_email
@@ -528,7 +556,6 @@ def send_email():
 
     except Exception as e:
         return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
-
 
 def process_uploaded_pdf(file_path, file_name):
     global db
@@ -787,15 +814,16 @@ def upload_file():
     global latest_syllabus_info, processed_results
 
     if 'file' not in request.files:
+        print("⚠️ No file provided in request")
         return jsonify({"error": "No file provided"}), 400
 
-    file = request.files['file']
-    if file.filename == '':
+    files = request.files.getlist('file')  # Support multiple files
+    if not files or all(f.filename == '' for f in files):
+        print("⚠️ No valid files selected")
         return jsonify({"error": "No selected file"}), 400
 
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    results = []
+    processed_results.clear()  # Clear stale data
 
     try:
         required_fields = [
@@ -816,75 +844,101 @@ def upload_file():
             "Teaching Assistants (Names and Contact Information)"
         ]
 
-        if filename.endswith('.zip'):
-            results = []
-            processed_results.clear()  # Clear to avoid stale data
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    zip_ref.extractall(temp_dir)
-                    for root, _, files in os.walk(temp_dir):
-                        for name in files:
-                            if name.lower().endswith(('.pdf', '.docx')):
-                                inner_path = os.path.join(root, name)
-                                text = extract_text_from_pdf(inner_path) if name.endswith('.pdf') else extract_text_from_docx(inner_path)
-                                if not text:
-                                    continue
-                                extracted_info = extract_course_information(text)
-                                for field in required_fields + optional_fields:
-                                    value = extracted_info.get(field, "").strip()
-                                    if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
-                                        extracted_info[field] = "Not Found"
-                                for key, value in extracted_info.items():
-                                    extracted_info[key] = str(value) if not isinstance(value, str) else value
-                                compliance = check_neche_compliance(extracted_info)
-                                processed_results[name] = {
-                                    "extracted_information": extracted_info,
-                                    "compliance_check": compliance["compliance_check"],
-                                    "missing_fields": compliance["missing_fields"]
-                                }
-                                results.append({
-                                    "filename": name,
-                                    "extracted_information": extracted_info,
-                                    "compliance_check": compliance["compliance_check"],
-                                    "missing_fields": compliance["missing_fields"]
-                                })
-            return jsonify({"success": True, "message": f"ZIP file processed: {filename}", "results": results})
+        for file in files:
+            filename = secure_filename(file.filename)
+            if not allowed_file(filename):
+                print(f"⚠️ Invalid file type for {filename}")
+                continue
 
-        if filename.endswith('.pdf'):
-            extracted_text = extract_text_from_pdf(file_path)
-        elif filename.endswith('.docx'):
-            extracted_text = extract_text_from_docx(file_path)
-        else:
-            return jsonify({"error": "Unsupported file type"}), 400
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            print(f"📄 Saved file: {filename}")
 
-        if not extracted_text:
-            raise ValueError(f"No text could be extracted from: {filename}")
+            if filename.endswith('.zip'):
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    with tempfile.TemporaryDirectory() as temp_dir:
+                        zip_ref.extractall(temp_dir)
+                        for root, _, zip_files in os.walk(temp_dir):
+                            for name in zip_files:
+                                if name.lower().endswith(('.pdf', '.docx')):
+                                    inner_path = os.path.join(root, name)
+                                    text = extract_text_from_pdf(inner_path) if name.endswith('.pdf') else extract_text_from_docx(inner_path)
+                                    if not text:
+                                        print(f"⚠️ No text extracted from {name}")
+                                        continue
+                                    print(f"📝 Extracted text from {name}: {text[:100]}...")
+                                    extracted_info = extract_course_information(text)
+                                    for field in required_fields + optional_fields:
+                                        value = extracted_info.get(field, "").strip()
+                                        if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                                            extracted_info[field] = "Not Found"
+                                    for key, value in extracted_info.items():
+                                        extracted_info[key] = str(value) if not isinstance(value, str) else value
+                                    compliance = check_neche_compliance(extracted_info)
+                                    processed_results[name] = {
+                                        "extracted_information": extracted_info,
+                                        "compliance_check": compliance["compliance_check"],
+                                        "missing_fields": compliance["missing_fields"]
+                                    }
+                                    results.append({
+                                        "filename": name,
+                                        "extracted_information": extracted_info,
+                                        "compliance_check": compliance["compliance_check"],
+                                        "missing_fields": compliance["missing_fields"]
+                                    })
+                os.remove(file_path)  # Clean up ZIP file
+                continue
 
-        extracted_info = extract_course_information(extracted_text)
-        for field in required_fields + optional_fields:
-            value = extracted_info.get(field, "").strip()
-            if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
-                extracted_info[field] = "Not Found"
-        for key, value in extracted_info.items():
-            extracted_info[key] = str(value) if not isinstance(value, str) else value
-        compliance_check_result = check_neche_compliance(extracted_info)
-        latest_syllabus_info.clear()
-        latest_syllabus_info.update(extracted_info)
-        processed_results.clear()  # Clear to avoid stale data
-        processed_results[filename] = {
-            "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],
-            "missing_fields": compliance_check_result["missing_fields"]
-        }
+            if filename.endswith('.pdf'):
+                extracted_text = extract_text_from_pdf(file_path)
+            elif filename.endswith('.docx'):
+                extracted_text = extract_text_from_docx(file_path)
+            else:
+                print(f"⚠️ Unsupported file type for {filename}")
+                os.remove(file_path)
+                continue
+
+            if not extracted_text:
+                print(f"⚠️ No text extracted from {filename}")
+                os.remove(file_path)
+                continue
+
+            print(f"📝 Extracted text from {filename}: {extracted_text[:100]}...")
+            extracted_info = extract_course_information(extracted_text)
+            for field in required_fields + optional_fields:
+                value = extracted_info.get(field, "").strip()
+                if not value or value.lower() in ["n/a", "na", "not applicable", "none"]:
+                    extracted_info[field] = "Not Found"
+            for key, value in extracted_info.items():
+                extracted_info[key] = str(value) if not isinstance(value, str) else value
+            compliance_check_result = check_neche_compliance(extracted_info)
+            latest_syllabus_info.clear()
+            latest_syllabus_info.update(extracted_info)
+            processed_results[filename] = {
+                "extracted_information": extracted_info,
+                "compliance_check": compliance_check_result["compliance_check"],
+                "missing_fields": compliance_check_result["missing_fields"]
+            }
+            results.append({
+                "filename": filename,
+                "extracted_information": extracted_info,
+                "compliance_check": compliance_check_result["compliance_check"],
+                "missing_fields": compliance_check_result["missing_fields"]
+            })
+            os.remove(file_path)  # Clean up file
+
+        if not results:
+            print("⚠️ No valid files processed")
+            return jsonify({"error": "No valid files processed inside the upload"}), 400
+
         return jsonify({
             "success": True,
-            "message": f"File uploaded successfully: {filename}",
-            "extracted_information": extracted_info,
-            "compliance_check": compliance_check_result["compliance_check"],
-            "missing_fields": compliance_check_result["missing_fields"]
+            "message": f"Processed {len(results)} file(s) successfully",
+            "results": results
         })
 
     except Exception as e:
+        print(f"❌ Error processing upload: {str(e)}")
         return jsonify({"error": f"Failed to process file: {str(e)}"}), 500
 @app.route('/ask', methods=['POST'])
 def ask():
