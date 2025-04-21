@@ -18,6 +18,8 @@ Date:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 
     <style>
@@ -787,20 +789,42 @@ Date:
             </div>
         </div>
     </div>
-    <!-- Report Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reportModalLabel">Extracted Syllabus Report</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Email Composition Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="background: #003591; color: #ffffff; border-top-left-radius: 10px; border-top-right-radius: 10px;">                <h5 class="modal-title" id="emailModalLabel" style="font-weight: 600;">Compose Email</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 25px; background-color: #f9f9fb;">
+                <div class="mb-4">
+                    <label for="email-from" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">From:</label>
+                    <input type="text" class="form-control" id="email-from" value="Essentials2025UNH@gmail.com" readonly style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
                 </div>
-                <div class="modal-body" id="reportContent">
-                    <p>No report available.</p>
+                <div class="mb-4">
+                    <label for="email-to" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">To:</label>
+                    <input type="text" class="form-control" id="email-to" value="SJ1203@usnh.edu" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
                 </div>
+                <div class="mb-4">
+                    <label for="email-subject" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Subject:</label>
+                    <input type="text" class="form-control" id="email-subject" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                </div>
+                <div class="mb-4">
+                    <label for="email-body" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Body:</label>
+                    <textarea class="form-control" id="email-body" rows="8" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; resize: vertical; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Attachment:</label>
+                    <p style="color: #333; font-size: 1rem;">NECHE_Requirements_Table.pdf</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; background-color: #f1f3f5; padding: 15px 25px;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">Cancel</button>
+                <button type="button" class="btn btn-primary" id="send-email-btn" style="border-radius: 8px; padding: 10px 20px; font-weight: 500; background-color: #003591; border-color: #003591;">Send</button>
             </div>
         </div>
     </div>
+</div>
            <!-- Drag & Drop Upload Box -->
            <div class="upload-area" id="uploadArea">
             <p>Drag & Drop your syllabus file here or <span style="color:#003591; font-weight:bold;">Click to Upload</span></p>
@@ -1106,7 +1130,7 @@ Date:
     
                     const thead = document.createElement("thead");
                     thead.innerHTML = `
-                        <tr style="background-color: #3a17d8; color: white; text-align: center;">
+                        <tr style="background-color: #003591; color: white; text-align: center;">
                             <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
                             <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
                             <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
@@ -1212,72 +1236,64 @@ Date:
                             showCompliancePopupClean(reportData, filename, result.compliance_check);
                         });
                         const shareBtn = createStyledButton("Share", "modern-btn", () => {
-                            shareBtn.removeEventListener("click", shareBtn.onclick);
-                            shareBtn.addEventListener("click", () => {
-                                const professorEmail = reportData["Email Address"] || "";
-                                const course = reportData["Course Number and Title"] || "Course";
-                                const professorName = reportData["Instructor Name"] || "Professor";
-    
-                                if (!professorEmail) {
-                                    alert("⚠️ No professor email found in the syllabus data.");
-                                    return;
-                                }
-    
-                                const confirmed = confirm("Do you want to share this report via Outlook?");
-                                if (!confirmed) return;
-    
-                                const summaryStatus = result.compliance_check || "Compliance status not available.";
-    
-                                const requiredFields = [
-                                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
-                                    "Preferred Contact Method", "Email Address", "Phone Number",
-                                    "Office Address", "Office Hours", "Location (Physical or Remote)",
-                                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-                                    "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-                                ];
-    
-                                const minimumFields = [
-                                    "Course Number and Title",
-                                    "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                                    "Modality/Meeting Time and Place",
-                                    "Semester/Term (and start/end dates)",
-                                    "Department/Program",
-                                    "Format (e.g., lecture plus lab/discussion etc.)",
-                                    "Course Description (minimum course catalog description)",
-                                    "Sequence of Course Topics and Important Dates",
-                                    "Required/Recommended Textbook (or other source for course reference information)",
-                                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
-                                    "Technical Requirements",
-                                    "Attendance", "Academic Integrity/Plagiarism/AI"
-                                ];
-    
-                                const isMissing = (value) => {
-                                    return value === undefined || value === null || value === "Not Found" || (typeof value === "string" && value.trim() === "");
-                                };
-    
-                                const missingNECHE = requiredFields.filter(field => isMissing(reportData[field]));
-                                const missingMinimum = minimumFields.filter(field => isMissing(reportData[field]));
-    
-                                const subject = `NECHE Syllabus Review for ${course}`;
-                                let body;
-                                if (missingNECHE.length === 0 && missingMinimum.length === 0) {
-                                    body = `Dear ${professorName},\n\n` +
-                                           `I’m pleased to inform you that your syllabus for ${course} is fully compliant with all NECHE and minimum requirements.\n\n` +
-                                           `Best regards,\nSai Shiva\njsaishiva@unh.com`;
-                                } else {
-                                    body = `Dear ${professorName},\n\n` +
-                                           `The NECHE compliance review for your syllabus for ${course} identified the following missing requirements:\n\n` +
-                                           `${missingNECHE.length > 0 ? `**NECHE Requirements**:\n- ${missingNECHE.join("\n- ")}\n` : ""}` +
-                                           `${missingMinimum.length > 0 ? `**Minimum Requirements**:\n- ${missingMinimum.join("\n- ")}\n` : ""}` +
-                                           `Please address these items and let me know if you need assistance.\n\n` +
-                                           `Best regards,\nSai Shiva\njsaishiva@unh.com`;
-                                }
-    
-                                const mailtoLink = `mailto:${encodeURIComponent(professorEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                                window.location.href = mailtoLink;
-                            });
-                        });
-    
+    const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+    const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+    let body = "The NECHE compliance check is complete. The syllabus is not compliant. Here are the missing information:\n";
+    if (missingNECHE.length > 0) {
+        body += "Missing NECHE Requirements:\n" + missingNECHE.map(field => `- ${field}`).join("\n") + "\n";
+    }
+    if (missingMinimum.length > 0) {
+        body += "Missing Minimum Requirements:\n" + missingMinimum.map(field => `- ${field}`).join("\n");
+    }
+    if (!missingNECHE.length && !missingMinimum.length) {
+        body = "The NECHE compliance check is complete. The syllabus is compliant and all required information is present.";
+    }
+
+    const courseName = reportData["Course Number and Title"] || "Unknown Course";
+    document.getElementById("email-to").value = "SJ1203@usnh.edu";
+    document.getElementById("email-subject").value = `NECHE Compliance and Minimum Syllabus Report - ${courseName}`;
+    document.getElementById("email-body").value = body;
+
+    const emailModalElement = document.getElementById("emailModal");
+    const emailModal = new bootstrap.Modal(emailModalElement, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    emailModal.show();
+
+    const sendEmailBtn = document.getElementById("send-email-btn");
+    const newSendEmailBtn = sendEmailBtn.cloneNode(true);
+    sendEmailBtn.parentNode.replaceChild(newSendEmailBtn, sendEmailBtn);
+
+    newSendEmailBtn.addEventListener("click", () => {
+        const updatedTo = document.getElementById("email-to").value;
+        const updatedSubject = document.getElementById("email-subject").value;
+        const updatedBody = document.getElementById("email-body").value;
+
+        fetch("/send_email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                to: updatedTo,
+                subject: updatedSubject,
+                body: updatedBody
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            addHTMLMessage(data.success ? "✅ Email sent successfully!" : `⚠️ Error: ${data.error}`, false);
+            emailModal.hide();
+        })
+        .catch(() => {
+            addHTMLMessage("⚠️ Error: Unable to send email.", false);
+            emailModal.hide();
+        });
+    });
+
+    emailModalElement.addEventListener('hidden.bs.modal', () => {
+        emailModal.dispose();
+    });
+});
                         viewBtn.style.marginRight = "8px";
                         summaryBtn.style.marginRight = "8px";
                         shareBtn.style.marginRight = "8px";
@@ -1317,41 +1333,124 @@ Date:
         }
     
         function downloadSingleReport(data, filename) {
-            function loadScript(src, callback) {
-                const script = document.createElement("script");
-                script.src = src;
-                script.onload = callback;
-                script.onerror = () => {
-                    console.error(`Failed to load script: ${src}`);
-                    alert(`⚠️ Error: Failed to load required library: ${src}`);
-                };
-                document.head.appendChild(script);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
+
+    const minimumFields = [
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
+
+    const optionalFields = [
+        "Course Prerequisites",
+        "Simultaneous 700/800 Course Designation",
+        "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ];
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+
+    let title = "NECHE Compliance Report";
+    const course = data["Course Number and Title"];
+    const professor = data["Instructor Name"];
+    const headingParts = [];
+    if (course && course !== "Not Found") headingParts.push(course);
+    if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
+    if (headingParts.length > 0) title += " – " + headingParts.join(" ");
+
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const maxWidth = pageWidth - 2 * margin;
+    const splitTitle = doc.splitTextToSize(title, maxWidth);
+    let yPosition = 15;
+    splitTitle.forEach((line, index) => {
+        const textWidth = doc.getTextWidth(line);
+        const xPosition = (pageWidth - textWidth) / 2;
+        doc.text(line, xPosition, yPosition + (index * 8));
+    });
+
+    const titleHeight = splitTitle.length * 8;
+    const tableStartY = yPosition + titleHeight + 5;
+
+    const tableColumn = ["Syllabus Items", "Syllabus Details"];
+    const tableRows = [];
+
+    allFields.forEach(field => {
+        const value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
+        if (isOptional && value === "Not Found") return;
+
+        let displayField = field;
+        if (requiredFields.includes(field)) {
+            displayField = `**${field}**`;
+        } else if (optionalFields.includes(field)) {
+            displayField = `***${field}***`;
+        }
+
+        const displayValue = value === "Not Found" ? "Not Found" : value;
+        tableRows.push([displayField, displayValue]);
+    });
+
+    doc.autoTable({
+        startY: tableStartY,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: {
+            fillColor: [58, 23, 216], // #3a17d8
+            textColor: [255, 255, 255],
+            fontSize: 14,
+            font: "Segoe UI",
+            fontStyle: "bold",
+            cellPadding: 3,
+        },
+        styles: {
+            font: "Segoe UI",
+            fontSize: 14,
+            cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+            lineColor: [221, 221, 221], // #ddd
+            lineWidth: 0.3,
+        },
+        columnStyles: {
+            0: { fillColor: [245, 245, 245], cellWidth: 80 }, // #f5f5f5
+            1: { fillColor: [255, 255, 255], cellWidth: 100 },
+        },
+        didParseCell: function (data) {
+            if (data.column.index === 0) {
+                let text = data.cell.text[0];
+                if (text.startsWith("***") && text.endsWith("***")) {
+                    data.cell.text[0] = text.slice(3, -3);
+                    data.cell.styles.fontStyle = "italic";
+                } else if (text.startsWith("**") && text.endsWith("**")) {
+                    data.cell.text[0] = text.slice(2, -2);
+                    data.cell.styles.fontStyle = "bold";
+                } else {
+                    data.cell.styles.fontStyle = "normal";
+                }
             }
-    
-            if (!window.jspdf) {
-                console.warn("jsPDF is not loaded. Loading it now...");
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", () => {
-                    console.log("jsPDF loaded successfully.");
-                    if (!window.jspdfAutoTable) {
-                        console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
-                        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
-                            console.log("jsPDF-AutoTable loaded successfully.");
-                            generateReport(data, filename);
-                        });
-                    } else {
-                        generateReport(data, filename);
-                    }
-                });
-            } else if (!window.jspdfAutoTable) {
-                console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
-                    console.log("jsPDF-AutoTable loaded successfully.");
-                    generateReport(data, filename);
-                });
-            } else {
-                generateReport(data, filename);
+
+            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                data.cell.styles.textColor = [255, 0, 0];
+                data.cell.styles.fontStyle = "bold";
             }
         }
+    });
+
+    doc.save(`${filename}_NECHE_Report.pdf`);
+}
     
         function generateReport(data, filename) {
             const { jsPDF } = window.jspdf;
@@ -1471,87 +1570,91 @@ Date:
         }
     
         function showReportModal(data) {
-            const requiredFields = [
-                "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
-                "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-                "Assignment Deadlines & Policies"
-            ];
-    
-            const minimumFields = [
-                "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-                "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-                "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-                "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-                "Attendance", "Academic Integrity/Plagiarism/AI"
-            ];
-    
-            const optionalFields = [
-                "Course Prerequisites",
-                "Simultaneous 700/800 Course Designation",
-                "University Requirements",
-                "Teaching Assistants (Names and Contact Information)"
-            ];
-            const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-    
-            let html = `<html><head>
-                <title>NECHE Report</title>
-                <style>
-                    body { font-family: "Segoe UI", sans-serif; padding: 20px; background: #f9f9fb; color: #333; max-width: 1000px; margin: auto; }
-                    h2 { font-size: 20px; text-align: center; margin-bottom: 20px; font-weight: 600; color: #2a2a2a; }
-                    table { width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 14px; }
-                    th, td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: left; }
-                    th { background-color: #3a17d8; color: white; font-weight: 600; }
-                    td:first-child { background-color: #f5f5f5; }
-                    td:last-child { background-color: #ffffff; }
-                    .download-btn { margin-top: 20px; display: block; width: fit-content; margin-left: auto; margin-right: auto; background-color: #3a17d8; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.3s ease; }
-                    .download-btn:hover { background-color: #2a0fa6; }
-                </style>
-            </head><body>`;
-    
-            let courseTitleRaw = data["Course Number and Title"];
-            let instructor = data["Instructor Name"];
-            let headingParts = [];
-    
-            if (courseTitleRaw && courseTitleRaw !== "Not Found") headingParts.push(courseTitleRaw);
-            if (instructor && instructor !== "Not Found") headingParts.push(`by Professor ${instructor}`);
-    
-            let headingText = "NECHE Compliance Report";
-            if (headingParts.length) headingText += " – " + headingParts.join(" ");
-    
-            html += `<h2>${headingText}</h2>`;
-            html += `<table><thead><tr><th>Syllabus Items</th><th>Syllabus Details</th></tr></thead><tbody>`;
-    
-            allFields.forEach((field) => {
-                const value = data[field] || "Not Found";
-                const isOptional = optionalFields.includes(field);
-    
-                if (isOptional && value === "Not Found") return;
-    
-                let formattedField = field;
-                if (requiredFields.includes(field)) {
-                    formattedField = `<strong>${field}</strong>`;
-                } else if (optionalFields.includes(field)) {
-                    formattedField = `<em>${field}</em>`;
-                }
-    
-                const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value;
-    
-                html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
-            });
-    
-            html += `</tbody></table>`;
-            const safeData = encodeURIComponent(JSON.stringify(data));
-            html += `<button class="download-btn" onclick="window.opener.downloadSingleReport(JSON.parse(decodeURIComponent('${safeData}')), '${data["Course Number and Title"] || "Report"}')">Download PDF</button>`;
-            html += `</body></html>`;
-    
-            const newWin = window.open("", "_blank");
-            newWin.document.open();
-            newWin.document.write(html);
-            newWin.document.close();
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
+
+    const minimumFields = [
+        "Course Number and Title",
+        "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
+
+    const optionalFields = [
+        "Course Prerequisites",
+        "Simultaneous 700/800 Course Designation",
+        "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ];
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+
+    let html = `<html><head>
+        <title>NECHE Report</title>
+        <style>
+            body { font-family: "Segoe UI", sans-serif; padding: 20px; background: #f9f9fb; color: #333; max-width: 1000px; margin: auto; }
+            h2 { font-size: 20px; text-align: center; margin-bottom: 20px; font-weight: 600; color: #2a2a2a; }
+            table { width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 14px; }
+            th, td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: left; }
+            th { background-color: #003591; color: white; font-weight: 600; }
+            td:first-child { background-color: #f5f5f5; }
+            td:last-child { background-color: #ffffff; }
+            .download-btn { position: absolute; top: 20px; right: 20px; background-color: #3a17d8; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.3s ease; }
+            .download-btn:hover { background-color: #003591; }
+            .table-container { position: relative; margin-top: 50px; }
+        </style>
+    </head><body>`;
+
+    let courseTitleRaw = data["Course Number and Title"];
+    let instructor = data["Instructor Name"];
+    let headingParts = [];
+
+    if (courseTitleRaw && courseTitleRaw !== "Not Found") headingParts.push(courseTitleRaw);
+    if (instructor && instructor !== "Not Found") headingParts.push(`by Professor ${instructor}`);
+
+    let headingText = "NECHE Compliance Report";
+    if (headingParts.length) headingText += " – " + headingParts.join(" ");
+
+    html += `<button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${data["Course Number and Title"] || "Report"}')">Download PDF</button>`;
+    html += `<h2>${headingText}</h2>`;
+    html += `<div class="table-container"><table><thead><tr><th>Syllabus Items</th><th>Syllabus Details</th></tr></thead><tbody>`;
+
+    allFields.forEach((field) => {
+        const value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
+
+        if (isOptional && value === "Not Found") return;
+
+        let formattedField = field;
+        if (requiredFields.includes(field)) {
+            formattedField = `<strong>${field}</strong>`;
+        } else if (optionalFields.includes(field)) {
+            formattedField = `<em>${field}</em>`;
         }
+
+        const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value;
+
+        html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    html += `</body></html>`;
+
+    const newWin = window.open("", "_blank");
+    newWin.document.open();
+    newWin.document.write(html);
+
+    // Attach the downloadSingleReport function to the new window
+    newWin.downloadSingleReport = downloadSingleReport;
+
+    newWin.document.close();
+}
     
         function downloadAllReports(results) {
             function loadScript(src, callback) {
@@ -1820,7 +1923,6 @@ Date:
             });
         }
     });
-    </script>
-    
+</script>
 </body>
 </html>
