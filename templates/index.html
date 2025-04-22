@@ -1595,210 +1595,212 @@ Date:
             doc.save(`${filename}_NECHE_Report.pdf`);
         }
         function showReportModal(data, filename) {
-        const requiredFields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
-            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-            "Assignment Deadlines & Policies"
-        ];
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
 
-        const minimumFields = [
-            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-            "Attendance", "Academic Integrity/Plagiarism/AI"
-        ];
+    const minimumFields = [
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
 
-        const optionalFields = [
-            "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
-            "Teaching Assistants (Names and Contact Information)"
-        ];
-        const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+    const optionalFields = [
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ];
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
 
-        let html = `<html><head>
-            <title>NECHE Report - ${filename}</title>
-            <style>
-                body { 
-                    font-family: "Segoe UI", sans-serif; 
-                    padding: 20px; 
-                    background: #f9f9fb; 
-                    color: #333; 
-                    max-width: 1000px; 
-                    margin: auto; 
-                }
-                h1 { 
-                    font-size: 24px; 
-                    text-align: center; 
-                    margin-bottom: 15px; 
-                    font-weight: 600; 
-                    color: #2a2a2a; 
-                }
-                .course-details-container { 
-                    display: flex; 
-                    flex-direction: column; 
-                    align-items: center; 
-                    margin-bottom: 20px; 
-                    width: 100%; 
-                }
-                .course-details { 
-                    display: flex; 
-                    flex-direction: column; 
-                    align-items: center; 
-                    font-size: 14px; 
-                    color: #333; 
-                    width: 100%; 
-                    max-width: 600px; 
-                }
-                .course-details p { 
-                    display: flex; 
-                    justify-content: space-between; 
-                    width: 100%; 
-                    margin: 5px 0; 
-                    padding: 0 20px; 
-                    text-align: left; 
-                }
-                .course-details p span.label { 
-                    flex: 1; 
-                    font-weight: bold; 
-                    text-align: right; 
-                    padding-right: 10px; 
-                }
-                .course-details p span.separator { 
-                    flex: 0 0 20px; 
-                    text-align: center; 
-                }
-                .course-details p span.value { 
-                    flex: 1; 
-                    text-align: left; 
-                    padding-left: 10px; 
-                }
-                .download-btn { 
-                    background-color: #003591; 
-                    color: white; 
-                    padding: 10px 20px; 
-                    border-radius: 6px; 
-                    border: none; 
-                    cursor: pointer; 
-                    font-size: 14px; 
-                    transition: 0.3s ease; 
-                    margin: 10px 20px 0 0; 
-                    align-self: flex-end; 
-                }
-                .download-btn:hover { 
-                    background-color: #001f5c; 
-                }
-                table { 
-                    width: 100%; 
-                    border-collapse: collapse; 
-                    border: 1px solid #ccc; 
-                    font-size: 14px; 
-                }
-                th, td { 
-                    padding: 8px 10px; 
-                    border: 1px solid #ddd; 
-                    vertical-align: top; 
-                    text-align: left; 
-                }
-                th { 
-                    background-color: #003591; 
-                    color: white; 
-                    font-weight: 600; 
-                }
-                td:first-child { 
-                    background-color: #f5f5f5; 
-                }
-                td:last-child { 
-                    background-color: #ffffff; 
-                }
-                .table-container { 
-                    margin-top: 20px; 
-                }
-            </style>
-        </head><body>`;
-
-        // Course details parsing
-        let courseTitleRaw = data["Course Number and Title"] || "Not Found";
-        let courseId = "";
-        let courseName = courseTitleRaw;
-        if (courseTitleRaw !== "Not Found") {
-            const parts = courseTitleRaw.split(" ");
-            if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-                courseId = parts[0] + " " + parts[1];
-                courseName = parts.slice(2).join(" ");
-            } else {
-                courseId = courseTitleRaw;
+    let html = `<html><head>
+        <title>NECHE Report - ${filename}</title>
+        <style>
+            body { 
+                font-family: "Segoe UI", sans-serif; 
+                padding: 20px; 
+                background: #f9f9fb; 
+                color: #333; 
+                max-width: 1000px; 
+                margin: auto; 
             }
-        }
-        let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
-        if (semester !== "Not Found") {
-            semester = semester.split(" ")[0]; // Extract just the term (e.g., "Spring")
-        }
-        let instructor = data["Instructor Name"] || "Not Found";
-
-        // Build course details, skipping "Not Found" fields
-        let courseDetails = [];
-        if (courseId !== "Not Found") {
-            courseDetails.push(`<p><span class="label">Course ID:</span><span class="separator">:</span><span class="value">${courseId}</span></p>`);
-        }
-        if (courseName !== "Not Found") {
-            courseDetails.push(`<p><span class="label">Course Name:</span><span class="separator">:</span><span class="value">${courseName}</span></p>`);
-        }
-        if (semester !== "Not Found") {
-            courseDetails.push(`<p><span class="label">Semester:</span><span class="separator">:</span><span class="value">${semester}</span></p>`);
-        }
-        if (instructor !== "Not Found") {
-            courseDetails.push(`<p><span class="label">Instructor Name:</span><span class="separator">:</span><span class="value">${instructor}</span></p>`);
-        }
-
-        // Main heading, course details, and download button
-        html += `
-            <div class="course-details-container">
-                <h1>Syllabus Compliance Report</h1>
-                <div class="course-details">
-                    ${courseDetails.length > 0 ? courseDetails.join("") : "<p>No course details available</p>"}
-                </div>
-                <button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${filename}')">Download PDF</button>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Syllabus Items</th>
-                            <th>Syllabus Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-
-        // Table content
-        allFields.forEach((field) => {
-            const value = data[field] || "Not Found";
-            const isOptional = optionalFields.includes(field);
-
-            if (isOptional && value === "Not Found") return;
-
-            let formattedField = field;
-            if (requiredFields.includes(field)) {
-                formattedField = `<strong>${field}</strong>`;
-            } else if (optionalFields.includes(field)) {
-                formattedField = `<em>${field}</em>`;
+            h1 { 
+                font-size: 24px; 
+                text-align: center; 
+                margin-bottom: 15px; 
+                font-weight: 600; 
+                color: #2a2a2a; 
             }
+            .course-details-container { 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                margin-bottom: 20px; 
+                width: 100%; 
+            }
+            .course-details { 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                font-size: 14px; 
+                color: #333; 
+                width: 100%; 
+                max-width: 600px; 
+            }
+            .course-details p { 
+                display: flex; 
+                justify-content: space-between; 
+                width: 100%; 
+                margin: 5px 0; 
+                padding: 0 20px; 
+                text-align: left; 
+            }
+            .course-details p span.label { 
+                flex: 1; 
+                font-weight: bold; 
+                text-align: right; 
+                padding-right: 10px; 
+            }
+            .course-details p span.separator { 
+                flex: 0 0 20px; 
+                text-align: center; 
+            }
+            .course-details p span.value { 
+                flex: 1; 
+                text-align: left; 
+                padding-left: 10px; 
+            }
+            .download-btn { 
+                background-color: #003591; 
+                color: white; 
+                padding: 10px 20px; 
+                border-radius: 6px; 
+                border: none; 
+                cursor: pointer; 
+                font-size: 14px; 
+                transition: 0.3s ease; 
+                margin: 10px 20px 0 0; 
+                align-self: flex-end; 
+            }
+            .download-btn:hover { 
+                background-color: #001f5c; 
+            }
+            table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                border: 1px solid #ccc; 
+                font-size: 14px; 
+            }
+            th, td { 
+                padding: 12px; 
+                border: 1px solid #ddd; 
+                vertical-align: top; 
+                text-align: left; 
+            }
+            th { 
+                background-color: #003591; 
+                color: white; 
+                font-weight: 600; 
+            }
+            td:first-child { 
+                background-color: #f5f5f5; 
+                width: 40%; 
+            }
+            td:last-child { 
+                background-color: #ffffff; 
+                width: 60%; 
+            }
+            .table-container { 
+                margin-top: 20px; 
+            }
+        </style>
+    </head><body>`;
 
-            const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
-
-            html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
-        });
-
-        html += `</tbody></table></div>`;
-        html += `</body></html>`;
-
-        const newWin = window.open("", "_blank");
-        newWin.document.open();
-        newWin.document.write(html);
-        newWin.downloadSingleReport = downloadSingleReport;
-        newWin.document.close();
+    // Course details parsing
+    let courseTitleRaw = data["Course Number and Title"] || "Not Found";
+    let courseId = "";
+    let courseName = courseTitleRaw;
+    if (courseTitleRaw !== "Not Found") {
+        const parts = courseTitleRaw.split(" ");
+        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+            courseId = parts[0] + " " + parts[1];
+            courseName = parts.slice(2).join(" ");
+        } else {
+            courseId = courseTitleRaw;
+        }
     }
+    let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
+    if (semester !== "Not Found") {
+        semester = semester.split(" ")[0];
+    }
+    let instructor = data["Instructor Name"] || "Not Found";
+
+    // Build course details, skipping "Not Found" fields
+    let courseDetails = [];
+    if (courseId !== "Not Found") {
+        courseDetails.push(`<p><span class="label">Course ID:</span><span class="separator">:</span><span class="value">${courseId}</span></p>`);
+    }
+    if (courseName !== "Not Found") {
+        courseDetails.push(`<p><span class="label">Course Name:</span><span class="separator">:</span><span class="value">${courseName}</span></p>`);
+    }
+    if (semester !== "Not Found") {
+        courseDetails.push(`<p><span class="label">Semester:</span><span class="separator">:</span><span class="value">${semester}</span></p>`);
+    }
+    if (instructor !== "Not Found") {
+        courseDetails.push(`<p><span class="label">Instructor Name:</span><span class="separator">:</span><span class="value">${instructor}</span></p>`);
+    }
+
+    // Main heading, course details, and download button
+    html += `
+        <div class="course-details-container">
+            <h1>Syllabus Compliance Report</h1>
+            <div class="course-details">
+                ${courseDetails.length > 0 ? courseDetails.join("") : "<p>No course details available</p>"}
+            </div>
+            <button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${filename}')">Download PDF</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Syllabus Items</th>
+                        <th>Syllabus Details</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    // Table content
+    allFields.forEach((field) => {
+        const value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
+
+        if (isOptional && value === "Not Found") return;
+
+        let formattedField = field;
+        if (requiredFields.includes(field)) {
+            formattedField = `<strong>${field}</strong>`;
+        } else if (optionalFields.includes(field)) {
+            formattedField = `<em>${field}</em>`;
+        }
+
+        const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
+
+        html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    html += `</body></html>`;
+
+    const newWin = window.open("", "_blank");
+    newWin.document.open();
+    newWin.document.write(html);
+    newWin.downloadSingleReport = downloadSingleReport;
+    newWin.document.close();
+}
     
         function downloadAllReports(results) {
             function loadScript(src, callback) {
