@@ -1214,6 +1214,12 @@ Date:
         body += "The syllabus is compliant and all required information is present.";
     }
 
+    // Add footer
+    body += "\n\nFormatting:\n";
+    body += "NECHE Compliance Requirements: Bold\n";
+    body += "Minimum Syllabus Requirements: Unbold & Unitalic\n";
+    body += "Optional Syllabus Requirements: Italic";
+
     // Populate email modal
     const recipient = "SJ1203@usnh.edu";
     const emailSubject = `Syllabus Compliance Report - ${courseName !== "Not Found" ? courseName : "Unknown Course"}`;
@@ -1289,6 +1295,7 @@ Date:
 
         table.appendChild(tbody);
         scrollWrapper.appendChild(table);
+        
         chatHistory.appendChild(scrollWrapper);
 
         if (allResults.length > 1) {
@@ -1474,6 +1481,14 @@ Date:
             }
         }
     });
+
+    // Add footer
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(10);
+    doc.text("Formatting:", 10, pageHeight - 30);
+    doc.text("NECHE Compliance Requirements: Bold", 10, pageHeight - 25);
+    doc.text("Minimum Syllabus Requirements: Unbold & Unitalic", 10, pageHeight - 20);
+    doc.text("Optional Syllabus Requirements: Italic", 10, pageHeight - 15);
 
     doc.save(`${filename}_NECHE_Report.pdf`);
 }
@@ -1717,6 +1732,14 @@ Date:
             .table-container { 
                 margin-top: 20px; 
             }
+            .footer { 
+                margin-top: 20px; 
+                font-size: 14px; 
+                color: #555; 
+                text-align: center; 
+                border-top: 1px solid #ddd; 
+                padding-top: 10px; 
+            }
         </style>
     </head><body>`;
 
@@ -1793,7 +1816,14 @@ Date:
     });
 
     html += `</tbody></table></div>`;
-    html += `</body></html>`;
+    html += `
+        <div class="footer">
+            <strong>Formatting:</strong><br>
+            NECHE Compliance Requirements: <strong>Bold</strong><br>
+            Minimum Syllabus Requirements: Unbold & Unitalic<br>
+            Optional Syllabus Requirements: <em>Italic</em>
+        </div>
+    </body></html>`;
 
     const newWin = window.open("", "_blank");
     newWin.document.open();
