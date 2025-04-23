@@ -21,17 +21,15 @@ from werkzeug.utils import secure_filename
 from docx import Document as DocxDocument
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from email.mime.application import MIMEApplication
-from io import BytesIO
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-
+from io import BytesIO
 latest_syllabus_info = {}
+buffer = BytesIO()
 
 # Define the cache for extracted information
 extracted_info_cache = {}
