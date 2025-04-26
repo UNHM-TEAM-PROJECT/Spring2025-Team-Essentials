@@ -137,8 +137,6 @@ http://127.0.0.1:8000/
 ```
 5. Ask pdf related questions, e.g., “What is the professor's phone number?"
 
-## Key Components
-
 ### Test Case Structure
 
 Each test case consists of the following:
@@ -188,47 +186,6 @@ This system helps check if a syllabus meets NECHE standards. It works like this:
 ### Diagram
 
 <img width="694" alt="flow diagram" src="https://github.com/user-attachments/assets/8533fc2b-0b71-494b-ba13-40b064dbd747" />
-
-
-
-
-## How to Perform Automated Testing
-## Installation and Setup
-### Prerequisites
-- Python 3.8+
-- OpenAI API Key
-- Requests Library
-  
-Ensure the following steps are completed from the main repository's README.md:
-
-1.Clone the repository and install the required dependencies.
-
-2.Run the chatbot by executing python chatbot.py.
-
-3.Verify the chatbot is accessible via its local HTTP link (http://127.0.0.1:8000/).
-
-Once the chatbot is running, proceed with the steps below to execute automated testing.
-
-## Running Automated Tests
-1.Place the test cases pdf files in the automated testing/Syllabi_sp2025.
-
-2.Set your OpenAI API key as an environment variable:
-
-- **Linux/MacOS**:
-```bash
-export OPENAI_API_KEY="your-openai-api-key"
-echo $OPENAI_API_KEY  # To verify the key is exported correctly
-```
-- **Windows**:
-```cmd
-set OPENAI_API_KEY="your-openai-api-key"
-echo %OPENAI_API_KEY%  # To verify the key is exported correctly
-```
-3. Run the automated test script: ```bash python test_rag.py
-
-4. Outputs:
-   
-- **Evaluation Results**: Saved in the outputs/compliance reports folder each pdf json report that is uploaded into the Syllabi_sp2025 folder.
 
 # Deploying Chatbot to AWS
 
