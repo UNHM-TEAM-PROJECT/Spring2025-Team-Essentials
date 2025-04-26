@@ -3,13 +3,14 @@
 # NECHE Compliance Assistant Chatbot
 
 ## Overview
-This chatbot allows users to upload individual PDFs, document (.docx) files, or zip files containing multiple PDFs and documents. It extracts the text from the uploaded files and checks for compliance with various requirements, including NECHE compliance, minimal syllabus requirements, and optional syllabus requirements. The chatbot uses AI-powered responses to answer user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
+This chatbot allows users to upload individual PDFs, document (.docx) files, folders/zip files containing multiple PDFs and documents. It extracts the text from the uploaded files and checks for compliance with various requirements, including NECHE compliance, minimal syllabus requirements, and optional syllabus requirements. The chatbot uses AI-powered responses to answer user queries based on the extracted content. It integrates with OpenAI's GPT-4 and Chroma vector database for document search and interaction.
 
 ## Features
 - PDF and .DOCX Upload & Text Extraction: Upload PDFs and extract text.
 - Compliance Checking: Analyze the extracted text for specific compliance criteria.
 - AI Chatbot: Ask questions related to the document's content and receive AI-powered responses.
 - Document Vectorization: Uses Chroma to store and search document chunks for relevance to user queries.
+- Email functionalilty: The use of reportlab to send emails out to those that needs to know their syallbus status!
 
 ## Technologies Stack 
 ###  Frontend
@@ -28,6 +29,7 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, or 
 - OpenAI GPT-4: For generating responses to user queries.
 - Chroma: For storing document embeddings and performing similarity search.
 - DocxDocument: for text extraction for documents.
+- ReportLab: for email system functionalilty.
 
 ### Libraries & Utilities
 - json – Formatting and response structure.
@@ -43,18 +45,6 @@ Spring2025-Team-Essentials/
 |
 ├── .vscode/                     # VS Code configuration files
 │   └── extensions.json          # Extensions configuration for the project
-│
-├── automated_testing/           # Automated testing module
-│   ├── README.md                # Documentation for automated testing
-│   ├── test_rag.py              # Script to run automated tests
-│   ├── outputs/                 # Folder for storing compliance reports
-│   │   └── compliance_reports/  # JSON reports for each test case
-│   ├── Syllabi_sp2025/          # Folder containing test case PDFs
-│       ├── chatbot-doc.pdf
-│       ├── COMP 802 Spring 2024 Syllabus.pdf
-│       ├── Comp693.pdf
-│       ├── niche_compliance.pdf
-│       └── ...                  # Additional test case PDFs
 │
 ├── data/                       
 │   ├── chatbot-bg.png           # Background image for the chatbot UI
@@ -91,7 +81,7 @@ Ensure you have the following installed:
 - Python 3.x
 - pip
 - Way to access the code(i.e code editor such as VS Code)
-- SSH Key(in case the regular gitclone doesn't work)
+- SSH Key(in case the regular https gitclone doesn't work)
 - Allocate more than a 5gbs of space, in relation to cloning and downloading necessary packages
 
 ### Installation Steps
@@ -109,7 +99,7 @@ python -m venv venv
 ```
 3. Install the required dependencies:
    pip install -r requirements.txt 
-5. Set your OpenAI API key as an environment variable:
+4. Set your OpenAI API key as an environment variable:
 
 Linux/MacOS:
 ```bash
@@ -121,22 +111,20 @@ Windows:
 set OPENAI_API_KEY="your-openai-api-key"
 echo %OPENAI_API_KEY%  # To verify the key is exported correctly
 ```
-5. Usage:
+6. Usage:
    1. Place the PDF documents in the data/ directory.
    2. Change the path to your local directory:
      •Open the chatbot.py file.
      •Upload the pdf_directory variable to point to your local directory containing the PDFs, For example:
 •pdf_directory = "your_local_path_to_pdfs_directory"
-3. Run the chatbot:
+7. Run the chatbot:
 ```bash
 python chatbot.py
 ```
-4. Open your browser and navigate to:
+8. Open your browser and navigate to:
 ```bash
 http://127.0.0.1:8000/
 ```
-5. Ask pdf related questions, e.g., “What is the professor's phone number?"
-
 ### Test Case Structure
 
 Each test case consists of the following:
@@ -146,8 +134,6 @@ Each test case consists of the following:
 **Expected Criteria**: Checking for NECHE compliance.
 
 **Retrieval Context**: Relevant information that the chatbot uses to formulate its evaluation of the PDF.
-
-
 
 ## System Architecture
 
