@@ -137,18 +137,6 @@ http://127.0.0.1:8000/
 ```
 5. Ask pdf related questions, e.g., “What is the professor's phone number?"
 
-## Automated Testing for Compliance Chatbot
-## Overview
-The automated testing module is designed to evaluate the performance, accuracy, and relevance of the chatbot designed to assist students with internship-related queries. By running predefined test cases, it ensures the chatbot provides accurate, context-aware, and relevant answers to user queries.
-
-The process involves the following key steps:
-
-**Test Case Setup**: Each test case for the pdf in this iteration includes the necessary creitera for a question for a syallbus.
-
-**Response Evaluation**: The chatbot's response is assessed for Answer Relevancy, which measures its relevance to the query, and Faithfulness, which checks its consistency with the provided context.
-
-**Automated Execution**: The program sends pdf from the test cases to the chatbot are evaluated.
-
 ## Key Components
 
 ### Test Case Structure
