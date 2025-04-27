@@ -217,24 +217,8 @@ This guide provides step-by-step instructions for deploying applications on Amaz
 2. Click "Start Instance"
 3. Wait for the instance state to become "Running"
 4. Note the Public IPv4 address
-
-### 4. SSH Connection Setup
-1. Download MobaXterm on windows:
-   - Visit the official MobaXterm website: https://mobaxterm.mobatek.net/.
-   - Download the "Home Edition" (Installer version or Portable version).
-   - Open the downloaded .exe file.
-   - Follow the on-screen instructions to install the application.
-   - Once installed, open MobaXterm from the Start Menu or Desktop Shortcut.
-
-2. Click "Session" → "New Session"
-3. Select "SSH"
-4. Configure SSH session:
-      - Enter Public IPv4 address in "Remote host"
-      - Check "Specify username" and enter "ec2-user"
-      - In "Advanced SSH settings", use "Use private key" and select your .pem file
-5. Then you will be logged into AWS Linux terminal.
-
-### 5. Application Deployment
+   
+### 4. Application Deployment
 1. In AWS Linux terminal, switch to root user:
    ```bash
    sudo su
