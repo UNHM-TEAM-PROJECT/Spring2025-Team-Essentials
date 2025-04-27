@@ -335,7 +335,7 @@ This guide provides step-by-step instructions for deploying applications on Amaz
    - Use `nano` or `vim` to edit `requirements.txt` if necessary.  
    - If issues persist, run the primary `chatbot.py` program to identify missing packages.
 
-## Accessing the School Server, Cloning a Git Repository, and Running the Chatbot
+# Accessing the School Server, Cloning a Git Repository, and Running the Chatbot
 
 These steps outline how to access the school server via VPN, generate an SSH key, add it to your GitHub account, clone a repository using SSH, install dependencies, and run a chatbot application.
 
