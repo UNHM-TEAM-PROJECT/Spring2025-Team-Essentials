@@ -406,13 +406,20 @@ These steps outline how to access the school server via VPN, generate an SSH key
 12. **Modify Imports (If Needed):**
     * If there are any errors relating to imports, modify the python files as needed, to correct the import statements.
 
-**Important Notes:**
+## Important Notes:
 
 * Cloning via HTTPS may not function correctly due to changes implemented since 2021.
 * Using SSH keys is the recommended and reliable method for cloning Git repositories in this environment.
 * Make sure to keep your private key (`id_rsa`) secure. Do not share it with anyone.
 * Pay close attention to any error messages during the installation and execution phases, as they will provide valuable information for troubleshooting.
 * The python file name may not always be chatbot.py, so check the file name.
+
+## Known Issues / Limitations
+- Only English syllabi are supported.
+- Large PDFs (>50MB) may cause memory errors if the server has low RAM.
+- OCR fallback using pytesseract is slower for scanned PDFs.
+- Not yet optimized for mobile devices.
+
 
     
 
