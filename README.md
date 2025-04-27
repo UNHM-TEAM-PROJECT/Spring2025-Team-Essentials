@@ -92,9 +92,6 @@ Spring2025-Team-Essentials/
 ### Upload Example:
 <img src="https://github.com/user-attachments/assets/d9382632-b081-4572-8718-47047f9f16cb" width="600" alt="Additional Upload Example">
 
-
-
-
 ## Local Setup
 
 ### Prerequisites
@@ -190,9 +187,13 @@ This system helps check if a syllabus meets NECHE standards. It works like this:
 
 ---
 
-### Diagram
+## System Diagram
 
-<img width="694" alt="flow diagram" src="https://github.com/user-attachments/assets/8533fc2b-0b71-494b-ba13-40b064dbd747" />
+<img src="https://github.com/user-attachments/assets/201edd2e-02a6-4d05-bf6e-b65b45590861" width="800" alt="System Flow Diagram">
+
+
+
+
 
 # Deploying Chatbot to AWS
 
