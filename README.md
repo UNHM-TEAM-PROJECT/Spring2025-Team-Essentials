@@ -37,6 +37,18 @@ This chatbot allows users to upload individual PDFs, document (.docx) files, fol
 - os – File management.
 - werkzeug – Safe file uploads.
 
+### Environment Variables
+Set the following environment variables before running the server:
+
+| Variable            | Purpose                        | Example Value                       |
+|---------------------|---------------------------------|-------------------------------------|
+| OPENAI_API_KEY       | API key for OpenAI GPT access   | `sk-...`                            |
+| SENDER_EMAIL         | Sender email for report emails | `Essentials2025UNH@gmail.com`       |
+| SENDER_APP_PASSWORD  | App password for Gmail sending | `abcd efgh ijkl mnop`               |
+
+You can set them manually or use a `.env` file (recommended).
+
+
 ## Directory Structure
 - The project is organized as follows:
 
