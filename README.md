@@ -86,6 +86,15 @@ Spring2025-Team-Essentials/
 
 ```
 
+## Chat Interface
+### Base Chatbot Screen:
+<img src="https://github.com/user-attachments/assets/57d8fb77-9cf9-48ca-988f-4921a4bce7b2" width="600" alt="Additional Chat Example"> <br> 
+### Upload Example:
+<img src="https://github.com/user-attachments/assets/d9382632-b081-4572-8718-47047f9f16cb" width="600" alt="Additional Upload Example">
+
+
+
+
 ## Local Setup
 
 ### Prerequisites
