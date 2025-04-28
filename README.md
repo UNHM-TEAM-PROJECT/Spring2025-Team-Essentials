@@ -205,7 +205,6 @@ This guide provides step-by-step instructions for deploying applications on Amaz
   - AWS CLI
   - Python 3.8+
   - Virtual environment tools (e.g., `venv` or `virtualenv`)
-  - MobaXTerm or an SSH client for server access.
 
 ## Steps to Deploy
 
