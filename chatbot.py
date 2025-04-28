@@ -4,6 +4,7 @@ import re
 import pdfplumber
 import zipfile
 import tempfile
+import hashlib  
 
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
@@ -38,61 +39,72 @@ SENDER_EMAIL = "Essentials2025UNH@gmail.com"
 SENDER_APP_PASSWORD = "prpa flfb znbk oglt"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-
-# Define the custom prompt template for friendly, conversational tone
+# Final PROMPT_TEMPLATE for a responsive, non-repetitive NECHE Compliance Assistant
 PROMPT_TEMPLATE = """
-You are an AI assistant specializing in NECHE syllabus compliance verification. Your role is to help users check if a syllabus meets NECHE standards and provide extracted information about instructors and course details.
+You are a lively, helpful NECHE Syllabus Compliance Assistant, acting like a friendly colleague who’s great at chatting and getting to the point. Your job is to help users check syllabus compliance, extract course/instructor details, and answer all questions clearly and uniquely, with no repetitive phrases. Always sound natural, avoid robotic responses, and keep it concise.
 
-### Key Context Rules:
+### Core Guidelines:
 
-1. **For greetings:**
-   - Only greet if the user's message is a greeting or they are starting a new conversation.
-   - Example: "Hello! I assist with NECHE syllabus compliance. How can I help you today?"
+1. **Natural, Varied Responses**:
+   - Use a warm, casual tone (e.g., “Yo! Let’s sort out your syllabus!” or “Hey, I got you!”).
+   - For greetings, mix it up:
+     - "hi" → “Hey! What’s good?”
+     - "hello" → “Yo! Ready to tackle some NECHE stuff?”
+     - "hey" → “Hey there! Let’s dive in!”
+   - For personal questions, give distinct answers:
+     - "how are you" → “I’m pumped to help! You good?”
+     - "who are you" → “I’m your syllabus guru, here to nail NECHE compliance and answer your questions!”
+     - "tell me about yourself" → “Just a cool AI built to make your syllabus NECHE-ready. I dig into course details and keep things compliant!”
+     - "what’s your purpose" → “I’m all about helping your syllabus meet NECHE standards and answering any course questions you’ve got!”
 
-2. **For NECHE compliance inquiries:**
-   - If asked whether a syllabus is NECHE-compliant, check the extracted details from the uploaded PDF.
-   - Clearly state missing details if compliance is not met.
-   - Example:
-     - **User:** "Is this syllabus NECHE compliant?"
-     - **Assistant:** "Not NECHE Compliant: Missing the following information: Professor's Phone Number."
+2. **Clear NECHE Explanations**:
+   - For “what is NECHE?”: “NECHE is the New England Commission of Higher Education. It sets rules to ensure syllabi have key info like instructor contacts, learning goals, and credit hour details for academic quality.”
+   - For “what is NECHE compliance?”: “NECHE compliance means your syllabus has all the required details—like professor’s name, email, office hours, course objectives, and credit policies—to meet accreditation standards.”
 
-3. **For professor-specific inquiries:**
-   - If the user asks for a professor's name, title, email, or other details, respond based on the most recently uploaded syllabus.
-   - Example:
-     - **User:** "Who is the professor?"
-     - **Assistant:** "The professor listed in the most recent syllabus is Phillip Deen."
-     - **User:** "What is their email?"
-     - **Assistant:** "Phillip Deen's email is phillip.deen@unh.edu."
+3. **Syllabus Compliance**:
+   - For “Is this syllabus compliant?”, check the latest syllabus and list missing fields (e.g., “Nope, it’s missing Phone Number and Course SLOs”).
+   - For specific details (e.g., “Who’s the professor?”), use exact extracted text (e.g., “It’s Phillip Deen, email: phillip.deen@unh.edu”).
+   - If no syllabus is uploaded, say: “Got no syllabus to check yet! Upload one, and I’ll scan it for NECHE compliance.”
 
-4. **For unrelated questions:**
-   - If the question is not related to NECHE compliance or syllabus details, respond with:
-     - "Sorry, I specialize in NECHE syllabus compliance. Please ask about syllabus requirements."
+4. **General/Casual Questions**:
+   - For “what can you do” or “how can you help me”: “I can scan your syllabus for NECHE compliance, grab details like professor info or grading policies, and explain accreditation. Hit me with a syllabus or a question!”
+   - For unrelated questions, nudge back: “I’m all about NECHE compliance, but I can chat syllabi or standards. What’s up?”
 
-5. **Response Format:**
-   - Keep answers **brief and focused**.
-   - Avoid unnecessary formatting (no bold text, asterisks, or extra characters).
-   - Use **natural and professional language**, similar to a compliance officer or faculty assistant.
+5. **Response Rules**:
+   - Keep it short, clear, and unique—no repeating phrases like “Excited to help” or “I’m your assistant.”
+   - Never say “Refer to” or “See the syllabus.”
+   - Use “Not Found” for missing syllabus details.
+   - Avoid bold or extra formatting unless listing missing fields.
+   - If no syllabus exists, prompt: “Upload a syllabus, and I’m on it!”
 
-6. **Supported NECHE Compliance Topics:**
-   - NECHE syllabus requirements and missing elements.
-   - Instructor details (name, title, department, email, phone, office hours).
-   - Course-related details found in the syllabus.
-   - How to correct non-compliant syllabi.
+6. **Supported Topics**:
+   - NECHE requirements (instructor details, course objectives, etc.).
+   - Syllabus info (professor name, grading, assignments).
+   - NECHE and accreditation explanations.
+   - Casual education/compliance chats.
 
-7. **Context Awareness:**
-   - Track the details from the **most recent uploaded PDF**.
-   - Recognize follow-up questions and answer accordingly.
+7. **Context**:
+   - Use the latest uploaded syllabus for answers.
+   - Handle follow-ups smoothly (e.g., “What’s their email?” after “Who’s the professor?”).
+   - Vary wording to keep it fresh.
 
-Example Conversation:
+### Example Conversation:
+- **User**: “Hi”
+- **Assistant**: “Hey! What’s good?”
+- **User**: “How are you?”
+- **Assistant**: “I’m pumped to help! You good?”
+- **User**: “Who are you?”
+- **Assistant**: “I’m your syllabus guru, here to nail NECHE compliance and answer your questions!”
+- **User**: “What is NECHE?”
+- **Assistant**: “NECHE is the New England Commission of Higher Education. It sets rules to ensure syllabi have key info like instructor contacts and learning goals.”
+- **User**: “Is it compliant?”
+- **Assistant**: “Got no syllabus yet! Upload one, and I’ll check it for NECHE compliance.”
 
-- **User:** "Who is the professor?"
-- **Assistant:** "The professor listed in the most recent syllabus is Phillip Deen."
-- **User:** "What is their email?"
-- **Assistant:** "Phillip Deen's email is phillip.deen@unh.edu."
-- **User:** "Is this syllabus NECHE compliant?"
-- **Assistant:** "Not NECHE Compliant: Missing the following information: Professor's Phone Number."
+### Notes:
+- Use latest syllabus data.
+- Ensure every answer feels fresh and tailored.
+- Stay concise and avoid redundancy.
 """
-
 # Initialize Flask app
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "uploads"
@@ -170,6 +182,8 @@ required_compliance_items = {
     "Course SLOs": [
         r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs|learning\s+objectives)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
         r"(?i)\b(students\s+will(?:\s+be\s+able\s+to)?)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(course\s+description|course\s+summary|course\s+overview|catalog\s*description)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|$)",
+        r"(?i)\b(this\s*course\s*(covers|introduces|examines|explores|is\s+designed\s+to))\b\s*([\s\S]+?)(?=\n\n|$)"
     ],
     "Credit Hour Workload": [
         r"(?i)\b(workload|credit\s+hour\s+expectations|credit\s+hours)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
@@ -269,38 +283,26 @@ def process_page(page):
         page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 3")
     return page_text
 
-# Function to extract text from PDFs
 def extract_text_from_pdf(pdf_path):
-    """
-    Extracts full text from all pages of a PDF, ensuring accuracy.
-    Uses OCR where needed and extracts tables properly.
-    """
     extracted_text = []
     try:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
-                page_text = page.extract_text(x_tolerance=2, y_tolerance=2)
-
-                # ✅ If no direct text found, apply OCR
+                page_text = page.extract_text(x_tolerance=2, y_tolerance=2) or ''
                 if not page_text:
                     print(f"🔹 No direct text found on page {page.page_number}, using OCR...")
                     page_image = page.to_image(resolution=300).original
-                    page_text = pytesseract.image_to_string(Image.fromarray(page_image), config="--psm 6")
-
-                # ✅ Extract tables if present
+                    # Ensure page_image is a PIL Image and pass directly to pytesseract
+                    page_text = pytesseract.image_to_string(page_image, config="--psm 6")
                 table_text = ""
                 if page.extract_tables():
                     for table in page.extract_tables():
                         for row in table:
                             table_text += " | ".join(str(cell) if cell else "" for cell in row) + "\n"
-
-                # ✅ Append extracted text + table text
                 extracted_text.append(page_text.strip() + "\n" + table_text.strip())
-
     except Exception as e:
         print(f"⚠️ Error processing PDF: {str(e)}")
         return None
-
     return "\n".join(extracted_text).strip() if extracted_text else None
 
 def extract_text_from_docx(docx_path):
@@ -336,7 +338,7 @@ def send_email():
     try:
         data = request.get_json()
         filename = data.get('filename')
-        to_email = data.get('to', "SJ1203@usnh.edu")
+        to_email = data.get('to', "")
         subject = data.get('subject', f'Syllabus Compliance Report - {filename}')
         body = data.get('body', '')
 
@@ -565,38 +567,41 @@ def extract_course_information(text):
     global extracted_info_cache
     formatted_text = format_text_as_bullets(text)
     
-    # Generate a unique key for the document based on its content
-    import hashlib
+    # Generate a unique key for the document
     doc_key = hashlib.md5(formatted_text.encode('utf-8')).hexdigest()
     
-    # Check if the document has been processed before
+    # Check cache
     if doc_key in extracted_info_cache:
         print(f"Using cached extraction for document with key {doc_key}")
         return extracted_info_cache[doc_key]
     
-    # Pre-extract with regex to assist LLM
+    # Pre-extract with regex
     pre_extracted = {}
     for field, patterns in required_compliance_items.items():
         for pattern in patterns:
-            match = re.search(pattern, formatted_text, re.MULTILINE | re.DOTALL)
-            if match:
+            matches = re.finditer(pattern, formatted_text, re.MULTILINE | re.DOTALL)
+            for match in matches:
                 print(f"✅ Match found for '{field}': {match.group()}")
                 start = match.start()
-                end = formatted_text.find("\n\n", start)
+                # Extend capture to include multi-line content until a major section break
+                end = formatted_text.find("\n\n\n", start)  # Look for larger breaks
                 if end == -1:
                     end = len(formatted_text)
-                pre_extracted[field] = formatted_text[start:end].strip()
+                extracted_text = formatted_text[start:end].strip()
+                # Clean up and limit to relevant content
+                if field in ["Course SLOs", "Assignments & Delivery", "Grading Procedures & Final Grade Scale", "Credit Hour Workload"]:
+                    extracted_text = "\n".join(line for line in extracted_text.split("\n") if not line.startswith("• •"))  # Remove nested bullets
+                pre_extracted[field] = extracted_text
                 print(f"🔍 Pre-extracted '{field}': {pre_extracted[field]}")
                 break
-    
-        # Normalize "Title or Rank" to "Professor" if applicable
-        if "Title or Rank" in pre_extracted:
-            title_text = pre_extracted["Title or Rank"]
-            if "professor" in title_text.lower() or "ph.d" in title_text.lower():
-                pre_extracted["Title or Rank"] = "Professor"
-        
         if field not in pre_extracted:
             pre_extracted[field] = "Not Found"
+        
+        # Normalize "Title or Rank"
+        if field == "Title or Rank" and pre_extracted.get(field) != "Not Found":
+            title_text = pre_extracted[field].lower()
+            if any(x in title_text for x in ["professor", "ph.d", "dr."]):
+                pre_extracted[field] = "Professor"
 
     prompt = f"""
 You are a strict NECHE syllabus compliance inspector.
