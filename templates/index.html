@@ -799,7 +799,7 @@ Date:
                 </div>
                 <div class="mb-4">
                     <label for="email-to" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">To:</label>
-                    <input type="text" class="form-control" id="email-to" value="SJ1203@usnh.edu" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                    <input type="text" class="form-control" id="email-to" value="" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
                 </div>
                 <div class="mb-4">
                     <label for="email-subject" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Subject:</label>
@@ -1221,7 +1221,7 @@ Date:
     body += "Optional Syllabus Requirements: Italic";
 
     // Populate email modal
-    const recipient = "SJ1203@usnh.edu";
+    const recipient = "";
     const emailSubject = `Syllabus Compliance Report - ${courseName !== "Not Found" ? courseName : "Unknown Course"}`;
     document.getElementById("email-to").value = recipient;
     document.getElementById("email-subject").value = emailSubject;
@@ -1264,7 +1264,7 @@ Date:
                 addHTMLMessage(successMessage, false);
                 // Follow-up message
                 setTimeout(() => {
-                    addHTMLMessage("How can I assist you? Is there anything I asked you?", false);
+                    addHTMLMessage("How can I assist you? Do you have any questions?", false);
                 }, 500); // Slight delay for better UX
             } else {
                 addHTMLMessage(`⚠️ Error: ${data.error}`, false);
@@ -1375,7 +1375,7 @@ Date:
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 10;
     const maxWidth = pageWidth - 2 * margin;
-    const title = "Syllabus Complain Report";
+    const title = "Syllabus Complaince Report";
     const splitTitle = doc.splitTextToSize(title, maxWidth);
     let yPosition = 15;
     splitTitle.forEach((line, index) => {
