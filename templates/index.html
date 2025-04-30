@@ -1180,7 +1180,123 @@ Date:
                 const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData, filename));
                 const summaryBtn = createStyledButton("Summary", "modern-btn", () => showCompliancePopupClean(reportData, filename, result.compliance_check));
                 const shareBtn = createStyledButton("Share", "modern-btn", () => {
-                    // ...existing code for share button...
+                    // Course details parsing
+    let courseTitleRaw = reportData["Course Number and Title"] || "Not Found";
+    let courseId = "";
+    let courseName = courseTitleRaw;
+    if (courseTitleRaw !== "Not Found") {
+        const parts = courseTitleRaw.split(" ");
+        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+            courseId = parts[0] + " " + parts[1];
+            courseName = parts.slice(2).join(" ");
+        } else {
+            courseId = courseTitleRaw;
+        }
+    }
+    let semester = reportData["Semester/Term (and start/end dates)"] || "Not Found";
+    if (semester !== "Not Found") {
+        semester = semester.split(" ")[0]; // Extract term (e.g., "Spring")
+    }
+    let instructor = reportData["Instructor Name"] || "Not Found";
+
+    // Build course details, skipping "Not Found"
+    let courseDetails = [];
+    if (courseId !== "Not Found") {
+        courseDetails.push(`Course ID: ${courseId}`);
+    }
+    if (courseName !== "Not Found") {
+        courseDetails.push(`Course Name: ${courseName}`);
+    }
+    if (semester !== "Not Found") {
+        courseDetails.push(`Semester: ${semester}`);
+    }
+    if (instructor !== "Not Found") {
+        courseDetails.push(`Instructor Name: ${instructor}`);
+    }
+
+    // Compliance status
+    const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+    const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+    let body = "The NECHE compliance check is complete.\n\nCourse Details:\n";
+    body += courseDetails.length > 0 ? courseDetails.join("\n") + "\n\n" : "No course details available.\n\n";
+    if (missingNECHE.length > 0 || missingMinimum.length > 0) {
+        body += "The syllabus is not compliant. Missing information:\n";
+        if (missingNECHE.length > 0) {
+            body += "NECHE Requirements:\n" + missingNECHE.map(field => `- ${field}`).join("\n") + "\n";
+        }
+        if (missingMinimum.length > 0) {
+            body += "Minimum Requirements:\n" + missingMinimum.map(field => `- ${field}`).join("\n");
+        }
+    } else {
+        body += "The syllabus is compliant and all required information is present.";
+    }
+
+    // Add footer
+    body += "\n\nFormatting:\n";
+    body += "NECHE Compliance Requirements: Bold\n";
+    body += "Minimum Syllabus Requirements: Unbold & Unitalic\n";
+    body += "Optional Syllabus Requirements: Italic";
+
+    // Populate email modal
+    const recipient = "";
+    const emailSubject = `Syllabus Compliance Report - ${courseName !== "Not Found" ? courseName : "Unknown Course"}`;
+    document.getElementById("email-to").value = recipient;
+    document.getElementById("email-subject").value = emailSubject;
+    document.getElementById("email-body").value = body;
+
+    const emailModalElement = document.getElementById("emailModal");
+    const emailModal = new bootstrap.Modal(emailModalElement, { backdrop: 'static', keyboard: false });
+    emailModal.show();
+
+    const sendEmailBtn = document.getElementById("send-email-btn");
+    const newSendEmailBtn = sendEmailBtn.cloneNode(true);
+    sendEmailBtn.parentNode.replaceChild(newSendEmailBtn, sendEmailBtn);
+
+    newSendEmailBtn.addEventListener("click", () => {
+        const updatedTo = document.getElementById("email-to").value;
+        const updatedSubject = document.getElementById("email-subject").value;
+        const updatedBody = document.getElementById("email-body").value;
+
+        fetch("/send_email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                to: updatedTo,
+                subject: updatedSubject,
+                body: updatedBody,
+                filename: filename
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Format the PDF name by removing "_NECHE_Report.pdf" suffix
+                const formattedPDFName = filename.replace('_NECHE_Report.pdf', '');
+                // Get professor name, skip if "Not Found"
+                const professorName = reportData["Instructor Name"] !== "Not Found" ? reportData["Instructor Name"] : null;
+                // Build the success message
+                const successMessage = professorName 
+                    ? `Email sent successfully – ${formattedPDFName} – ${professorName}`
+                    : `Email sent successfully – ${formattedPDFName}`;
+                addHTMLMessage(successMessage, false);
+                // Follow-up message
+                setTimeout(() => {
+                    addHTMLMessage("How can I assist you? Do you have any questions?", false);
+                }, 500); // Slight delay for better UX
+            } else {
+                addHTMLMessage(`⚠️ Error: ${data.error}`, false);
+            }
+            emailModal.hide();
+        })
+        .catch(() => {
+            addHTMLMessage("⚠️ Error: Unable to send email.", false);
+            emailModal.hide();
+        });
+    });
+
+    emailModalElement.addEventListener('hidden.bs.modal', () => {
+        emailModal.dispose();
+    });
                 });
 
                 viewBtn.style.marginRight = "8px";
