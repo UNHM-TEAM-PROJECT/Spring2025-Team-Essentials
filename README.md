@@ -422,6 +422,7 @@ These steps outline how to access the school server via VPN, generate an SSH key
 * Make sure to keep your private key (`id_rsa`) secure. Do not share it with anyone.
 * Pay close attention to any error messages during the installation and execution phases, as they will provide valuable information for troubleshooting.
 * The python file name may not always be chatbot.py, so check the file name.
+* Once you reach this point, replace the fetch ask,stuff, and send_email with this /Essentials/####/ with each in the black space of the their respective section in index.html for communicaiton to the server and website.
 
 ## Known Issues / Limitations
 - Only English syllabi are supported.
