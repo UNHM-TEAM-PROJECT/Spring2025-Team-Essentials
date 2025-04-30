@@ -31,6 +31,7 @@ from email.mime.application import MIMEApplication
 from io import BytesIO
 latest_syllabus_info = {}
 buffer = BytesIO()
+# -*- coding: utf-8 -*-
 
 # Define the cache for extracted information
 extracted_info_cache = {}
@@ -151,10 +152,7 @@ required_compliance_items = {
         r"(?i)\b(name|instructor|dr\.|mr\.|ms\.|mrs\.)[:\-]?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)+)(?=,|\s|$)",
         r"(?i)^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"
     ],
-    "Department or Program Affiliation": [
-        r"(?i)\b(department|program|school|college|division|faculty|institute)\b\s*(of|for)?\s*[a-zA-Z]+",
-        r"(?i)\b(affiliated with|affiliation|under)\b\s*[a-zA-Z\s]+",
-    ],
+
     "Preferred Contact Method": [
         r"(contact method|preferred contact|contact information|office hours|email|phone)"
     ],
@@ -348,7 +346,7 @@ def send_email():
         extracted_info = processed_results[filename]['extracted_information']
 
         required_fields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+            "Instructor Name", "Title or Rank", "Preferred Contact Method",
             "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
             "Assignment Deadlines & Policies"
@@ -618,7 +616,6 @@ Return JSON with these fields:
 {json.dumps({
     "Instructor Name": "",
     "Title or Rank": "",
-    "Department or Program Affiliation": "",
     "Preferred Contact Method": "",
     "Email Address": "",
     "Phone Number": "",
@@ -662,7 +659,7 @@ Return JSON with these fields:
         extracted_info = json.loads(raw_text)
         # Post-process to ensure no vague responses
         all_fields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+            "Instructor Name", "Title or Rank", "Preferred Contact Method",
             "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
             "Assignment Deadlines & Policies", "Course Number and Title",
@@ -741,7 +738,7 @@ def upload_file():
 
     try:
         required_fields = [
-            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+            "Instructor Name", "Title or Rank", 
             "Preferred Contact Method", "Email Address", "Phone Number",
             "Office Address", "Office Hours", "Location (Physical or Remote)",
             "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
