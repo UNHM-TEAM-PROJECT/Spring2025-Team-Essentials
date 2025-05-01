@@ -1,28 +1,17 @@
-<!--File: Index.html
-Authors: 
-Contributors: SAI SHIVA
-Date: 
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimal Syllabus Compliance Assistant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Add jsPDF and jsPDF-AutoTable Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        /* Global variables for consistent styling throughout the application */
         :root {
             --unh-blue: #003591;
             --unh-white: #ffffff;
@@ -35,7 +24,6 @@ Date:
             --border-radius: 0;
             --unh-black: #403a3a;
         }
-        /* Ensure the application occupies the full viewport with no extra margins or scrollbars */
 
         html, body {
             height: 100%;
@@ -43,21 +31,14 @@ Date:
             padding: 0;
             overflow: hidden;
         }
-        body {
-            background-image: url('../templates/chatbot-bg.png');
-            background-size: 600px; /* Adjust the image size */
-            background-repeat: no-repeat;
-            background-position: center center;
-        }
-
 
         body {
             background-image: url('../templates/chatbot-bg.png');
-            background-position: center center;
+            background-size: 600px;
             background-repeat: no-repeat;
+            background-position: center center;
             background-attachment: fixed;
         }
-        /* A transparent overlay to darken the background image and blur it slightly for readability */
 
         .page-container {
             height: 100vh;
@@ -65,7 +46,6 @@ Date:
             backdrop-filter: blur(5px);
             background: rgba(0, 0, 0, 0.3);
         }
-        /* Main chat container with full height and blurred background */
 
         .chat-container {
             height: 100vh;
@@ -77,7 +57,6 @@ Date:
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             margin: 0;
         }
-            /* Chat header with a blue gradient background and centered content */
 
         .chat-header {
             background: linear-gradient(135deg, var(--unh-blue) 0%, #003591 100%);
@@ -89,28 +68,24 @@ Date:
             height: 80px;
         }
 
-        /* Flex container for header logo and title */
         .header-content {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
-        /* Logo styling */
+
         .chat-header img {
             height: 60px;
             width: auto;
             object-fit: contain;
         }
-        
-        /* Header title styling */
+
         .chat-header-title {
             font-size: 24px;
             font-weight: 600;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-         /* Message container with scrolling and background styling */
 
         .chat-history {
             flex: 1;
@@ -120,40 +95,33 @@ Date:
             flex-direction: column;
             gap: 1rem;
             background-color: transparent;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
-                url('/Users/bubby/TeamGulliver/static/logo.png');
+            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('/Users/bubby/TeamGulliver/static/logo.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
-        /* Container for edit icon positioned at bottom-right */
-
-       .edit-icon-container {
-            position: absolute; /* Position it absolutely within the message container */
-            bottom: 40px; /* Place it at the bottom */
-            right: -2px; /* Align it to the right */
-            z-index: 1; /* Ensure it appears above content */
+        .edit-icon-container {
+            position: absolute;
+            bottom: 40px;
+            right: -2px;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-         /* Styling for clickable edit icon */
 
         .edit-icon {
-            font-size: 16px; /* Adjust size */
-            color: var(--unh-black); /* Default color for the edit icon */
-            cursor: pointer; /* Make it clickable */
-            transition: color 0.2s ease-in-out; /* Smooth hover effect */
+            font-size: 16px;
+            color: var(--unh-black);
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
         }
-        
-        /* Hover effect for the edit icon */
+
         .edit-icon:hover {
-            color: var(--unh-blue); /* Highlight color on hover */
+            color: var(--unh-blue);
         }
-        
-        /* Chat message styling with animation and shadows */
+
         .message {
             position: relative;
             margin-bottom: 1.5rem;
@@ -164,14 +132,12 @@ Date:
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             word-wrap: break-word;
         }
-        
-        /* Fade-in animation for new messages */
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Styling for user messages aligned to the right */
         .user-message {
             background-color: rgba(255, 255, 255, 0.9);
             color: #212529;
@@ -179,8 +145,7 @@ Date:
             border-bottom-right-radius: 0.25rem;
             text-align: left;
         }
-        
-         /* Styling for assistant messages aligned to the left */
+
         .assistant-message {
             background-color: rgba(255, 255, 255, 0.9);
             color: #212529;
@@ -189,8 +154,7 @@ Date:
             backdrop-filter: blur(5px);
             text-align: left;
         }
-        
-        /* Small circular avatar next to messages */
+
         .message-avatar {
             width: 32px;
             height: 32px;
@@ -204,29 +168,27 @@ Date:
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 1;
         }
-        /* Container for the input and buttons */
+
         .message-content {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Push buttons to the right */
-            gap: 10px; /* Spacing between elements */
+            justify-content: space-between;
+            gap: 10px;
         }
-        
-        /* Style for the input field */
+
         .edit-input {
-            flex-grow: 1; /* Make input take available space */
+            flex-grow: 1;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
         }
-        
-        /* Action buttons (Cancel and Send) */
+
         .action-buttons {
             display: flex;
-            gap: 8px; /* Space between buttons */
+            gap: 8px;
         }
-        
+
         .cancel-button,
         .send-button {
             padding: 6px 10px;
@@ -236,123 +198,99 @@ Date:
             font-size: 12px;
             line-height: 1.2;
         }
-        
+
         .cancel-button {
             background-color: #f5f5f5;
             color: #333;
         }
-        
+
         .send-button {
-            background-color: #003591; /* Updated color */
-            color: #fff; /* Keep the text white for contrast */
+            background-color: var(--unh-blue);
+            color: #fff;
         }
-        
-        /* Optional hover effect */
+
         .send-button:hover {
-            background-color: #001F5C; /* A slightly darker shade for hover */
+            background-color: #001F5C;
         }
-        
-        
-        /* Hover effects for buttons */
+
         .cancel-button:hover {
             background-color: #e0e0e0;
         }
 
-        /* Avatar for user messages, positioned to the right and styled with blue background and white icon color */
         .user-message .message-avatar {
             right: -16px;
             background-color: var(--unh-blue);
             color: white;
         }
-        
-        /* Avatar for assistant messages, positioned to the left and styled with blue background and white icon color */
+
         .assistant-message .message-avatar {
             left: -16px;
             background-color: var(--unh-blue);
             color: white;
         }
-        
-        /* Container for the input field and send button, centered horizontally with rounded bottom corners */
+
         .input-area {
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            padding: 20px;
             background-color: #e6e6fa;
             border-bottom-left-radius: 30px;
             border-bottom-right-radius: 30px;
         }
-        
-        /* Group for input field and send button, styled with rounded corners and shadow */
-        .input-group {
-            background-color: var(--unh-white);
-            border-radius: 2rem;
-            padding: 0.5rem;
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--unh-white);
+            border: 2px solid var(--unh-blue);
+            border-radius: 10px;
+            padding: 10px 14px;
+            width: 100%;
+            max-width: 800px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
         }
 
-        /* Text input field styling, with padding and transparent background */
-        #user-input {
+        .search-container:hover {
+            border-color: #001F5C;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-container:focus-within {
+            transform: translateX(5px);
+            border-color: var(--unh-blue);
+            box-shadow: 0 0 10px rgba(0, 53, 145, 0.5);
+        }
+
+        .search-container input {
             border: none;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
+            outline: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            flex: 1;
             background: transparent;
         }
 
-        /* Remove shadow on focus for a cleaner look */
-        #user-input:focus {
-            box-shadow: none;
-        }
-        
-        /* Send button styling, circular with blue background, centered icon, and hover effect */
-        #send-button {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: #003591; 
+        .search-container button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--unh-blue);
             color: var(--btn-text);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            margin-right: 0.5rem;
+            margin-left: 8px;
+            font-size: 1rem;
         }
-        #uploadButton {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #003591; 
-    color: var(--btn-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    margin-right: 0.5rem;
-}
-#folderUploadButton {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #003591;
-    color: var(--btn-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    margin-right: 0.5rem;
-}
-#folderUploadButton:hover {
-    background-color: #003591;
-    transform: scale(1.05);
-}
-        
-        /* Hover effect for send button with slight scale animation */
-        #send-button:hover {
-            background-color: #003591;
+
+        .search-container button:hover {
+            background-color: #001F5C;
             transform: scale(1.05);
         }
 
-        /* Edit button styling, positioned at the top-right of its container with a semi-transparent background */
         .edit-button {
             position: absolute;
             top: 0.5rem;
@@ -367,12 +305,10 @@ Date:
             transition: all 0.2s ease;
         }
 
-        /* Hover effect for edit button with increased background opacity */
         .edit-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Custom Scrollbar */
         .chat-history::-webkit-scrollbar {
             width: 8px;
         }
@@ -410,6 +346,7 @@ Date:
         .typing-indicator .dot:nth-child(2) {
             animation-delay: 0.2s;
         }
+
         .typing-indicator .dot:nth-child(3) {
             animation-delay: 0.4s;
         }
@@ -441,16 +378,22 @@ Date:
             .chat-header-title {
                 font-size: 1.2rem;
             }
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            text-align: center;
-            margin: 0;
-            padding: 0;
+
+            .search-container {
+                max-width: 95%;
+            }
+
+            .search-container input {
+                padding: 10px;
+                font-size: 1rem;
+            }
+
+            .search-container button {
+                padding: 8px 14px;
+                font-size: 0.9rem;
+            }
         }
 
-        /* Container */
         .container {
             max-width: 800px;
             margin: 50px auto;
@@ -460,9 +403,8 @@ Date:
             border-radius: 8px;
         }
 
-        /* Drag & Drop Upload Box */
         .upload-area {
-            border: 2px dashed #003591;
+            border: 2px dashed var(--unh-blue);
             padding: 30px;
             cursor: pointer;
             text-align: center;
@@ -478,230 +420,185 @@ Date:
 
         .upload-area.dragover {
             background: #c2e0ff;
-            border-color: #003591;
+            border-color: var(--unh-blue);
         }
 
-        /* Hidden Input File */
         #fileInput {
             display: none;
         }
 
-        /* File Name Display */
         .file-info {
             margin-top: 10px;
             font-size: 16px;
-            color: #003591;
+            color: var(--unh-blue);
         }
-/* Button Container */
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-}
 
-/* Modern Button Styles */
-.modern-btn {
-    background: linear-gradient(135deg, #003591, #003591);
-    color: white;
-    font-size: 16px;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-    position: relative;
-    overflow: hidden;
-    text-transform: uppercase;
-}
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
 
-/* Zoom-In Effect on Hover */
-.modern-btn:hover {
-    transform: scale(1.2);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
+        .modern-btn {
+            background: linear-gradient(135deg, var(--unh-blue), var(--unh-blue));
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
 
-/* Custom hover styling for specific buttons */
-#viewReport:hover,
-#downloadReport:hover,
-#viewReportBtn:hover,
-#downloadReportBtn:hover {
-    background: #000 !important;
-    color: #fff !important;
-    transform: scale(1.2);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
+        .modern-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
 
-/* Ripple Effect on Click */
-.modern-btn:active::after {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.3);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    animation: ripple 0.5s ease-out;
-}
+        #viewReport:hover,
+        #downloadReport:hover,
+        #viewReportBtn:hover,
+        #downloadReportBtn:hover {
+            background: #000 !important;
+            color: #fff !important;
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
 
-@keyframes ripple {
-    from {
-        width: 0;
-        height: 0;
-        opacity: 1;
-    }
-    to {
-        width: 200%;
-        height: 200%;
-        opacity: 0;
-    }
-}
+        .modern-btn:active::after {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            animation: ripple 0.5s ease-out;
+        }
 
-/* Microphone Button Styling */
-#mic-button {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #003591;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    margin-right: 0.5rem;
-}
+        @keyframes ripple {
+            from {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            to {
+                width: 200%;
+                height: 200%;
+                opacity: 0;
+            }
+        }
 
-#mic-button:hover {
-    background-color: #003591;
-    transform: scale(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
+        .neche-detailed-report table {
+            border-collapse: collapse !important;
+            width: 100%;
+            margin: 0;
+            border: 1px solid #ddd;
+        }
 
-#mic-button i {
-    font-size: 18px;
-}
-/* Ensure the chat-history container doesn't interfere with the table */
-.chat-history {
-    background: none !important; /* Remove background image and gradient */
-    backdrop-filter: none !important; /* Remove blur effect */
-}
+        .neche-detailed-report table tr {
+            border: none;
+        }
 
-/* Style for the detailed NECHE report table */
-.neche-detailed-report table {
-    border-collapse: collapse !important; /* Ensure no gaps between cells */
-    width: 100%;
-    margin: 0;
-    border: 1px solid #ddd; /* Add a border to the table */
-}
+        .neche-detailed-report table td, 
+        .neche-detailed-report table th {
+            border: 1px solid #ddd;
+            padding: 12px;
+            vertical-align: top;
+        }
 
-/* Remove gaps and ensure consistent row styling */
-.neche-detailed-report table tr {
-    border: none; /* Remove borders between rows */
-}
+        .neche-detailed-report {
+            max-height: none !important;
+            overflow: visible !important;
+        }
 
-/* Ensure cells have no gaps and proper padding */
-.neche-detailed-report table td, 
-.neche-detailed-report table th {
-    border: 1px solid #ddd; /* Add borders to cells */
-    padding: 12px;
-    vertical-align: top;
-}
+        .chat-history {
+            overflow-y: auto !important;
+            max-height: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex-shrink: 0 !important;
+        }
 
-/* Remove any overflow constraints on the detailed report */
-.neche-detailed-report {
-    max-height: none !important; /* Remove height constraint */
-    overflow: visible !important; /* Ensure no scrolling */
-}
-/* Ensure the chat-history container allows full height for all content */
-.chat-history {
-    overflow-y: auto !important; /* Allow scrolling */
-    max-height: none !important; /* Remove any height constraint */
-    display: flex !important; /* Ensure flex layout */
-    flex-direction: column !important; /* Stack children vertically */
-    flex-shrink: 0 !important; /* Prevent shrinking */
-}
+        .scroll-wrapper {
+            max-height: 300px !important;
+            min-height: 150px !important;
+            overflow-y: auto !important;
+            width: 100% !important;
+            flex-shrink: 0 !important;
+            border: 1px solid #ddd !important;
+            margin-top: 20px !important;
+            margin-bottom: 20px !important;
+            padding: 10px !important;
+            background-color: white !important;
+        }
 
-/* Set a fixed height for the scrollWrapper div and enable scrollbar */
-.scroll-wrapper {
-    max-height: 300px !important; /* Set a fixed height for the three-column table */
-    min-height: 150px !important; /* Ensure it doesn't shrink below this height */
-    overflow-y: auto !important; /* Enable vertical scrollbar */
-    width: 100% !important; /* Ensure full width */
-    flex-shrink: 0 !important; /* Prevent shrinking */
-    border: 1px solid #ddd !important; /* Ensure consistent border */
-    margin-top: 20px !important; /* Consistent margin */
-    margin-bottom: 20px !important; /* Consistent margin */
-    padding: 10px !important; /* Consistent padding */
-    background-color: white !important; /* Consistent background */
-}
+        .scroll-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
 
-/* Custom scrollbar styling for the three-column table */
-.scroll-wrapper::-webkit-scrollbar {
-    width: 8px;
-}
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
 
-.scroll-wrapper::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-}
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(0, 53, 145, 0.5);
+            border-radius: 4px;
+        }
 
-.scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(0, 53, 145, 0.5);
-    border-radius: 4px;
-}
+        .scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 53, 145, 0.7);
+        }
 
-.scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 53, 145, 0.7);
-}
+        .scroll-wrapper table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
 
-/* Ensure the table inside scrollWrapper takes full width and doesn't shrink */
-.scroll-wrapper table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-}
+        .scroll-wrapper table td,
+        .scroll-wrapper table th {
+            border: 1px solid #ddd;
+            padding: 12px;
+            vertical-align: top;
+        }
 
-/* Ensure table cells have proper borders and padding */
-.scroll-wrapper table td,
-.scroll-wrapper table th {
-    border: 1px solid #ddd;
-    padding: 12px;
-    vertical-align: top;
-}
+        .neche-detailed-report {
+            max-height: none !important;
+            overflow: visible !important;
+            width: 100% !important;
+            flex-shrink: 0 !important;
+        }
 
-/* Ensure the detailed report table does not have a scrollbar */
-.neche-detailed-report {
-    max-height: none !important; /* Remove height constraint */
-    overflow: visible !important; /* Ensure no scrolling */
-    width: 100% !important; /* Ensure full width */
-    flex-shrink: 0 !important; /* Prevent shrinking */
-}
+        .scroll-wrapper + div {
+            margin-top: 0 !important;
+            border-top: none !important;
+        }
 
-/* Remove any unwanted borders or margins that might cause the horizontal line */
-.scroll-wrapper + div {
-    margin-top: 0 !important; /* Remove extra margin that might cause the line */
-    border-top: none !important; /* Remove any top border */
-}
-#folderUploadButton {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #003591;
-    color: var(--btn-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    margin-right: 0.5rem;
-}
-#folderUploadButton:hover {
-    background-color: #003591;
-    transform: scale(1.05);
-}
-        
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: var(--unh-blue);
+            color: #ffffff;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .modal-footer {
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            background-color: #f1f3f5;
+            padding: 15px 25px;
+        }
     </style>
-
-
 </head>
 <body>
     <div class="page-container">
@@ -711,29 +608,19 @@ Date:
                     <div class="chat-container">
                         <div class="chat-header">
                             <div class="header-content">
-                                <h1 class="chat-header-title">Syllabus Compliance Assistant
- </h1>
-                            <!-- Additional Logo -->
-                        </div>
-                    </div>
-                    
-                        <div class="chat-history" id="chat-history">
-                            <!-- Chat messages will be inserted here -->
-                        </div>
-                        <div class="input-area">
-                            <div class="input-group">
-                                <button id="uploadButton" class="plus-icon">+</button>
-                                <input type="file" id="fileInput" accept=".pdf, .docx, .zip" multiple>
-                                <button id="folderUploadButton" class="plus-icon"><i class="fas fa-folder-plus"></i></button>
-                                <input type="file" id="folderInput" webkitdirectory directory multiple accept=".pdf,.docx,.zip" style="display: none;">
-
-                                <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
-                                <button id="send-button" class="btn">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
+                                <h1 class="chat-header-title">Syllabus Compliance Assistant</h1>
                             </div>
                         </div>
-                        
+                        <div class="chat-history" id="chat-history"></div>
+                        <div class="input-area">
+                            <div class="search-container">
+                                <input type="text" id="user-input" placeholder="Ask your syllabus questions...">
+                                <button id="send-button"><i class="fas fa-paper-plane"></i> Send</button>
+                                <button id="uploadButton"><i class="fas fa-upload"></i> Upload</button>
+                                <button id="folderUploadButton"><i class="fas fa-folder-plus"></i> Folder</button>
+                            </div>
+                            <input type="file" id="fileInput" accept=".pdf,.docx,.zip" style="display: none;">
+                            <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
                         </div>
                     </div>
                 </div>
@@ -742,404 +629,446 @@ Date:
     </div>
 
     <h2 style="text-align: center; font-weight: bold; margin-bottom: 20px;">Syllabus Requirement List</h2>
-
     <div id="reportButtons" style="display: none; text-align: center; margin-top: 20px;">
-        <button id="viewReport" class="btn btn-primary">View Report</button>
-        <button id="downloadReport" class="btn btn-success">Download Report</button>
+        <button id="viewReport" class="modern-btn">View Report</button>
+        <button id="downloadReport" class="modern-btn">Download Report</button>
     </div>
     <table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; background: white; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
         <thead>
-            <tr style="background-color: #003591; color: white; text-align: center;">
+            <tr style="background-color: var(--unh-blue); color: white; text-align: center;">
                 <th style="padding: 15px; border: 1px solid #ddd; width: 40%;">Syllabus Items</th>
                 <th style="padding: 15px; border: 1px solid #ddd; width: 60%;">Syllabus Details</th>
             </tr>
         </thead>
-        tbody
+        <tbody></tbody>
     </table>
-    <!-- Voice Assitant -->
-    <div class="page-container">
-        <div class="container-fluid h-100 p-0">
-            <div class="row h-100 m-0">
-                <div class="col-12 p-0">
-                    <div class="chat-container">
-                        <div class="chat-header">
-                            <h1 class="chat-header-title">Miinimal Syllabus Assistant</h1>
-                        </div>
-                        <div class="chat-history" id="chat-history">
-                            <!-- Chat messages will be inserted here -->
-                        </div>
-                        <div class="input-area">
-                            <div class="input-group">
-                                <!-- Microphone Button for Voice Input -->
-                                <button id="mic-button" class="btn btn-primary">
-                                    <i class="fas fa-microphone"></i>
-                                </button>
-                                <input type="text" id="user-input" class="form-control" placeholder="Type your text here...">
-                                <button id="send-button" class="btn">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
+
+    <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailModalLabel">Compose Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label for="email-from" class="form-label">From:</label>
+                        <input type="text" class="form-control" id="email-from" value="Essentials2025UNH@gmail.com" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label for="email-to" class="form-label">To:</label>
+                        <input type="text" class="form-control" id="email-to" value="">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email-subject" class="form-label">Subject:</label>
+                        <input type="text" class="form-control" id="email-subject">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email-body" class="form-label">Body:</label>
+                        <textarea class="form-control" id="email-body" rows="8"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Attachment:</label>
+                        <p>NECHE_Requirements_Table.pdf</p>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="send-email-btn">Send</button>
+                </div>
             </div>
         </div>
     </div>
-<!-- Email Composition Modal -->
-<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="background: #003591; color: #ffffff; border-top-left-radius: 10px; border-top-right-radius: 10px;">                <h5 class="modal-title" id="emailModalLabel" style="font-weight: 600;">Compose Email</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="padding: 25px; background-color: #f9f9fb;">
-                <div class="mb-4">
-                    <label for="email-from" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">From:</label>
-                    <input type="text" class="form-control" id="email-from" value="Essentials2025UNH@gmail.com" readonly style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                </div>
-                <div class="mb-4">
-                    <label for="email-to" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">To:</label>
-                    <input type="text" class="form-control" id="email-to" value="" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                </div>
-                <div class="mb-4">
-                    <label for="email-subject" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Subject:</label>
-                    <input type="text" class="form-control" id="email-subject" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                </div>
-                <div class="mb-4">
-                    <label for="email-body" class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Body:</label>
-                    <textarea class="form-control" id="email-body" rows="8" style="border-radius: 8px; border: 1px solid #ced4da; padding: 10px; font-size: 1rem; resize: vertical; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label" style="font-weight: bold; color: #003591; font-size: 1.1rem;">Attachment:</label>
-                    <p style="color: #333; font-size: 1rem;">NECHE_Requirements_Table.pdf</p>
-                </div>
-            </div>
-            <div class="modal-footer" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; background-color: #f1f3f5; padding: 15px 25px;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">Cancel</button>
-                <button type="button" class="btn btn-primary" id="send-email-btn" style="border-radius: 8px; padding: 10px 20px; font-weight: 500; background-color: #003591; border-color: #003591;">Send</button>
-            </div>
-        </div>
-    </div>
-</div>
-           <!-- Drag & Drop Upload Box -->
-           <div class="upload-area" id="uploadArea">
-            <p>Drag & Drop your syllabus file here or <span style="color:#003591; font-weight:bold;">Click to Upload</span></p>
+
+    <div class="container">
+        <div class="upload-area" id="uploadArea">
+            <p>Drag & Drop your syllabus file here or <span style="color: var(--unh-blue); font-weight: bold;">Click to Upload</span></p>
             <input type="file" id="fileInput" accept=".pdf, .docx">
             <p class="file-info" id="fileInfo">No file chosen</p>
         </div>
 
-        <!-- Buttons -->
         <div class="button-container">
             <button id="uploadBtn" class="modern-btn">Upload File</button>
             <button id="viewReportBtn" class="modern-btn">View Report</button>
             <button id="downloadReportBtn" class="modern-btn">Download Report</button>
         </div>
     </div>
-    background-color: #2a0fa6;
-}
-#fileInput {
-    display: none;
-}
-.modern-btn {
-    background-color: #3a17d8;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s;
-}
-.modern-btn:hover {
-    background-color: #2a0fa6;
-}
-.scroll-wrapper {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-.table th, .table td {
-    vertical-align: middle;
-}
-@media (max-width: 768px) {
-    .chat-container {
-        width: 95%;
-        height: 90vh;
-    }
-    .chat-header {
-        font-size: 1.2rem;
-    }
-    #user-input {
-        font-size: 0.9rem;
-    }
-    #send-button, #uploadButton, #mic-button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-}
-</style>
-</head>
-<body>
-<div class="chat-container">
-<div class="chat-header">Minimal Syllabus Compliance Assistant</div>
-<div id="chat-history"></div>
-<div class="chat-input">
-    <input type="text" id="user-input" placeholder="Type your message...">
-    <button id="send-button">Send</button>
-    <input type="file" id="fileInput" accept=".pdf,.docx,.zip">
-    <button id="uploadButton">Upload</button>
-    <button id="mic-button"><i class="fas fa-microphone"></i></button>
-</div>
-</div>
 
- 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const chatHistory = document.getElementById("chat-history");
-        const userInput = document.getElementById("user-input");
-        const sendButton = document.getElementById("send-button");
-        const fileInput = document.getElementById("fileInput");
-        const uploadButton = document.getElementById("uploadButton");
-        const micButton = document.getElementById("mic-button");
-        const folderUploadButton = document.getElementById("folderUploadButton");
-        const folderInput = document.getElementById("folderInput");
-    
-        let latestReportData = null;
-        let allResults = [];
-    
-        function displayWelcomeMessage() {
-            addHTMLMessage("Welcome to the NECHE Compliance and Minimal Syllabus Requirement Assistant. I'm here to assist you in reviewing your syllabus for NECHE compliance. Feel free to upload your files, documents, zip files and folders or ask any questions to get started.", false);
-        }
-        window.addEventListener("load", displayWelcomeMessage);
-    
-        function addHTMLMessage(htmlContent, isUser) {
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
-    
-            const chatIcon = document.createElement("div");
-            chatIcon.classList.add("message-avatar");
-            chatIcon.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-    
-            const messageContent = document.createElement("div");
-            messageContent.classList.add("message-content");
-            messageContent.innerHTML = htmlContent;
-    
-            messageDiv.appendChild(chatIcon);
-            messageDiv.appendChild(messageContent);
-    
-            chatHistory.appendChild(messageDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-    
-        sendButton.addEventListener("click", handleSend);
-        userInput.addEventListener("keypress", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                handleSend();
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const chatHistory = document.getElementById("chat-history");
+            const userInput = document.getElementById("user-input");
+            const sendButton = document.getElementById("send-button");
+            const fileInput = document.getElementById("fileInput");
+            const uploadButton = document.getElementById("uploadButton");
+            const folderUploadButton = document.getElementById("folderUploadButton");
+            const folderInput = document.getElementById("folderInput");
+            const uploadArea = document.getElementById("uploadArea");
+            const fileInfo = document.getElementById("fileInfo");
+            const uploadBtn = document.getElementById("uploadBtn");
+            const viewReportBtn = document.getElementById("viewReportBtn");
+            const downloadReportBtn = document.getElementById("downloadReportBtn");
+            const viewReport = document.getElementById("viewReport");
+            const downloadReport = document.getElementById("downloadReport");
+
+            let latestReportData = null;
+            let allResults = [];
+
+            function displayWelcomeMessage() {
+                addHTMLMessage("Welcome to the NECHE Compliance and Minimal Syllabus Requirement Assistant. I'm here to assist you in reviewing your syllabus for NECHE compliance. Feel free to upload your files, documents, zip files and folders or ask any questions to get started.", false);
             }
-        });
-    
-        micButton.addEventListener("click", handleVoiceInput);
-    
-        function handleSend() {
-            const message = userInput.value.trim();
-            if (!message) return;
-    
-            addHTMLMessage(message, true);
-            userInput.value = "";
-    
-            const casualGreetings = {
-                "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
-                "hello": "Hello! How can I assist you today?",
-                "hey": "Hey there! Need help with NECHE syllabus compliance?",
-                "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
-                "how are you?": "I'm great! Thanks for asking. How can I help you?",
-                "what is your purpose?": "I'm here to help you check if your syllabus meets NECHE compliance, and minimal syllabus requirements!",
-                "what type of document can I upload?": "You can upload DOC, PDF, or a ZIP file that contains DOC and PDF files.",
-                "can i upload pdf?": "Yep! Feel free to upload a PDF.",
-                "tell me about chatbot features?": "Sure! I check if your uploaded documents meet NECHE compliance, minimal syllabus, and optional syllabus requirements. You can send text, upload files, or even send audio!"
-            };
-    
-            const userMessage = message.toLowerCase().trim();
-            if (casualGreetings[userMessage]) {
-                addHTMLMessage(casualGreetings[userMessage], false);
-                return;
+            window.addEventListener("load", displayWelcomeMessage);
+
+            function addHTMLMessage(htmlContent, isUser) {
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", isUser ? "user-message" : "assistant-message");
+
+                const chatIcon = document.createElement("div");
+                chatIcon.classList.add("message-avatar");
+                chatIcon.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+                const messageContent = document.createElement("div");
+                messageContent.classList.add("message-content");
+                messageContent.innerHTML = htmlContent;
+
+                messageDiv.appendChild(chatIcon);
+                messageDiv.appendChild(messageContent);
+
+                chatHistory.appendChild(messageDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
             }
-    
-            fetch("/ask", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                addHTMLMessage(data.response, false);
-            })
-            .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
-        }
-    
-        function handleVoiceInput() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert("Sorry, your browser does not support voice recognition.");
-                return;
+
+            sendButton.addEventListener("click", handleSend);
+            userInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleSend();
+                }
+            });
+
+            function handleSend() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                addHTMLMessage(message, true);
+                userInput.value = "";
+
+                const casualGreetings = {
+                    "hi": "Hey! This is NECHE Compliance Assistant. How can I help you?",
+                    "hello": "Hello! How can I assist you today?",
+                    "hey": "Hey there! Need help with NECHE syllabus compliance?",
+                    "what's up": "Not much, just assisting with NECHE compliance. What’s up with you?",
+                    "how are you?": "I'm great! Thanks for asking. How can I help you?",
+                    "how is it going": "It's going great! Ready to check your syllabus?",
+                    "what is your purpose?": "I'm here to help you check if your syllabus meets NECHE compliance, and minimal syllabus requirements!",
+                    "what type of document can I upload?": "You can upload DOC, PDF, or a ZIP file that contains DOC and PDF files.",
+                    "can i upload pdf?": "Yep! Feel free to upload a PDF.",
+                    "tell me about chatbot features?": "Sure! I check if your uploaded documents meet NECHE compliance, minimal syllabus, and optional syllabus requirements. You can send text, upload files, or even send audio!"
+                    
+                };
+
+                const userMessage = message.toLowerCase().trim();
+                if (casualGreetings[userMessage]) {
+                    addHTMLMessage(casualGreetings[userMessage], false);
+                    return;
+                }
+
+                fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addHTMLMessage(data.response, false);
+                })
+                .catch(() => addHTMLMessage("⚠️ Error: Unable to communicate with the server.", false));
             }
-    
-            const recognition = new webkitSpeechRecognition();
-            recognition.lang = "en-US";
-            recognition.continuous = false;
-            recognition.interimResults = false;
-    
-            recognition.onstart = () => {
-                addHTMLMessage("Listening...", false);
-            };
-    
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                userInput.value = transcript;
-                handleSend();
-            };
-    
-            recognition.onerror = (event) => {
-                addHTMLMessage("⚠️ Voice recognition error. Please try again.", false);
-            };
-    
-            recognition.onend = () => {
-                console.log("Voice recognition ended.");
-            };
-    
-            recognition.start();
-        }
-    
-        uploadButton.addEventListener("click", function () {
-            fileInput.click();
-        });
-    
-        fileInput.addEventListener("change", function (e) {
-            const files = e.target.files;
-            if (!files.length) return;
-    
-            const file = files[0];
-            if (
-                file &&
-                (
+
+            uploadButton.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            uploadArea.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            uploadBtn.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", function (e) {
+                const files = e.target.files;
+                if (!files.length) return;
+
+                const file = files[0];
+                if (
+                    file &&
+                    (
+                        file.type === "application/pdf" ||
+                        file.name.endsWith(".docx") ||
+                        file.name.endsWith(".zip")
+                    )
+                ) {
+                    addHTMLMessage(`<strong>Uploaded:</strong> ${file.name}`, true);
+                    fileInfo.textContent = file.name;
+                    handleFileUpload(file);
+                } else {
+                    addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
+                    fileInfo.textContent = "No file chosen";
+                    fileInput.value = "";
+                }
+            });
+
+            folderUploadButton.addEventListener("click", function () {
+                folderInput.click();
+            });
+
+            folderInput.addEventListener("change", function (e) {
+                const files = e.target.files;
+                if (!files.length) return;
+
+                const validFiles = Array.from(files).filter(file =>
                     file.type === "application/pdf" ||
                     file.name.endsWith(".docx") ||
                     file.name.endsWith(".zip")
+                );
+
+                if (validFiles.length === 0) {
+                    addHTMLMessage("No valid PDF, DOCX, or ZIP files found in the folder.", false);
+                    folderInput.value = "";
+                    return;
+                }
+
+                addHTMLMessage(`<strong>Uploaded Folder:</strong> Containing ${validFiles.length} valid file(s)`, true);
+                handleFileUpload(validFiles);
+            });
+
+            uploadArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadArea.classList.add("dragover");
+            });
+
+            uploadArea.addEventListener("dragleave", () => {
+                uploadArea.classList.remove("dragover");
+            });
+
+            uploadArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove("dragover");
+                const files = e.dataTransfer.files;
+                if (!files.length) return;
+
+                const file = files[0];
+                if (
+                    file &&
+                    (
+                        file.type === "application/pdf" ||
+                        file.name.endsWith(".docx") ||
+                        file.name.endsWith(".zip")
+                    )
+                ) {
+                    addHTMLMessage(`<strong>Uploaded:</strong> ${file.name}`, true);
+                    fileInfo.textContent = file.name;
+                    handleFileUpload(file);
+                } else {
+                    addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
+                    fileInfo.textContent = "No file chosen";
+                }
+            });
+
+            function handleFileUpload(files) {
+                latestReportData = null;
+                allResults = [];
+                const reportButtons = document.getElementById("reportButtons");
+                if (reportButtons) reportButtons.style.display = "none";
+
+                const fileArray = Array.isArray(files) ? files : [files];
+                addHTMLMessage(`Processing ${fileArray.length} file(s) for NECHE compliance check...`, false);
+
+                const batchSize = 10;
+                const batches = [];
+                for (let i = 0; i < fileArray.length; i += batchSize) {
+                    batches.push(fileArray.slice(i, i + batchSize));
+                }
+
+                Promise.all(
+                    batches.map(batch => {
+                        const formData = new FormData();
+                        batch.forEach(file => formData.append("file", file));
+
+                        return fetch("/upload", {
+                            method: "POST",
+                            body: formData,
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (!data.success) {
+                                    throw new Error(data.error || "Failed to process files");
+                                }
+                                return data.results || [];
+                            });
+                    })
                 )
-            ) {
-                addHTMLMessage(`<strong>Uploaded:</strong> ${file.name}`, true);
-                handleFileUpload(file);
-            } else {
-                addHTMLMessage("Only PDF, DOCX, or ZIP files are supported.", false);
-                fileInput.value = "";
-            }
-        });
-    
-        folderUploadButton.addEventListener("click", function () {
-            folderInput.click();
-        });
-    
-        folderInput.addEventListener("change", function (e) {
-            const files = e.target.files;
-            if (!files.length) return;
-    
-            const validFiles = Array.from(files).filter(file =>
-                file.type === "application/pdf" ||
-                file.name.endsWith(".docx") ||
-                file.name.endsWith(".zip")
-            );
-    
-            if (validFiles.length === 0) {
-                addHTMLMessage("No valid PDF, DOCX, or ZIP files found in the folder.", false);
-                folderInput.value = "";
-                return;
-            }
-    
-            addHTMLMessage(`<strong>Uploaded Folder:</strong> Containing ${validFiles.length} valid file(s)`, true);
-            handleFileUpload(validFiles);
-        });
-    
-        function handleFileUpload(files) {
-    latestReportData = null;
-    allResults = [];
-    const reportButtons = document.getElementById("reportButtons");
-    if (reportButtons) reportButtons.style.display = "none";
+                .then(batchResults => {
+                    allResults = batchResults.flat();
 
-    const fileArray = Array.isArray(files) ? files : [files];
-    addHTMLMessage(`Processing ${fileArray.length} file(s) for NECHE compliance check...`, false);
-
-    // Split files into batches of 10 for better performance
-    const batchSize = 10;
-    const batches = [];
-    for (let i = 0; i < fileArray.length; i += batchSize) {
-        batches.push(fileArray.slice(i, i + batchSize));
-    }
-
-    // Process each batch in parallel
-    Promise.all(
-        batches.map(batch => {
-            const formData = new FormData();
-            batch.forEach(file => formData.append("file", file));
-
-            return fetch("/upload", {
-                method: "POST",
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.error || "Failed to process files");
+                    if (allResults.length === 0) {
+                        throw new Error("No valid files processed inside the upload");
                     }
-                    return data.results || [];
-                });
-        })
-    )
-        .then(batchResults => {
-            // Flatten results from all batches
-            allResults = batchResults.flat();
 
-            if (allResults.length === 0) {
-                throw new Error("No valid files processed inside the upload");
+                    latestReportData = allResults[allResults.length - 1].extracted_information || {};
+
+                    const scrollWrapper = document.createElement("div");
+                    scrollWrapper.className = "scroll-wrapper";
+                    scrollWrapper.style.border = "1px solid #ddd";
+                    scrollWrapper.style.marginTop = "20px";
+                    scrollWrapper.style.marginBottom = "20px";
+                    scrollWrapper.style.padding = "10px";
+                    scrollWrapper.style.backgroundColor = "white";
+
+                    const table = document.createElement("table");
+                    table.className = "table table-bordered";
+                    table.style.marginBottom = "0";
+                    table.style.borderCollapse = "collapse";
+
+                    const thead = document.createElement("thead");
+                    thead.innerHTML = `
+                        <tr style="background-color: var(--unh-blue); color: white; text-align: center;">
+                            <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
+                            <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
+                            <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
+                        </tr>`;
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+
+                    allResults.forEach((result, index) => {
+                        const filename = result.filename || `File_${index + 1}`;
+                        const reportData = result.extracted_information || {};
+
+                        const requiredNECHEFields = [
+                            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                            "Preferred Contact Method", "Email Address", "Phone Number",
+                            "Office Address", "Office Hours", "Location (Physical or Remote)",
+                            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+                            "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                        ];
+
+                        const minimumFields = [
+                            "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+                            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+                            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+                            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+                            "Attendance", "Academic Integrity/Plagiarism/AI"
+                        ];
+
+                        const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+                        const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+
+                        const passFail = (missingNECHE.length === 0 && missingMinimum.length === 0) ? "Pass" : "Fail";
+                        const statusColor = passFail === "Pass" ? "green" : "red";
+
+                        const row = document.createElement("tr");
+
+                        const nameCell = document.createElement("td");
+                        nameCell.style.padding = "10px";
+                        nameCell.style.border = "1px solid #ddd";
+                        nameCell.innerHTML = `<strong>${filename}</strong>`;
+                        row.appendChild(nameCell);
+
+                        const statusCell = document.createElement("td");
+                        statusCell.style.padding = "10px";
+                        statusCell.style.textAlign = "center";
+                        statusCell.style.border = "1px solid #ddd";
+                        statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
+                        row.appendChild(statusCell);
+
+                        const buttonCell = document.createElement("td");
+                        buttonCell.style.padding = "10px";
+                        buttonCell.style.textAlign = "center";
+                        buttonCell.style.border = "1px solid #ddd";
+
+                        const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData, filename));
+                        const summaryBtn = createStyledButton("Summary", "modern-btn", () => showCompliancePopupClean(reportData, filename, result.compliance_check));
+                        const shareBtn = createStyledButton("Share", "modern-btn", () => openEmailModal(filename));
+
+                        viewBtn.style.marginRight = "8px";
+                        summaryBtn.style.marginRight = "8px";
+                        shareBtn.style.marginRight = "8px";
+
+                        buttonCell.appendChild(viewBtn);
+                        buttonCell.appendChild(summaryBtn);
+                        buttonCell.appendChild(shareBtn);
+                        row.appendChild(buttonCell);
+
+                        tbody.appendChild(row);
+                    });
+
+                    table.appendChild(tbody);
+                    scrollWrapper.appendChild(table);
+
+                    chatHistory.appendChild(scrollWrapper);
+
+                    if (allResults.length > 1) {
+                        const allBtnWrapper = document.createElement("div");
+                        allBtnWrapper.style.textAlign = "center";
+                        allBtnWrapper.style.marginTop = "20px";
+
+                        const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => downloadAllReports(allResults));
+                        allBtnWrapper.appendChild(allReportsBtn);
+                        chatHistory.appendChild(allBtnWrapper);
+                    }
+
+                    addHTMLMessage(`Successfully processed ${allResults.length} file(s)`, false);
+                    reportButtons.style.display = "block";
+                })
+                .catch(error => {
+                    addHTMLMessage(`⚠️ Error: ${error.message}`, false);
+                    console.error("Upload error:", error);
+                });
             }
 
-            latestReportData = allResults[allResults.length - 1].extracted_information || {};
+            function createStyledButton(text, classes, clickHandler) {
+                const button = document.createElement("button");
+                button.textContent = text;
+                button.className = `${classes}`;
+                button.style.margin = "10px";
+                button.addEventListener("click", clickHandler);
+                return button;
+            }
 
-            // Display results
-            const scrollWrapper = document.createElement("div");
-            scrollWrapper.className = "scroll-wrapper";
-            scrollWrapper.style.border = "1px solid #ddd";
-            scrollWrapper.style.marginTop = "20px";
-            scrollWrapper.style.marginBottom = "20px";
-            scrollWrapper.style.padding = "10px";
-            scrollWrapper.style.backgroundColor = "white";
+            function openEmailModal(filename) {
+                const modal = new bootstrap.Modal(document.getElementById("emailModal"));
+                document.getElementById("email-subject").value = `NECHE Compliance Report for ${filename}`;
+                document.getElementById("email-body").value = `Attached is the NECHE compliance report for ${filename}.`;
+                modal.show();
 
-            const table = document.createElement("table");
-            table.className = "table table-bordered";
-            table.style.marginBottom = "0";
-            table.style.borderCollapse = "collapse";
+                document.getElementById("send-email-btn").onclick = () => {
+                    const to = document.getElementById("email-to").value;
+                    const subject = document.getElementById("email-subject").value;
+                    const body = document.getElementById("email-body").value;
 
-            const thead = document.createElement("thead");
-            thead.innerHTML = `
-                <tr style="background-color:#003591; color: white; text-align: center;">
-                    <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Name of the Document</th>
-                    <th style="padding: 12px; width: 20%; border: 1px solid #ddd;">Syllabus Compliance</th>
-                    <th style="padding: 12px; width: 40%; border: 1px solid #ddd;">Report</th>
-                </tr>`;
-            table.appendChild(thead);
+                    if (!to) {
+                        alert("Please enter a recipient email address.");
+                        return;
+                    }
 
-            const tbody = document.createElement("tbody");
+                    addHTMLMessage("Email sending functionality is not implemented in this demo.", false);
+                    modal.hide();
+                };
+            }
 
-            allResults.forEach((result, index) => {
-                const filename = result.filename || `File_${index + 1}`;
-                const reportData = result.extracted_information || {};
+            function downloadSingleReport(data, filename) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-                const requiredNECHEFields = [
-                    "Instructor Name", "Title or Rank", 
-                    "Preferred Contact Method", "Email Address", "Phone Number",
-                    "Office Address", "Office Hours", "Location (Physical or Remote)",
-                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-                    "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                const requiredFields = [
+                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+                    "Assignment Deadlines & Policies"
                 ];
 
                 const minimumFields = [
@@ -1151,972 +1080,780 @@ Date:
                     "Attendance", "Academic Integrity/Plagiarism/AI"
                 ];
 
-                const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-                const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
+                const optionalFields = [
+                    "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+                    "Teaching Assistants (Names and Contact Information)"
+                ];
+                const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
 
-                const passFail = (missingNECHE.length === 0 && missingMinimum.length === 0) ? "Pass" : "Fail";
-                const statusColor = passFail === "Pass" ? "green" : "red";
+                let courseTitleRaw = data["Course Number and Title"] || "Not Found";
+                let courseId = "";
+                let courseName = courseTitleRaw;
+                if (courseTitleRaw !== "Not Found") {
+                    const parts = courseTitleRaw.split(" ");
+                    if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+                        courseId = parts[0] + " " + parts[1];
+                        courseName = parts.slice(2).join(" ");
+                    } else {
+                        courseId = courseTitleRaw;
+                    }
+                }
+                let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
+                if (semester !== "Not Found") {
+                    semester = semester.split(" ")[0];
+                }
+                let instructor = data["Instructor Name"] || "Not Found";
 
-                const row = document.createElement("tr");
-
-                const nameCell = document.createElement("td");
-                nameCell.style.padding = "10px";
-                nameCell.style.border = "1px solid #ddd";
-                nameCell.innerHTML = `<strong>${filename}</strong>`;
-                row.appendChild(nameCell);
-
-                const statusCell = document.createElement("td");
-                statusCell.style.padding = "10px";
-                statusCell.style.textAlign = "center";
-                statusCell.style.border = "1px solid #ddd";
-                statusCell.innerHTML = `<strong style="color: ${statusColor};">${passFail}</strong>`;
-                row.appendChild(statusCell);
-
-                const buttonCell = document.createElement("td");
-                buttonCell.style.padding = "10px";
-                buttonCell.style.textAlign = "center";
-                buttonCell.style.border = "1px solid #ddd";
-
-                const viewBtn = createStyledButton("View", "modern-btn", () => showReportModal(reportData, filename));
-                const summaryBtn = createStyledButton("Summary", "modern-btn", () => showCompliancePopupClean(reportData, filename, result.compliance_check));
-                const shareBtn = createStyledButton("Share", "modern-btn", () => {
-                    // Course details parsing
-    let courseTitleRaw = reportData["Course Number and Title"] || "Not Found";
-    let courseId = "";
-    let courseName = courseTitleRaw;
-    if (courseTitleRaw !== "Not Found") {
-        const parts = courseTitleRaw.split(" ");
-        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-            courseId = parts[0] + " " + parts[1];
-            courseName = parts.slice(2).join(" ");
-        } else {
-            courseId = courseTitleRaw;
-        }
-    }
-    let semester = reportData["Semester/Term (and start/end dates)"] || "Not Found";
-    if (semester !== "Not Found") {
-        semester = semester.split(" ")[0]; // Extract term (e.g., "Spring")
-    }
-    let instructor = reportData["Instructor Name"] || "Not Found";
-
-    // Build course details, skipping "Not Found"
-    let courseDetails = [];
-    if (courseId !== "Not Found") {
-        courseDetails.push(`Course ID: ${courseId}`);
-    }
-    if (courseName !== "Not Found") {
-        courseDetails.push(`Course Name: ${courseName}`);
-    }
-    if (semester !== "Not Found") {
-        courseDetails.push(`Semester: ${semester}`);
-    }
-    if (instructor !== "Not Found") {
-        courseDetails.push(`Instructor Name: ${instructor}`);
-    }
-
-    // Compliance status
-    const missingNECHE = requiredNECHEFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-    const missingMinimum = minimumFields.filter(field => !reportData[field] || reportData[field] === "Not Found");
-    let body = "The NECHE compliance check is complete.\n\nCourse Details:\n";
-    body += courseDetails.length > 0 ? courseDetails.join("\n") + "\n\n" : "No course details available.\n\n";
-    if (missingNECHE.length > 0 || missingMinimum.length > 0) {
-        body += "The syllabus is not compliant. Missing information:\n";
-        if (missingNECHE.length > 0) {
-            body += "NECHE Requirements:\n" + missingNECHE.map(field => `- ${field}`).join("\n") + "\n";
-        }
-        if (missingMinimum.length > 0) {
-            body += "Minimum Requirements:\n" + missingMinimum.map(field => `- ${field}`).join("\n");
-        }
-    } else {
-        body += "The syllabus is compliant and all required information is present.";
-    }
-
-    // Add footer
-    body += "\n\nFormatting:\n";
-    body += "NECHE Compliance Requirements: Bold\n";
-    body += "Minimum Syllabus Requirements: Unbold & Unitalic\n";
-    body += "Optional Syllabus Requirements: Italic";
-
-    // Populate email modal
-    const recipient = "";
-    const emailSubject = `Syllabus Compliance Report - ${courseName !== "Not Found" ? courseName : "Unknown Course"}`;
-    document.getElementById("email-to").value = recipient;
-    document.getElementById("email-subject").value = emailSubject;
-    document.getElementById("email-body").value = body;
-
-    const emailModalElement = document.getElementById("emailModal");
-    const emailModal = new bootstrap.Modal(emailModalElement, { backdrop: 'static', keyboard: false });
-    emailModal.show();
-
-    const sendEmailBtn = document.getElementById("send-email-btn");
-    const newSendEmailBtn = sendEmailBtn.cloneNode(true);
-    sendEmailBtn.parentNode.replaceChild(newSendEmailBtn, sendEmailBtn);
-
-    newSendEmailBtn.addEventListener("click", () => {
-        const updatedTo = document.getElementById("email-to").value;
-        const updatedSubject = document.getElementById("email-subject").value;
-        const updatedBody = document.getElementById("email-body").value;
-
-        fetch("/send_email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                to: updatedTo,
-                subject: updatedSubject,
-                body: updatedBody,
-                filename: filename
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Format the PDF name by removing "_NECHE_Report.pdf" suffix
-                const formattedPDFName = filename.replace('_NECHE_Report.pdf', '');
-                // Get professor name, skip if "Not Found"
-                const professorName = reportData["Instructor Name"] !== "Not Found" ? reportData["Instructor Name"] : null;
-                // Build the success message
-                const successMessage = professorName 
-                    ? `Email sent successfully – ${formattedPDFName} – ${professorName}`
-                    : `Email sent successfully – ${formattedPDFName}`;
-                addHTMLMessage(successMessage, false);
-                // Follow-up message
-                setTimeout(() => {
-                    addHTMLMessage("How can I assist you? Do you have any questions?", false);
-                }, 500); // Slight delay for better UX
-            } else {
-                addHTMLMessage(`⚠️ Error: ${data.error}`, false);
-            }
-            emailModal.hide();
-        })
-        .catch(() => {
-            addHTMLMessage("⚠️ Error: Unable to send email.", false);
-            emailModal.hide();
-        });
-    });
-
-    emailModalElement.addEventListener('hidden.bs.modal', () => {
-        emailModal.dispose();
-    });
+                doc.setFontSize(20);
+                doc.setFont("helvetica", "bold");
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 10;
+                const maxWidth = pageWidth - 2 * margin;
+                const title = "Syllabus Compliance Report";
+                const splitTitle = doc.splitTextToSize(title, maxWidth);
+                let yPosition = 15;
+                splitTitle.forEach((line, index) => {
+                    const textWidth = doc.getTextWidth(line);
+                    const xPosition = (pageWidth - textWidth) / 2;
+                    doc.text(line, xPosition, yPosition + (index * 8));
                 });
 
-                viewBtn.style.marginRight = "8px";
-                summaryBtn.style.marginRight = "8px";
-                shareBtn.style.marginRight = "8px";
+                yPosition += splitTitle.length * 8 + 10;
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "normal");
+                let courseDetails = [];
+                if (courseId !== "Not Found") {
+                    courseDetails.push(`Course ID: ${courseId}`);
+                }
+                if (courseName !== "Not Found") {
+                    courseDetails.push(`Course Name: ${courseName}`);
+                }
+                if (semester !== "Not Found") {
+                    courseDetails.push(`Semester: ${semester}`);
+                }
+                if (instructor !== "Not Found") {
+                    courseDetails.push(`Instructor Name: ${instructor}`);
+                }
 
-                buttonCell.appendChild(viewBtn);
-                buttonCell.appendChild(summaryBtn);
-                buttonCell.appendChild(shareBtn);
-                row.appendChild(buttonCell);
-
-                tbody.appendChild(row);
-            });
-
-            table.appendChild(tbody);
-            scrollWrapper.appendChild(table);
-
-            chatHistory.appendChild(scrollWrapper);
-
-            if (allResults.length > 1) {
-                const allBtnWrapper = document.createElement("div");
-                allBtnWrapper.style.textAlign = "center";
-                allBtnWrapper.style.marginTop = "20px";
-
-                const allReportsBtn = createStyledButton("Download All Reports", "modern-btn", () => downloadAllReports(allResults));
-                allBtnWrapper.appendChild(allReportsBtn);
-                chatHistory.appendChild(allBtnWrapper);
-            }
-
-            addHTMLMessage(`Successfully processed ${allResults.length} file(s)`, false);
-        })
-        .catch(error => {
-            addHTMLMessage(`⚠️ Error: ${error.message}`, false);
-            console.error("Upload error:", error);
-        });
-}
-        function createStyledButton(text, classes, clickHandler) {
-            const button = document.createElement("button");
-            button.textContent = text;
-            button.className = `${classes} modern-btn`;
-            button.style.margin = "10px";
-            button.addEventListener("click", clickHandler);
-            return button;
-        }
-    
-        function downloadSingleReport(data, filename) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const requiredFields = [
-        "Instructor Name", "Title or Rank", "Preferred Contact Method",
-        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-        "Assignment Deadlines & Policies"
-    ];
-
-    const minimumFields = [
-        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-        "Attendance", "Academic Integrity/Plagiarism/AI"
-    ];
-
-    const optionalFields = [
-        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
-        "Teaching Assistants (Names and Contact Information)"
-    ];
-    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-
-    // Course details parsing
-    let courseTitleRaw = data["Course Number and Title"] || "Not Found";
-    let courseId = "";
-    let courseName = courseTitleRaw;
-    if (courseTitleRaw !== "Not Found") {
-        const parts = courseTitleRaw.split(" ");
-        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-            courseId = parts[0] + " " + parts[1];
-            courseName = parts.slice(2).join(" ");
-        } else {
-            courseId = courseTitleRaw;
-        }
-    }
-    let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
-    if (semester !== "Not Found") {
-        semester = semester.split(" ")[0]; // Extract term (e.g., "Spring")
-    }
-    let instructor = data["Instructor Name"] || "Not Found";
-
-    // Main heading
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 10;
-    const maxWidth = pageWidth - 2 * margin;
-    const title = "Syllabus Complaince Report";
-    const splitTitle = doc.splitTextToSize(title, maxWidth);
-    let yPosition = 15;
-    splitTitle.forEach((line, index) => {
-        const textWidth = doc.getTextWidth(line);
-        const xPosition = (pageWidth - textWidth) / 2;
-        doc.text(line, xPosition, yPosition + (index * 8));
-    });
-
-    // Course details
-    yPosition += splitTitle.length * 8 + 10;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    let courseDetails = [];
-    if (courseId !== "Not Found") {
-        courseDetails.push(`Course ID: ${courseId}`);
-    }
-    if (courseName !== "Not Found") {
-        courseDetails.push(`Course Name: ${courseName}`);
-    }
-    if (semester !== "Not Found") {
-        courseDetails.push(`Semester: ${semester}`);
-    }
-    if (instructor !== "Not Found") {
-        courseDetails.push(`Instructor Name: ${instructor}`);
-    }
-
-    if (courseDetails.length > 0) {
-        courseDetails.forEach((detail, index) => {
-            const textWidth = doc.getTextWidth(detail);
-            const xPosition = (pageWidth - textWidth) / 2;
-            doc.text(detail, xPosition, yPosition + (index * 6));
-        });
-        yPosition += courseDetails.length * 6 + 10;
-    } else {
-        const noDetails = "No course details available";
-        const textWidth = doc.getTextWidth(noDetails);
-        const xPosition = (pageWidth - textWidth) / 2;
-        doc.text(noDetails, xPosition, yPosition);
-        yPosition += 10;
-    }
-
-    // Table with all 34 fields
-    const tableColumn = ["Syllabus Items", "Syllabus Details"];
-    const tableRows = [];
-
-    allFields.forEach(field => {
-        const value = data[field] || "Not Found";
-        const isOptional = optionalFields.includes(field);
-        if (isOptional && value === "Not Found") return;
-
-        let displayField = field;
-        if (requiredFields.includes(field)) {
-            displayField = `**${field}**`;
-        } else if (optionalFields.includes(field)) {
-            displayField = `***${field}***`;
-        }
-
-        const displayValue = value === "Not Found" ? "Not Found" : value;
-        tableRows.push([displayField, displayValue]);
-    });
-
-    doc.autoTable({
-        startY: yPosition,
-        head: [tableColumn],
-        body: tableRows,
-        theme: "grid",
-        headStyles: {
-            fillColor: [58, 23, 216], // #3a17d8
-            textColor: [255, 255, 255],
-            fontSize: 14,
-            font: "Segoe UI",
-            fontStyle: "bold",
-            cellPadding: 3,
-        },
-        styles: {
-            font: "Segoe UI",
-            fontSize: 14,
-            cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
-            lineColor: [221, 221, 221], // #ddd
-            lineWidth: 0.3,
-        },
-        columnStyles: {
-            0: { fillColor: [245, 245, 245], cellWidth: 80 }, // #f5f5f5
-            1: { fillColor: [255, 255, 255], cellWidth: 100 },
-        },
-        didParseCell: function (data) {
-            if (data.column.index === 0) {
-                let text = data.cell.text[0];
-                if (text.startsWith("***") && text.endsWith("***")) {
-                    data.cell.text[0] = text.slice(3, -3);
-                    data.cell.styles.fontStyle = "italic";
-                } else if (text.startsWith("**") && text.endsWith("**")) {
-                    data.cell.text[0] = text.slice(2, -2);
-                    data.cell.styles.fontStyle = "bold";
+                if (courseDetails.length > 0) {
+                    courseDetails.forEach((detail, index) => {
+                        const textWidth = doc.getTextWidth(detail);
+                        const xPosition = (pageWidth - textWidth) / 2;
+                        doc.text(detail, xPosition, yPosition + (index * 6));
+                    });
+                    yPosition += courseDetails.length * 6 + 10;
                 } else {
-                    data.cell.styles.fontStyle = "normal";
+                    const noDetails = "No course details available";
+                    const textWidth = doc.getTextWidth(noDetails);
+                    const xPosition = (pageWidth - textWidth) / 2;
+                    doc.text(noDetails, xPosition, yPosition);
+                    yPosition += 10;
                 }
-            }
 
-            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                data.cell.styles.textColor = [255, 0, 0];
-                data.cell.styles.fontStyle = "bold";
-            }
-        }
-    });
+                const tableColumn = ["Syllabus Items", "Syllabus Details"];
+                const tableRows = [];
 
-    // Add footer
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.setFontSize(10);
-    doc.text("Formatting:", 10, pageHeight - 30);
-    doc.text("NECHE Compliance Requirements: Bold", 10, pageHeight - 25);
-    doc.text("Minimum Syllabus Requirements: Unbold & Unitalic", 10, pageHeight - 20);
-    doc.text("Optional Syllabus Requirements: Italic", 10, pageHeight - 15);
+                allFields.forEach(field => {
+                    const value = data[field] || "Not Found";
+                    const isOptional = optionalFields.includes(field);
+                    if (isOptional && value === "Not Found") return;
 
-    doc.save(`${filename}_NECHE_Report.pdf`);
-}
-    
-        function generateReport(data, filename) {
-            const { jsPDF } = window.jspdf;
-    
-            const doc = new jsPDF();
-    
-            const requiredFields = [
-                "Instructor Name", "Title or Rank",  "Preferred Contact Method",
-                "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-                "Assignment Deadlines & Policies"
-            ];
-    
-            const minimumFields = [
-                "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-                "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-                "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-                "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-                "Attendance", "Academic Integrity/Plagiarism/AI"
-            ];
-    
-            const optionalFields = [
-                "Course Prerequisites",
-                "Simultaneous 700/800 Course Designation",
-                "University Requirements",
-                "Teaching Assistants (Names and Contact Information)"
-            ];
-            const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-            const tableColumn = ["Syllabus Items", "Syllabus Details"];
-            const tableRows = [];
-    
-            allFields.forEach(field => {
-                const value = data[field] || "Not Found";
-                const isOptional = optionalFields.includes(field);
-    
-                if (isOptional && value === "Not Found") return;
-    
-                let displayField = field;
-                if (requiredFields.includes(field)) {
-                    displayField = `**${field}**`;
-                } else if (optionalFields.includes(field)) {
-                    displayField = `***${field}***`;
-                }
-    
-                const displayValue = value === "Not Found" ? "Not Found" : value;
-                tableRows.push([displayField, displayValue]);
-            });
-    
-            let title = "Syllabus Compliance Report";
-            const course = data["Course Number and Title"];
-            const professor = data["Instructor Name"];
-    
-            const headingParts = [];
-            if (course && course !== "Not Found") headingParts.push(course);
-            if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
-    
-            if (headingParts.length > 0) title += " – " + headingParts.join(" ");
-    
-            doc.setFontSize(12);
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 10;
-            const maxWidth = pageWidth - 2 * margin;
-            const splitTitle = doc.splitTextToSize(title, maxWidth);
-    
-            let yPosition = 15;
-            splitTitle.forEach((line, index) => {
-                const textWidth = doc.getTextWidth(line);
-                const xPosition = (pageWidth - textWidth) / 2;
-                doc.text(line, xPosition, yPosition + (index * 5));
-            });
-    
-            const titleHeight = splitTitle.length * 5;
-            const tableStartY = yPosition + titleHeight + 5;
-    
-            doc.autoTable({
-                startY: tableStartY,
-                head: [tableColumn],
-                body: tableRows,
-                theme: "grid",
-                headStyles: {
-                    fillColor: [58, 23, 216],
-                    textColor: [255, 255, 255],
-                    fontSize: 10,
-                },
-                styles: {
-                    fontSize: 10,
-                    cellPadding: 4,
-                },
-                columnStyles: {
-                    0: { fillColor: [245, 245, 245] },
-                    1: { fillColor: [255, 255, 255] },
-                },
-                didParseCell: function (data) {
-                    if (data.column.index === 0) {
-                        let text = data.cell.text[0];
-                        if (text.startsWith("***") && text.endsWith("***")) {
-                            data.cell.text[0] = text.slice(3, -3);
-                            data.cell.styles.fontStyle = "italic";
-                        } else if (text.startsWith("**") && text.endsWith("**")) {
-                            data.cell.text[0] = text.slice(2, -2);
+                    let displayField = field;
+                    if (requiredFields.includes(field)) {
+                        displayField = `**${field}**`;
+                    } else if (optionalFields.includes(field)) {
+                        displayField = `***${field}***`;
+                    }
+
+                    const displayValue = value === "Not Found" ? "Not Found" : value;
+                    tableRows.push([displayField, displayValue]);
+                });
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [tableColumn],
+                    body: tableRows,
+                    theme: "grid",
+                    headStyles: {
+                        fillColor: [0, 53, 145],
+                        textColor: [255, 255, 255],
+                        fontSize: 14,
+                        font: "Segoe UI",
+                        fontStyle: "bold",
+                        cellPadding: 3,
+                    },
+                    styles: {
+                        font: "Segoe UI",
+                        fontSize: 14,
+                        cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+                        lineColor: [221, 221, 221],
+                        lineWidth: 0.3,
+                    },
+                    columnStyles: {
+                        0: { fillColor: [245, 245, 245], cellWidth: 80 },
+                        1: { fillColor: [255, 255, 255], cellWidth: 100 },
+                    },
+                    didParseCell: function (data) {
+                        if (data.column.index === 0) {
+                            let text = data.cell.text[0];
+                            if (text.startsWith("***") && text.endsWith("***")) {
+                                data.cell.text[0] = text.slice(3, -3);
+                                data.cell.styles.fontStyle = "italic";
+                            } else if (text.startsWith("**") && text.endsWith("**")) {
+                                data.cell.text[0] = text.slice(2, -2);
+                                data.cell.styles.fontStyle = "bold";
+                            } else {
+                                data.cell.styles.fontStyle = "normal";
+                            }
+                        }
+
+                        if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                            data.cell.styles.textColor = [255, 0, 0];
                             data.cell.styles.fontStyle = "bold";
-                        } else {
-                            data.cell.styles.fontStyle = "normal";
                         }
                     }
-    
-                    if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                        data.cell.styles.textColor = [255, 0, 0];
-                        data.cell.styles.fontStyle = "bold";
-                    }
-                }
-            });
-    
-            doc.save(`${filename}_NECHE_Report.pdf`);
-        }
-        function showReportModal(data, filename) {
-    const requiredFields = [
-        "Instructor Name", "Title or Rank",  "Preferred Contact Method",
-        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-        "Assignment Deadlines & Policies"
-    ];
-
-    const minimumFields = [
-        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-        "Attendance", "Academic Integrity/Plagiarism/AI"
-    ];
-
-    const optionalFields = [
-        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
-        "Teaching Assistants (Names and Contact Information)"
-    ];
-    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-
-    let html = `<html><head>
-        <title>NECHE Report - ${filename}</title>
-        <style>
-            body { 
-                font-family: "Segoe UI", sans-serif; 
-                padding: 20px; 
-                background: #f9f9fb; 
-                color: #333; 
-                max-width: 1000px; 
-                margin: auto; 
-            }
-            h1 { 
-                font-size: 24px; 
-                text-align: center; 
-                margin-bottom: 15px; 
-                font-weight: 600; 
-                color: #2a2a2a; 
-            }
-            .course-details-container { 
-                display: flex; 
-                flex-direction: column; 
-                align-items: center; 
-                margin-bottom: 20px; 
-                width: 100%; 
-            }
-            .course-details { 
-                display: flex; 
-                flex-direction: column; 
-                align-items: center; 
-                font-size: 14px; 
-                color: #333; 
-                width: 100%; 
-                max-width: 600px; 
-            }
-            .course-details p { 
-                display: flex; 
-                justify-content: space-between; 
-                width: 100%; 
-                margin: 5px 0; 
-                padding: 0 20px; 
-                text-align: left; 
-            }
-            .course-details p span.label { 
-                flex: 1; 
-                font-weight: bold; 
-                text-align: right; 
-                padding-right: 10px; 
-            }
-            .course-details p span.separator { 
-                flex: 0 0 20px; 
-                text-align: center; 
-            }
-            .course-details p span.value { 
-                flex: 1; 
-                text-align: left; 
-                padding-left: 10px; 
-            }
-            .download-btn { 
-                background-color: #003591; 
-                color: white; 
-                padding: 10px 20px; 
-                border-radius: 6px; 
-                border: none; 
-                cursor: pointer; 
-                font-size: 14px; 
-                transition: 0.3s ease; 
-                margin: 10px 20px 0 0; 
-                align-self: flex-end; 
-            }
-            .download-btn:hover { 
-                background-color: #001f5c; 
-            }
-            table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                border: 1px solid #ccc; 
-                font-size: 14px; 
-            }
-            th, td { 
-                padding: 12px; 
-                border: 1px solid #ddd; 
-                vertical-align: top; 
-                text-align: left; 
-            }
-            th { 
-                background-color: #003591; 
-                color: white; 
-                font-weight: 600; 
-            }
-            td:first-child { 
-                background-color: #f5f5f5; 
-                width: 40%; 
-            }
-            td:last-child { 
-                background-color: #ffffff; 
-                width: 60%; 
-            }
-            .table-container { 
-                margin-top: 20px; 
-            }
-            .footer { 
-                margin-top: 20px; 
-                font-size: 14px; 
-                color: #555; 
-                text-align: center; 
-                border-top: 1px solid #ddd; 
-                padding-top: 10px; 
-            }
-        </style>
-    </head><body>`;
-
-    // Course details parsing
-    let courseTitleRaw = data["Course Number and Title"] || "Not Found";
-    let courseId = "";
-    let courseName = courseTitleRaw;
-    if (courseTitleRaw !== "Not Found") {
-        const parts = courseTitleRaw.split(" ");
-        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-            courseId = parts[0] + " " + parts[1];
-            courseName = parts.slice(2).join(" ");
-        } else {
-            courseId = courseTitleRaw;
-        }
-    }
-    let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
-    if (semester !== "Not Found") {
-        semester = semester.split(" ")[0];
-    }
-    let instructor = data["Instructor Name"] || "Not Found";
-
-    // Build course details, skipping "Not Found" fields
-    let courseDetails = [];
-    if (courseId !== "Not Found") {
-        courseDetails.push(`<p><span class="label">Course ID:</span><span class="separator">:</span><span class="value">${courseId}</span></p>`);
-    }
-    if (courseName !== "Not Found") {
-        courseDetails.push(`<p><span class="label">Course Name:</span><span class="separator">:</span><span class="value">${courseName}</span></p>`);
-    }
-    if (semester !== "Not Found") {
-        courseDetails.push(`<p><span class="label">Semester:</span><span class="separator">:</span><span class="value">${semester}</span></p>`);
-    }
-    if (instructor !== "Not Found") {
-        courseDetails.push(`<p><span class="label">Instructor Name:</span><span class="separator">:</span><span class="value">${instructor}</span></p>`);
-    }
-
-    // Main heading, course details, and download button
-    html += `
-        <div class="course-details-container">
-            <h1>Syllabus Compliance Report</h1>
-            <div class="course-details">
-                ${courseDetails.length > 0 ? courseDetails.join("") : "<p>No course details available</p>"}
-            </div>
-            <button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${filename}')">Download PDF</button>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Syllabus Items</th>
-                        <th>Syllabus Details</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-    // Table content
-    allFields.forEach((field) => {
-        const value = data[field] || "Not Found";
-        const isOptional = optionalFields.includes(field);
-
-        if (isOptional && value === "Not Found") return;
-
-        let formattedField = field;
-        if (requiredFields.includes(field)) {
-            formattedField = `<strong>${field}</strong>`;
-        } else if (optionalFields.includes(field)) {
-            formattedField = `<em>${field}</em>`;
-        }
-
-        const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
-
-        html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
-    });
-
-    html += `</tbody></table></div>`;
-    html += `
-        <div class="footer">
-            <strong>Formatting:</strong><br>
-            NECHE Compliance Requirements: <strong>Bold</strong><br>
-            Minimum Syllabus Requirements: Unbold & Unitalic<br>
-            Optional Syllabus Requirements: <em>Italic</em>
-        </div>
-    </body></html>`;
-
-    const newWin = window.open("", "_blank");
-    newWin.document.open();
-    newWin.document.write(html);
-    newWin.downloadSingleReport = downloadSingleReport;
-    newWin.document.close();
-}
-    
-        function downloadAllReports(results) {
-            function loadScript(src, callback) {
-                const script = document.createElement("script");
-                script.src = src;
-                script.onload = callback;
-                script.onerror = () => {
-                    console.error(`Failed to load script: ${src}`);
-                    alert(`⚠️ Error: Failed to load required library: ${src}`);
-                };
-                document.head.appendChild(script);
-            }
-    
-            if (!window.jspdf) {
-                console.warn("jsPDF is not loaded. Loading it now...");
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", () => {
-                    console.log("jsPDF loaded successfully.");
-                    if (!window.jspdfAutoTable) {
-                        console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
-                        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
-                            console.log("jsPDF-AutoTable loaded successfully.");
-                            if (!window.JSZip) {
-                                console.warn("JSZip is not loaded. Loading it now...");
-                                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
-                                    console.log("JSZip loaded successfully.");
-                                    generateAllReports(results);
-                                });
-                            } else {
-                                generateAllReports(results);
-                            }
-                        });
-                    } else if (!window.JSZip) {
-                        console.warn("JSZip is not loaded. Loading it now...");
-                        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
-                            console.log("JSZip loaded successfully.");
-                            generateAllReports(results);
-                        });
-                    } else {
-                        generateAllReports(results);
-                    }
                 });
-            } else if (!window.jspdfAutoTable) {
-                console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
-                    console.log("jsPDF-AutoTable loaded successfully.");
-                    if (!window.JSZip) {
-                        console.warn("JSZip is not loaded. Loading it now...");
-                        loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
-                            console.log("JSZip loaded successfully.");
-                            generateAllReports(results);
-                        });
-                    } else {
-                        generateAllReports(results);
-                    }
-                });
-            } else if (!window.JSZip) {
-                console.warn("JSZip is not loaded. Loading it now...");
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
-                    console.log("JSZip loaded successfully.");
-                    generateAllReports(results);
-                });
-            } else {
-                generateAllReports(results);
+
+                const pageHeight = doc.internal.pageSize.getHeight();
+                doc.setFontSize(10);
+                doc.text("Formatting:", 10, pageHeight - 30);
+                doc.text("NECHE Compliance Requirements: Bold", 10, pageHeight - 25);
+                doc.text("Minimum Syllabus Requirements: Unbold & Unitalic", 10, pageHeight - 20);
+                doc.text("Optional Syllabus Requirements: Italic", 10, pageHeight - 15);
+
+                doc.save(`${filename}_NECHE_Report.pdf`);
             }
-    
-            function generateAllReports(results) {
+
+            function generateReport(data, filename) {
                 const { jsPDF } = window.jspdf;
-                const zip = new JSZip();
-    
-                if (!jsPDF || !JSZip) {
-                    console.error("Required libraries (jsPDF or JSZip) are not loaded.");
-                    alert("⚠️ Error: Required libraries not loaded.");
-                    return;
+                const doc = new jsPDF();
+
+                const requiredFields = [
+                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+                    "Assignment Deadlines & Policies"
+                ];
+
+                const minimumFields = [
+                    "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+                    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+                    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+                    "Attendance", "Academic Integrity/Plagiarism/AI"
+                ];
+
+                const optionalFields = [
+                    "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+                    "Teaching Assistants (Names and Contact Information)"
+                ];
+                const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+                const tableColumn = ["Syllabus Items", "Syllabus Details"];
+                const tableRows = [];
+
+                allFields.forEach(field => {
+                    const value = data[field] || "Not Found";
+                    const isOptional = optionalFields.includes(field);
+
+                    if (isOptional && value === "Not Found") return;
+
+                    let displayField = field;
+                    if (requiredFields.includes(field)) {
+                        displayField = `**${field}**`;
+                    } else if (optionalFields.includes(field)) {
+                        displayField = `***${field}***`;
+                    }
+
+                    const displayValue = value === "Not Found" ? "Not Found" : value;
+                    tableRows.push([displayField, displayValue]);
+                });
+
+                let title = "Syllabus Compliance Report";
+                const course = data["Course Number and Title"];
+                const professor = data["Instructor Name"];
+
+                const headingParts = [];
+                if (course && course !== "Not Found") headingParts.push(course);
+                if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
+
+                if (headingParts.length > 0) title += " – " + headingParts.join(" ");
+
+                doc.setFontSize(12);
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 10;
+                const maxWidth = pageWidth - 2 * margin;
+                const splitTitle = doc.splitTextToSize(title, maxWidth);
+
+                let yPosition = 15;
+                splitTitle.forEach((line, index) => {
+                    const textWidth = doc.getTextWidth(line);
+                    const xPosition = (pageWidth - textWidth) / 2;
+                    doc.text(line, xPosition, yPosition + (index * 5));
+                });
+
+                const titleHeight = splitTitle.length * 5;
+                const tableStartY = yPosition + titleHeight + 5;
+
+                doc.autoTable({
+                    startY: tableStartY,
+                    head: [tableColumn],
+                    body: tableRows,
+                    theme: "grid",
+                    headStyles: {
+                        fillColor: [0, 53, 145],
+                        textColor: [255, 255, 255],
+                        fontSize: 10,
+                    },
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 4,
+                    },
+                    columnStyles: {
+                        0: { fillColor: [245, 245, 245] },
+                        1: { fillColor: [255, 255, 255] },
+                    },
+                    didParseCell: function (data) {
+                        if (data.column.index === 0) {
+                            let text = data.cell.text[0];
+                            if (text.startsWith("***") && text.endsWith("***")) {
+                                data.cell.text[0] = text.slice(3, -3);
+                                data.cell.styles.fontStyle = "italic";
+                            } else if (text.startsWith("**") && text.endsWith("**")) {
+                                data.cell.text[0] = text.slice(2, -2);
+                                data.cell.styles.fontStyle = "bold";
+                            } else {
+                                data.cell.styles.fontStyle = "normal";
+                            }
+                        }
+
+                        if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                            data.cell.styles.textColor = [255, 0, 0];
+                            data.cell.styles.fontStyle = "bold";
+                        }
+                    }
+                });
+
+                doc.save(`${filename}_NECHE_Report.pdf`);
+            }
+
+            function showReportModal(data, filename) {
+                const requiredFields = [
+                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+                    "Assignment Deadlines & Policies"
+                ];
+
+                const minimumFields = [
+                    "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+                    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+                    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+                    "Attendance", "Academic Integrity/Plagiarism/AI"
+                ];
+
+                const optionalFields = [
+                    "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+                    "Teaching Assistants (Names and Contact Information)"
+                ];
+                const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+
+                let html = `<html><head>
+                    <title>NECHE Report - ${filename}</title>
+                    <style>
+                        body { 
+                            font-family: "Segoe UI", sans-serif; 
+                            padding: 20px; 
+                            background: #f9f9fb; 
+                            color: #333; 
+                            max-width: 1000px; 
+                            margin: auto; 
+                        }
+                        h1 { 
+                            font-size: 24px; 
+                            text-align: center; 
+                            margin-bottom: 15px; 
+                            font-weight: 600; 
+                            color: #2a2a2a; 
+                        }
+                        .course-details-container { 
+                            display: flex; 
+                            flex-direction: column; 
+                            align-items: center; 
+                            margin-bottom: 20px; 
+                            width: 100%; 
+                        }
+                        .course-details { 
+                            display: flex; 
+                            flex-direction: column; 
+                            align-items: center; 
+                            font-size: 14px; 
+                            color: #333; 
+                            width: 100%; 
+                            max-width: 600px; 
+                        }
+                        .course-details p { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            width: 100%; 
+                            margin: 5px 0; 
+                            padding: 0 20px; 
+                            text-align: left; 
+                        }
+                        .course-details p span.label { 
+                            flex: 1; 
+                            font-weight: bold; 
+                            text-align: right; 
+                            padding-right: 10px; 
+                        }
+                        .course-details p span.separator { 
+                            flex: 0 0 20px; 
+                            text-align: center; 
+                        }
+                        .course-details p span.value { 
+                            flex: 1; 
+                            text-align: left; 
+                            padding-left: 10px; 
+                        }
+                        .download-btn { 
+                            background-color: #003591; 
+                            color: white; 
+                            padding: 10px 20px; 
+                            border-radius: 6px; 
+                            border: none; 
+                            cursor: pointer; 
+                            font-size: 14px; 
+                            transition: 0.3s ease; 
+                            margin: 10px 20px 0 0; 
+                            align-self: flex-end; 
+                        }
+                        .download-btn:hover { 
+                            background-color: #001f5c; 
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            border: 1px solid #ccc; 
+                            font-size: 14px; 
+                        }
+                        th, td { 
+                            padding: 12px; 
+                            border: 1px solid #ddd; 
+                            vertical-align: top; 
+                            text-align: left; 
+                        }
+                        th { 
+                            background-color: #003591; 
+                            color: white; 
+                            font-weight: 600; 
+                        }
+                        td:first-child { 
+                            background-color: #f5f5f5; 
+                            width: 40%; 
+                        }
+                        td:last-child { 
+                            background-color: #ffffff; 
+                            width: 60%; 
+                        }
+                        .table-container { 
+                            margin-top: 20px; 
+                        }
+                        .footer { 
+                            margin-top: 20px; 
+                            font-size: 14px; 
+                            color: #555; 
+                            text-align: center; 
+                            border-top: 1px solid #ddd; 
+                            padding-top: 10px; 
+                        }
+                    </style>
+                </head><body>`;
+
+                let courseTitleRaw = data["Course Number and Title"] || "Not Found";
+                let courseId = "";
+                let courseName = courseTitleRaw;
+                if (courseTitleRaw !== "Not Found") {
+                    const parts = courseTitleRaw.split(" ");
+                    if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+                        courseId = parts[0] + " " + parts[1];
+                        courseName = parts.slice(2).join(" ");
+                    } else {
+                        courseId = courseTitleRaw;
+                    }
                 }
-    
-                results.forEach((result, index) => {
-                    const doc = new jsPDF();
-                    const filename = result.filename || `File_${index + 1}`;
-                    const reportData = result.extracted_information || {};
-    
-                    const title = `Syllabus Compliance Report - ${filename}`;
-                    doc.setFontSize(12);
-                    doc.text(title, 10, 10);
-    
-                    const tableColumn = ["Syllabus Items", "Syllabus Details"];
-                    const tableRows = [];
-    
-                    Object.keys(reportData).forEach((key) => {
-                        const value = reportData[key] || "Not Found";
-                        tableRows.push([key, value]);
-                    });
-    
-                    doc.autoTable({
-                        startY: 20,
-                        head: [tableColumn],
-                        body: tableRows,
-                        theme: "grid",
-                        headStyles: {
-                            fillColor: [58, 23, 216],
-                            textColor: [255, 255, 255],
-                            fontSize: 10,
-                        },
-                        styles: {
-                            fontSize: 10,
-                            cellPadding: 4,
-                        },
-                    });
-    
-                    const pdfBlob = doc.output("blob");
-                    zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
-                });
-    
-                zip.generateAsync({ type: "blob" }).then((content) => {
-                    const zipBlob = new Blob([content], { type: "application/zip" });
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(zipBlob);
-                    link.download = "NECHE_Reports.zip";
-                    link.click();
-                });
-            }
-        }
-    
-        function showCompliancePopupClean(data, filename, complianceStatus) {
-            const requiredFields = [
-                "Instructor Name", "Title or Rank",
-                "Preferred Contact Method", "Email Address", "Phone Number",
-                "Office Address", "Office Hours", "Location (Physical or Remote)",
-                "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
-                "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
-            ];
-    
-            const minimumFields = [
-                "Course Number and Title",
-                "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                "Modality/Meeting Time and Place",
-                "Semester/Term (and start/end dates)",
-                "Department/Program",
-                "Format (e.g., lecture plus lab/discussion etc.)",
-                "Course Description (minimum course catalog description)",
-                "Sequence of Course Topics and Important Dates",
-                "Required/Recommended Textbook (or other source for course reference information)",
-                "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
-                "Technical Requirements",
-                "Attendance",
-                "Academic Integrity/Plagiarism/AI"
-            ];
-    
-            const missingNECHE = requiredFields.filter(field => data[field] === "Not Found" || !data[field]);
-            const missingMinimum = minimumFields.filter(field => data[field] === "Not Found" || !data[field]);
-    
-            const courseRaw = data["Course Number and Title"] || "Not Found";
-            const professor = data["Instructor Name"] || "Not Found";
-    
-            let courseNumber = "";
-            let courseTitle = courseRaw;
-            const parts = courseRaw.split(" ");
-            if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-                courseNumber = parts[0] + " " + parts[1];
-                courseTitle = parts.slice(2).join(" ");
-            }
-    
-            const isCompliant = missingNECHE.length === 0 && missingMinimum.length === 0;
-            const statusColor = isCompliant ? "green" : "red";
-            const statusText = isCompliant ? "Pass" : "Fail";
-    
-            const popupOverlay = document.createElement("div");
-            popupOverlay.id = "compliance-popup";
-            popupOverlay.style.position = "fixed";
-            popupOverlay.style.top = "0";
-            popupOverlay.style.left = "0";
-            popupOverlay.style.width = "100vw";
-            popupOverlay.style.height = "100vh";
-            popupOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-            popupOverlay.style.display = "flex";
-            popupOverlay.style.justifyContent = "center";
-            popupOverlay.style.alignItems = "center";
-            popupOverlay.style.zIndex = "9999";
-    
-            const popup = document.createElement("div");
-            popup.style.background = "#ffffff";
-            popup.style.borderRadius = "10px";
-            popup.style.padding = "25px";
-            popup.style.width = "90%";
-            popup.style.maxWidth = "650px";
-            popup.style.maxHeight = "85vh";
-            popup.style.overflowY = "auto";
-            popup.style.fontFamily = "Segoe UI, sans-serif";
-            popup.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
-            popup.style.color = "#000000";
-    
-            let popupContent = `
-                <div style="background-color: #003591; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 18px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    Status
-                </div>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Number</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${courseNumber ? courseNumber : "N/A"}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Title</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${courseTitle !== "Not Found" ? courseTitle : "N/A"}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Professor</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${professor !== "Not Found" ? professor : "N/A"}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Compliance Status</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
-                    </tr>
-                </table>
-                <div style="font-weight: bold; color: ${statusColor}; margin-bottom: 20px; text-align: center;">
-                    The compliance check is complete. The syllabus is ${isCompliant ? "NECHE compliant." : "not NECHE compliant.<br>Here is the missing information."}
-                </div>`;
-    
-            if (missingNECHE.length > 0) {
-                popupContent += `
-                    <div style="margin-top: 10px; text-align: left;">
-                        <table style="width: 100%; border-collapse: collapse;">
+                let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
+                if (semester !== "Not Found") {
+                    semester = semester.split(" ")[0];
+                }
+                let instructor = data["Instructor Name"] || "Not Found";
+
+                let courseDetails = [];
+                if (courseId !== "Not Found") {
+                    courseDetails.push(`<p><span class="label">Course ID:</span><span class="separator">:</span><span class="value">${courseId}</span></p>`);
+                }
+                if (courseName !== "Not Found") {
+                    courseDetails.push(`<p><span class="label">Course Name:</span><span class="separator">:</span><span class="value">${courseName}</span></p>`);
+                }
+                if (semester !== "Not Found") {
+                    courseDetails.push(`<p><span class="label">Semester:</span><span class="separator">:</span><span class="value">${semester}</span></p>`);
+                }
+                if (instructor !== "Not Found") {
+                    courseDetails.push(`<p><span class="label">Instructor Name:</span><span class="separator">:</span><span class="value">${instructor}</span></p>`);
+                }
+
+                html += `
+                    <div class="course-details-container">
+                        <h1>Syllabus Compliance Report</h1>
+                        <div class="course-details">
+                            ${courseDetails.length > 0 ? courseDetails.join("") : "<p>No course details available</p>"}
+                        </div>
+                        <button class="download-btn" onclick="downloadSingleReport(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(data))}')), '${filename}')">Download PDF</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
                             <thead>
-                                <tr style="background-color: #003591; color: white;">
-                                    <th style="padding: 8px; border: 1px solid #ddd;">Missing NECHE Requirements</th>
+                                <tr>
+                                    <th>Syllabus Items</th>
+                                    <th>Syllabus Details</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                ${missingNECHE.map(field => `
-                                    <tr>
-                                        <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
-                                    </tr>`).join("")}
-                            </tbody>
-                        </table>
-                    </div>`;
+                            <tbody>`;
+
+                allFields.forEach((field) => {
+                    const value = data[field] || "Not Found";
+                    const isOptional = optionalFields.includes(field);
+
+                    if (isOptional && value === "Not Found") return;
+
+                    let formattedField = field;
+                    if (requiredFields.includes(field)) {
+                        formattedField = `<strong>${field}</strong>`;
+                    } else if (optionalFields.includes(field)) {
+                        formattedField = `<em>${field}</em>`;
+                    }
+
+                    const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
+
+                    html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+                html += `
+                    <div class="footer">
+                        <strong>Formatting:</strong><br>
+                        NECHE Compliance Requirements: <strong>Bold</strong><br>
+                        Minimum Syllabus Requirements: Unbold & Unitalic<br>
+                        Optional Syllabus Requirements: <em>Italic</em>
+                    </div>
+                </body></html>`;
+
+                const newWin = window.open("", "_blank");
+                newWin.document.open();
+                newWin.document.write(html);
+                newWin.downloadSingleReport = downloadSingleReport;
+                newWin.document.close();
             }
-    
-            if (missingMinimum.length > 0) {
+
+            function downloadAllReports(results) {
+                function loadScript(src, callback) {
+                    const script = document.createElement("script");
+                    script.src = src;
+                    script.onload = callback;
+                    script.onerror = () => {
+                        console.error(`Failed to load script: ${src}`);
+                        alert(`⚠️ Error: Failed to load required library: ${src}`);
+                    };
+                    document.head.appendChild(script);
+                }
+
+                if (!window.jspdf) {
+                    console.warn("jsPDF is not loaded. Loading it now...");
+                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", () => {
+                        console.log("jsPDF loaded successfully.");
+                        if (!window.jspdfAutoTable) {
+                            console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+                            loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+                                console.log("jsPDF-AutoTable loaded successfully.");
+                                if (!window.JSZip) {
+                                    console.warn("JSZip is not loaded. Loading it now...");
+                                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                                        console.log("JSZip loaded successfully.");
+                                        generateAllReports(results);
+                                    });
+                                } else {
+                                    generateAllReports(results);
+                                }
+                            });
+                        } else if (!window.JSZip) {
+                            console.warn("JSZip is not loaded. Loading it now...");
+                            loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                                console.log("JSZip loaded successfully.");
+                                generateAllReports(results);
+                            });
+                        } else {
+                            generateAllReports(results);
+                        }
+                    });
+                } else if (!window.jspdfAutoTable) {
+                    console.warn("jsPDF-AutoTable is not loaded. Loading it now...");
+                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js", () => {
+                        console.log("jsPDF-AutoTable loaded successfully.");
+                        if (!window.JSZip) {
+                            console.warn("JSZip is not loaded. Loading it now...");
+                            loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                                console.log("JSZip loaded successfully.");
+                                generateAllReports(results);
+                            });
+                        } else {
+                            generateAllReports(results);
+                        }
+                    });
+                } else if (!window.JSZip) {
+                    console.warn("JSZip is not loaded. Loading it now...");
+                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js", () => {
+                        console.log("JSZip loaded successfully.");
+                        generateAllReports(results);
+                    });
+                } else {
+                    generateAllReports(results);
+                }
+
+                function generateAllReports(results) {
+                    const { jsPDF } = window.jspdf;
+                    const zip = new JSZip();
+
+                    if (!jsPDF || !JSZip) {
+                        console.error("Required libraries (jsPDF or JSZip) are not loaded.");
+                        alert("⚠️ Error: Required libraries not loaded.");
+                        return;
+                    }
+
+                    results.forEach((result, index) => {
+                        const doc = new jsPDF();
+                        const filename = result.filename || `File_${index + 1}`;
+                        const reportData = result.extracted_information || {};
+
+                        const title = `Syllabus Compliance Report - ${filename}`;
+                        doc.setFontSize(12);
+                        doc.text(title, 10, 10);
+
+                        const tableColumn = ["Syllabus Items", "Syllabus Details"];
+                        const tableRows = [];
+
+                        Object.keys(reportData).forEach((key) => {
+                            const value = reportData[key] || "Not Found";
+                            tableRows.push([key, value]);
+                        });
+
+                        doc.autoTable({
+                            startY: 20,
+                            head: [tableColumn],
+                            body: tableRows,
+                            theme: "grid",
+                            headStyles: {
+                                fillColor: [0, 53, 145],
+                                textColor: [255, 255, 255],
+                                fontSize: 10,
+                            },
+                            styles: {
+                                fontSize: 10,
+                                cellPadding: 4,
+                            },
+                        });
+
+                        const pdfBlob = doc.output("blob");
+                        zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
+                    });
+
+                    zip.generateAsync({ type: "blob" }).then((content) => {
+                        const zipBlob = new Blob([content], { type: "application/zip" });
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(zipBlob);
+                        link.download = "NECHE_Reports.zip";
+                        link.click();
+                    });
+                }
+            }
+
+            function showCompliancePopupClean(data, filename, complianceStatus) {
+                const requiredFields = [
+                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                    "Preferred Contact Method", "Email Address", "Phone Number",
+                    "Office Address", "Office Hours", "Location (Physical or Remote)",
+                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
+                    "Grading Procedures & Final Grade Scale", "Assignment Deadlines & Policies"
+                ];
+
+                const minimumFields = [
+                    "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+                    "Modality/Meeting Time and Place",
+                    "Semester/Term (and start/end dates)",
+                    "Department/Program",
+                    "Format (e.g., lecture plus lab/discussion etc.)",
+                    "Course Description (minimum course catalog description)",
+                    "Sequence of Course Topics and Important Dates",
+                    "Required/Recommended Textbook (or other source for course reference information)",
+                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+                    "Technical Requirements",
+                    "Attendance",
+                    "Academic Integrity/Plagiarism/AI"
+                ];
+
+                const missingNECHE = requiredFields.filter(field => data[field] === "Not Found" || !data[field]);
+                const missingMinimum = minimumFields.filter(field => data[field] === "Not Found" || !data[field]);
+
+                const courseRaw = data["Course Number and Title"] || "Not Found";
+                const professor = data["Instructor Name"] || "Not Found";
+
+                let courseNumber = "";
+                let courseTitle = courseRaw;
+                const parts = courseRaw.split(" ");
+                if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+                    courseNumber = parts[0] + " " + parts[1];
+                    courseTitle = parts.slice(2).join(" ");
+                }
+
+                const isCompliant = missingNECHE.length === 0 && missingMinimum.length === 0;
+                const statusColor = isCompliant ? "green" : "red";
+                const statusText = isCompliant ? "Pass" : "Fail";
+
+                const popupOverlay = document.createElement("div");
+                popupOverlay.id = "compliance-popup";
+                popupOverlay.style.position = "fixed";
+                popupOverlay.style.top = "0";
+                popupOverlay.style.left = "0";
+                popupOverlay.style.width = "100vw";
+                popupOverlay.style.height = "100vh";
+                popupOverlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+                popupOverlay.style.display = "flex";
+                popupOverlay.style.justifyContent = "center";
+                popupOverlay.style.alignItems = "center";
+                popupOverlay.style.zIndex = "9999";
+
+                const popup = document.createElement("div");
+                popup.style.background = "#ffffff";
+                popup.style.borderRadius = "10px";
+                popup.style.padding = "25px";
+                popup.style.width = "90%";
+                popup.style.maxWidth = "650px";
+                popup.style.maxHeight = "85vh";
+                popup.style.overflowY = "auto";
+                popup.style.fontFamily = "Segoe UI, sans-serif";
+                popup.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
+                popup.style.color = "#000000";
+
+                let popupContent = `
+                    <div style="background-color: var(--unh-blue); color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 18px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                        Status
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Number</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${courseNumber ? courseNumber : "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Course Title</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${courseTitle !== "Not Found" ? courseTitle : "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Professor</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${professor !== "Not Found" ? professor : "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Compliance Status</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                        </tr>
+                    </table>
+                    <div style="font-weight: bold; color: ${statusColor}; margin-bottom: 20px; text-align: center;">
+                        The compliance check is complete. The syllabus is ${isCompliant ? "NECHE compliant." : "not NECHE compliant.<br>Here is the missing information."}
+                    </div>`;
+
+                if (missingNECHE.length > 0) {
+                    popupContent += `
+                        <div style="margin-top: 10px; text-align: left;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: var(--unh-blue); color: white;">
+                                        <th style="padding: 8px; border: 1px solid #ddd;">Missing NECHE Requirements</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${missingNECHE.map(field => `
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
+                                        </tr>`).join("")}
+                                </tbody>
+                            </table>
+                        </div>`;
+                }
+
+                if (missingMinimum.length > 0) {
+                    popupContent += `
+                        <div style="margin-top: 20px; text-align: left;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: var(--unh-blue); color: white;">
+                                        <th style="padding: 8px; border: 1px solid #ddd;">Missing Minimum Requirements</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${missingMinimum.map(field => `
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
+                                        </tr>`).join("")}
+                                </tbody>
+                            </table>
+                        </div>`;
+                }
+
                 popupContent += `
-                    <div style="margin-top: 20px; text-align: left;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr style="background-color: #003591; color: white;">
-                                    <th style="padding: 8px; border: 1px solid #ddd;">Missing Minimum Requirements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${missingMinimum.map(field => `
-                                    <tr>
-                                        <td style="padding: 8px; border: 1px solid #ddd;">${field}</td>
-                                    </tr>`).join("")}
-                            </tbody>
-                        </table>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button id="closeCompliancePopup" style="background-color: #000000; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Close</button>
                     </div>`;
+
+                popup.innerHTML = popupContent;
+                popupOverlay.appendChild(popup);
+                document.body.appendChild(popupOverlay);
+
+                document.getElementById("closeCompliancePopup").addEventListener("click", () => {
+                    popupOverlay.remove();
+                });
             }
-    
-            popupContent += `
-                <div style="text-align: center; margin-top: 30px;">
-                    <button id="closeCompliancePopup" style="background-color: #000000; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Close</button>
-                </div>`;
-    
-            popup.innerHTML = popupContent;
-            popupOverlay.appendChild(popup);
-            document.body.appendChild(popupOverlay);
-    
-            document.getElementById("closeCompliancePopup").addEventListener("click", () => {
-                popupOverlay.remove();
+
+            viewReportBtn.addEventListener("click", () => {
+                if (latestReportData) {
+                    showReportModal(latestReportData, "Latest_Upload");
+                } else {
+                    addHTMLMessage("No report available to view.", false);
+                }
             });
-        }
-    });
-</script>
+
+            downloadReportBtn.addEventListener("click", () => {
+                if (latestReportData) {
+                    downloadSingleReport(latestReportData, "Latest_Upload");
+                } else {
+                    addHTMLMessage("No report available to download.", false);
+                }
+            });
+
+            viewReport.addEventListener("click", () => {
+                if (latestReportData) {
+                    showReportModal(latestReportData, "Latest_Upload");
+                } else {
+                    addHTMLMessage("No report available to view.", false);
+                }
+            });
+
+            downloadReport.addEventListener("click", () => {
+                if (latestReportData) {
+                    downloadSingleReport(latestReportData, "Latest_Upload");
+                } else {
+                    addHTMLMessage("No report available to download.", false);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
