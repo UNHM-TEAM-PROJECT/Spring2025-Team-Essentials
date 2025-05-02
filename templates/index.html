@@ -948,7 +948,7 @@
                         const reportData = result.extracted_information || {};
 
                         const requiredNECHEFields = [
-                            "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                            "Instructor Name", "Title or Rank", 
                             "Preferred Contact Method", "Email Address", "Phone Number",
                             "Office Address", "Office Hours", "Location (Physical or Remote)",
                             "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
@@ -1040,32 +1040,48 @@
             }
 
             function openEmailModal(filename) {
-                const modal = new bootstrap.Modal(document.getElementById("emailModal"));
-                document.getElementById("email-subject").value = `NECHE Compliance Report for ${filename}`;
-                document.getElementById("email-body").value = `Attached is the NECHE compliance report for ${filename}.`;
-                modal.show();
+    const modal = new bootstrap.Modal(document.getElementById("emailModal"));
+    document.getElementById("email-subject").value = `NECHE Compliance Report for ${filename}`;
+    document.getElementById("email-body").value = `Attached is the NECHE compliance report for ${filename}.`;
+    modal.show();
 
-                document.getElementById("send-email-btn").onclick = () => {
-                    const to = document.getElementById("email-to").value;
-                    const subject = document.getElementById("email-subject").value;
-                    const body = document.getElementById("email-body").value;
+    document.getElementById("send-email-btn").onclick = () => {
+        const to = document.getElementById("email-to").value;
+        const subject = document.getElementById("email-subject").value;
+        const body = document.getElementById("email-body").value;
 
-                    if (!to) {
-                        alert("Please enter a recipient email address.");
-                        return;
-                    }
+        if (!to) {
+            alert("Please enter a recipient email address.");
+            return;
+        }
 
-                    addHTMLMessage("Email sending functionality is not implemented in this demo.", false);
-                    modal.hide();
-                };
+        fetch("/send_email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename, to, subject, body }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addHTMLMessage(data.message, false);
+            } else {
+                addHTMLMessage(`⚠️ Error: ${data.error}`, false);
             }
+            modal.hide();
+        })
+        .catch(() => {
+            addHTMLMessage("⚠️ Error: Failed to send email.", false);
+            modal.hide();
+        });
+    };
+}
 
             function downloadSingleReport(data, filename) {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
                 const requiredFields = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Instructor Name", "Title or Rank", "Preferred Contact Method",
                     "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
                     "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
                     "Assignment Deadlines & Policies"
@@ -1229,7 +1245,7 @@
                 const doc = new jsPDF();
 
                 const requiredFields = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Instructor Name", "Title or Rank",  "Preferred Contact Method",
                     "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
                     "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
                     "Assignment Deadlines & Policies"
@@ -1339,7 +1355,7 @@
 
             function showReportModal(data, filename) {
                 const requiredFields = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+                    "Instructor Name", "Title or Rank",  "Preferred Contact Method",
                     "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
                     "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
                     "Assignment Deadlines & Policies"
@@ -1679,7 +1695,7 @@
 
             function showCompliancePopupClean(data, filename, complianceStatus) {
                 const requiredFields = [
-                    "Instructor Name", "Title or Rank", "Department or Program Affiliation",
+                    "Instructor Name", "Title or Rank", 
                     "Preferred Contact Method", "Email Address", "Phone Number",
                     "Office Address", "Office Hours", "Location (Physical or Remote)",
                     "Course SLOs", "Credit Hour Workload", "Assignments & Delivery",
