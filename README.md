@@ -188,13 +188,7 @@ This system helps check if a syllabus meets NECHE standards. It works like this:
 ---
 
 ## System Diagram
-
-<img src="https://github.com/user-attachments/assets/201edd2e-02a6-4d05-bf6e-b65b45590861" width="800" alt="System Flow Diagram">
-
-
-
-
-
+![ChatBot Diagram](https://github.com/user-attachments/assets/073803ea-dc0e-4105-9114-67abc89b7647)
 # Deploying Chatbot to AWS
 
 This guide provides step-by-step instructions for deploying applications on Amazon Web Services (AWS). It covers the entire process from account creation to application deployment using EC2 instances.
