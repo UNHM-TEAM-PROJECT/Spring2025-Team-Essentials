@@ -494,7 +494,7 @@ def check_neche_compliance(course_info):
     Checks NECHE compliance by verifying required syllabus details and returns exact extracted text.
     """
     required_fields = [
-        "Instructor Name", "Title or Rank", "Department or Program Affiliation", "Preferred Contact Method",
+        "Instructor Name", "Title or Rank",  "Preferred Contact Method",
         "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
         "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
         "Assignment Deadlines & Policies", "Course Number and Title",
