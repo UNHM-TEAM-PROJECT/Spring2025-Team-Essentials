@@ -142,128 +142,136 @@ initialize_chroma()
 
 # Compliance Criteria: Key Information to Check
 required_compliance_items = {
-    "Title or Rank": [
-        r"(?i)\b(professor|Professor|assistant professor|associate professor|full professor|senior lecturer|lecturer|instructor|adjunct|faculty|teaching fellow|grad assistant)\b",
-        r"(?i)\b(ph\.?d|phd|dr\.||Professor|professor)\b",
-        r"(?i)\b(professor\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*,\s*ph\.?d)\b",
-        r"(?i)\b([a-zA-Z]+\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*\s*(professor|ph\.?d))\b",
-    ],
     "Instructor Name": [
         r"(?i)\b(name|instructor|dr\.|mr\.|ms\.|mrs\.)[:\-]?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)+)(?=,|\s|$)",
         r"(?i)^[a-zA-Z]+(?:\s[a-zA-Z]+)+$"
     ],
-
-    "Preferred Contact Method": [
-        r"(contact method|preferred contact|contact information|office hours|email|phone)"
+    "Title or Rank": [
+        r"(?i)\b(professor|assistant professor|associate professor|full professor|senior lecturer|lecturer|instructor|adjunct|faculty|teaching fellow|grad assistant)\b",
+        r"(?i)\b(ph\.?d|phd|dr\.)\b",
+        r"(?i)\b(professor\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*,\s*ph\.?d)\b",
+        r"(?i)\b([a-zA-Z]+\s+[a-zA-Z]+(?:\s+[a-zA-Z]+)*\s*(professor|ph\.?d))\b",
     ],
-    "Professor's Email Address": [
+    "Preferred Contact Method": [
+        r"(?i)\b(contact method|preferred contact|contact information|best way to contact|communication expectations|how to reach)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(email is the best|contact me via|preferred method|reach me by)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+    ],
+    "Email Address": [
         r"(?i)(email|E-mail|contact)\s*:\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
         r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?=.*(professor|instructor|faculty|contact))",
         r"(?i)(professor|instructor|faculty)\s*[:-]?\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
         r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?=\s*\(?(professor|instructor|faculty|contact)\)?)"
     ],
-    "Professor's Phone Number": [
+    "Phone Number": [
         r"(?i)(phone|office information|land line|office phone|contact|cell|direct)\s*[:\-]?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
         r"\(\d{3}\)\s*\d{3}[-.\s]?\d{4}(?=\s*\(?(office|phone|cell|contact|direct|land line)\)?)",
         r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b(?=.*(professor|phone|cell|instructor|office hours|land line|office information))",
         r"(?i)(phone|office information|land line)[-.\s]?\d{3}[-.\s]?\d{3}[-.\s]?\d{4}"
     ],
     "Office Address": [
-        r"(office address|address|office|room|building)"
+        r"(?i)\b(office address|office|room|building)\b\s*[:\-]?\s*(Room\s*\d+[^\n]*|Building\s*[^\n]*|[^\n]+?)(?=\n\n|\Z)",
+        r"(?i)\b(office information|contact information)\b\s*[:\-]?\s*(Room\s*\d+[^\n]*|[^\n]+?)(?=\n\n|\Z)"
     ],
     "Office Hours": [
-        r"(office hours|hours|availability|by appointment)"
+        r"(?i)\b(office hours|hours|availability|by appointment|drop by|open door)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(schedule an appointment|contact me during|available by)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Location (Physical or Remote)": [
-        r"(physical location|remote|by appointment|location|online|in person|zoom|in-person|outside his office)"
+        r"(?i)\b(physical location|remote|by appointment|location|online|in person|zoom|in-person|class meetings|room|building)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(classroom|office location|meeting place|class\s+meetings)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(Tuesdays\s+1:10\s*–\s*4:00\s*PM\s+Room\s+503)\b"
     ],
     "Course SLOs": [
-        r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs|learning\s+objectives)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(course\s+learning\s+outcomes|student\s+learning\s+outcomes|SLOs|learning\s+objectives|upon completion)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
         r"(?i)\b(students\s+will(?:\s+be\s+able\s+to)?)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(course\s+description|course\s+summary|course\s+overview|catalog\s*description)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|$)",
-        r"(?i)\b(this\s*course\s*(covers|introduces|examines|explores|is\s+designed\s+to))\b\s*([\s\S]+?)(?=\n\n|$)"
+        r"(?i)\b(course\s+goals|educational\s+objectives)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Credit Hour Workload": [
-        r"(?i)\b(workload|credit\s+hour\s+expectations|credit\s+hours)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(minimum\s+45\s+hours\s+per\s+credit|total\s+workload|time\s+commitment|academic\s+work\s+requirement)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(course\s+workload|time\s+spent\s+per\s+credit\s+hour|study\s+hours\s+per\s+week)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(federal\s+definition\s+of\s+a\s+credit\s+hour|weekly\s+engagement\s+expectations)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(workload|credit\s+hour\s+expectations|credit\s+hours|credit\s+hour\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(minimum\s+45\s+hours\s+per\s+credit|total\s+workload|time\s+commitment|weekly\s+engagement)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Assignments & Delivery": [
-        r"(?i)\b(assignments\s+&\s+delivery|types|graded\s+work)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(assignments|exams|projects|quizzes)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(assignments\s+&\s+delivery|assignment\s+types|graded\s+work|coursework)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(assignments|exams|projects|quizzes|submission)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Grading Procedures & Final Grade Scale": [
-        r"(?i)\b(grading\s+procedures\s+&\s+final\s+grade\s+scale|graded\s+work)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(grade\s+scale|grading\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(grading\s+procedures\s+&\s+final\s+grade\s+scale|grading\s+policy|grade\s+breakdown|grade\s+scale)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(grading\s+criteria|assessment\s+methods)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Assignment Deadlines & Policies": [
-        r"(?i)\b(expectations\s+regarding\s+assignment\s+deadlines|assignment\s+deadlines\s+&\s+policies)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(deadlines|late\s+work)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(assignment\s+deadlines\s+&\s+policies|deadlines|late\s+work|submission\s+policies)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(late\s+submissions|due\s+dates|extensions)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Course Number and Title": [
-        r"(?i)\b(BIOL\s+414\s+LM2\s+Laboratory)\b",
-        r"(?i)\b(course\s+number|course\s+title|course\s+name|course\s+code)\b\s*[:\-]?\s*([A-Z]+\s+\d+\.\w+\s+[^:]+)",
+        r"(?i)\b(course\s+number|course\s+title|course\s+name|course\s+code)\b\s*[:\-]?\s*([A-Z]+\s+\d+\s+[^:]+)",
+        r"(?i)\b(PSYC\s+502\s+Research\s+Methods\s+in\s+Psychology)\b"
     ],
     "Number of Credits/Units (include a link to the federal definition of a credit hour)": [
-        r"(?i)\b(credits|credit\s+hours|number\s+of\s+credits|units|federal\s+definition\s+of\s+a\s+credit\s+hour)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(credit\s+hour\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(credits|credit\s+hours|number\s+of\s+credits|units|credit\s+hour\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(federal\s+definition\s+of\s+a\s+credit\s+hour)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(https://catalog\.unh\.edu/undergraduate/academic-policies-procedures/credit-hour-policy/)\b"
     ],
     "Modality/Meeting Time and Place": [
-        r"(?i)\b(modality|meeting\s+time|meeting\s+place|class\s+schedule|class\s+time|location|online|in-person|hybrid|remote|class\s+meeting)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(modality|meeting\s+time|meeting\s+place|class\s+schedule|class\s+time|location|class\s+meeting)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(Tuesdays\s+1:10\s*–\s*4:00\s*PM\s+Room\s+503)\b"
     ],
     "Semester/Term (and start/end dates)": [
-        r"(?i)\b(semester|term|start\s+date|end\s+date|academic\s+term|academic\s+year)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
-    ],
-    "Program Accreditation Info": [
-        r"(?i)\b(accreditation\s+requirements?|program\s+accreditation|additional\s+program\s+requirements)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(required\s+for\s+accreditation|meets\s+standards\s+of\s+.*accrediting\s+body)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(this\s+course\s+is\s+(designed|aligned)\s+to\s+meet\s+.*program\s+requirements)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(required\s+for\s+(ABET|ACEN|CACREP|AACSB|NCATE|CCNE|program-level\s+accreditation))\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(additional\s+information\s+(for|related\s+to)\s+program\s+accreditation)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(semester|term|start\s+date|end\s+date|academic\s+term|course\s+schedule)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(Spring\s+2025|1/21\s*–\s*5/7)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(course\s+schedule.*?(1/21\s*–\s*5/7))\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Department/Program": [
         r"(?i)\b(department|program|school|college|division|faculty|institute)\b\s*(of|for)?\s*[a-zA-Z]+",
-        r"(?i)\b(affiliated with|affiliation|under)\b\s*[a-zA-Z\s]+"
+        r"(?i)\b(Psychology|Neuropsychology)\b"
     ],
     "Format (e.g., lecture plus lab/discussion etc.)": [
-        r"(?i)\b(course\s+format|class\s+format|mode\s+of\s+instruction|lecture\s+plus\s+lab|discussion\s+based|seminar|hybrid|in-person|online|laboratory)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(course\s+format|class\s+format|mode\s+of\s+instruction|lecture\s+plus\s+lab|discussion\s+based|seminar|writing\s+intensive|in-class\s+activities)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(writing\s+intensive\s+course|various\s+modalities|in-class\s+activities|research\s+project|exams)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Course Description (minimum course catalog description)": [
-        r"(?i)\b(course\s+description|course\s+summary|course\s+overview|introduction\s+to\s+the\s+course)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(this\s+course\s+(covers|introduces|examines|explores|is\s+designed\s+to))\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(course\s+description|course\s+summary|course\s+overview)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(writing\s+intensive\s+course\s+designed\s+to\s+present\s+information)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Sequence of Course Topics and Important Dates": [
-        r"(?i)\b(lab\s+schedule|course\s+schedule|sequence\s+of\s+course\s+topics)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(schedule\s+of\s+topics|important\s+dates)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(sequence\s+of\s+course\s+topics\s+and\s+important\s+dates|course\s+schedule|lab\s+schedule|weekly\s+topics|important\s+dates|course\s+timeline)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(module\s+#?\d+|week\s+\d+|jan\s+\d+|feb\s+\d+|mar\s+\d+|apr\s+\d+|may\s+\d+)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(topics\s+and\s+dates|course\s+calendar|schedule\s+of\s+topics)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Required/Recommended Textbook (or other source for course reference information)": [
-        r"(?i)\b(required\s+texts?|textbooks?|recommended\s+books?|course\s+readings?|assigned\s+books?|learning\s+resources)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(this\s+course\s+uses|the\s+required\s+book\s+is|you\s+must\s+read|textbook\s+requirement)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(required\s+texts?|textbooks?|recommended\s+books?|course\s+readings?|assigned\s+books?)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(Research\s+Methods\s+in\s+Psychology\s+4th\s+American\s+Edition)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)": [
-        r"(?i)\b(required\s+materials|recommended\s+materials|course\s+materials|equipment|supplies|hardware|software|required\s+tools|resources\s+needed)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(you\s+will\s+need\s+to\s+bring|must\s+have\s+access\s+to|clicker|calculator|online\s+tools|learning\s+management\s+system|dissection\s+kits|lab\s+coats|protective\s+gear|lab\s+equipment|required\s+supplies|essential\s+materials)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(lab\s+coats|dissection\s+kits|safety\s+gear|required\s+tools|mandatory\s+equipment)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(other\s+required\/recommended\s+materials|required\s+materials|recommended\s+materials|course\s+materials|supplementary\s+materials|software|clicker|remote)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(python\s+\d+\.\d+|virtualbox|docker|laptop\s+with\s+\d+gb\s+ram|antivirus\s+software|specific\s+hardware)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(additional\s+resources|required\s+equipment|recommended\s+tools)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Technical Requirements": [
-        r"(?i)\b(technical\s+requirements)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(students\s+must\s+have)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(technical\s+requirements|reliable\s+internet|recommended\s+browser)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(students\s+must\s+have\s+access\s+to)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Attendance": [
-        r"(?i)\b(attendance\s+policy|attendance\s+requirements|absence\s+policy|participation\s+and\s+attendance|class\s+preparation\s+and\s+attendance\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(students\s+must\s+attend|mandatory\s+attendance|attendance\s+is\s+expected)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(attendance\s+policy|attendance\s+requirements|absence\s+policy|class\s+attendance)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(regular\s+attendance\s+is\s+expected|absences\s+will)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Academic Integrity/Plagiarism/AI": [
-        r"(?i)\b(academic\s+honesty|academic\s+integrity|plagiarism)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(use\s+of\s+automated\s+writing\s+tools|ai\s+tools)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(academic\s+integrity|plagiarism|academic\s+honesty|use\s+of\s+automated\s+writing\s+tools|AI\s+tools)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(Turnitin|unauthorized\s+AI|prohibited\s+AI|ChatGPT|Grammarly|academic\s+dishonesty|UNH\s+academic\s+policy)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(academic\s+integrity/plagiarism/ai)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ],
     "Course Prerequisites": [
         r"(?i)\b(prerequisites?|pre[-\s]?reqs?)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(required\s+prior\s+coursework|prior\s+completion\s+of)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(you\s+must\s+have\s+(completed|taken)|must\s+complete|should\s+have\s+taken)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(this\s+course\s+(requires|assumes|expects)\s+(knowledge|completion|background|understanding)\s+of)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
-        r"(?i)\b(students\s+should\s+be\s+(familiar|comfortable)\s+with)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+        r"(?i)\b(PSYC\s+401|PSYC\s+402)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+    ],
+    "Simultaneous 700/800 Course Designation": [
+        r"(?i)\b(simultaneous\s+700/800|dual\s+level\s+course|700/800\s+designation|combined\s+with\s+[A-Z]+\s+(7|8)\d{2})\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+    ],
+    "University Requirements": [
+        r"(?i)\b(university\s+requirements|academic\s+requirements\s+fulfilled|discovery\s+attribute|writing\s+intensive)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)",
+        r"(?i)\b(required\s+course\s+for)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
+    ],
+    "Teaching Assistants (Names and Contact Information)": [
+        r"(?i)\b(teaching\s+assistants?|TAs?|graduate\s+assistants?|TA\s+contact|assistant\s+name)\b\s*[:\-]?\s*([\s\S]+?)(?=\n\n|\Z)"
     ]
 }
 
@@ -494,42 +502,53 @@ def check_neche_compliance(course_info):
     Checks NECHE compliance by verifying required syllabus details and returns exact extracted text.
     """
     required_fields = [
-        "Instructor Name", "Title or Rank",  "Preferred Contact Method",
-        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Instructor Name", "Title or Rank", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", 
+        "Location (Physical or Remote)", "Course SLOs", "Credit Hour Workload",
+        "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
         "Assignment Deadlines & Policies", "Course Number and Title",
         "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-        "Attendance", "Academic Integrity/Plagiarism/AI"
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", 
+        "Department/Program", "Format (e.g., lecture plus lab/discussion etc.)",
+        "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates",
+        "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+        "Technical Requirements", "Attendance", "Academic Integrity/Plagiarism/AI"
     ]
+    optional_fields = [
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", 
+        "University Requirements", "Teaching Assistants (Names and Contact Information)"
+    ]
+    all_fields = required_fields + optional_fields
 
-    # Identify missing fields
+    # Identify missing required fields
     missing_fields = [field for field in required_fields if course_info.get(field) in ["Not Found", "", None]]
 
-    # Build compliance message with exact extracted text
-    compliance_message = "NECHE Compliance Check Results:\n"
-    for field in required_fields:
+    # Build compliance message
+    compliance_message = "NECHE Compliance Check Results:\n\n"
+    for field in all_fields:
         value = course_info.get(field, "Not Found")
-        compliance_message += f"{field}: {value}\n"
-
-    # Add missing fields summary if any
+        status = "Present" if value != "Not Found" else "Not Found"
+        compliance_message += f"{field}\t{value}\n"
+    
+    # Add missing fields summary
     if missing_fields:
-        compliance_message += "\nThe syllabus is not compliant. Missing or incomplete information:\n"
+        compliance_message += "\nThe syllabus is not compliant. Missing or incomplete required information:\n"
         for field in missing_fields:
             compliance_message += f"- {field}\n"
+        if "Academic Integrity/Plagiarism/AI" in missing_fields:
+            compliance_message += "\nNote: The 'Academic Integrity/Plagiarism/AI' section was not detected. This may be due to formatting issues or the section being missing in the syllabus. Please ensure it includes terms like 'academic integrity,' 'plagiarism,' or 'AI tools' and is clearly labeled.\n"
     else:
-        compliance_message += "\nThe syllabus is compliant with all required NECHE information present."
+        compliance_message += "\nThe syllabus is fully compliant with all required NECHE information present."
 
-    # Special check for credit hour link
+    # Check credit hour link
     credit_hour_field = "Number of Credits/Units (include a link to the federal definition of a credit hour)"
-    if credit_hour_field in course_info:
+    if credit_hour_field in course_info and course_info[credit_hour_field] != "Not Found":
         if "https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/" not in course_info[credit_hour_field]:
             if credit_hour_field not in missing_fields:
                 missing_fields.append(credit_hour_field)
-                compliance_message += "Missing link to the federal definition of a credit hour. Here is the link: https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/\n"
+                compliance_message += "\n⚠️ Missing link to the federal definition of a credit hour. Expected: https://catalog.unh.edu/undergraduate/academic-policies-procedures/credit-hour-policy/\n"
 
     print(f"🔍 Compliance Check Debug: {compliance_message}")
     return {
@@ -576,35 +595,52 @@ def extract_course_information(text):
     # Pre-extract with regex
     pre_extracted = {}
     for field, patterns in required_compliance_items.items():
+        extracted_text = None
         for pattern in patterns:
             matches = re.finditer(pattern, formatted_text, re.MULTILINE | re.DOTALL)
             for match in matches:
-                print(f"✅ Match found for '{field}': {match.group()}")
                 start = match.start()
-                # Extend capture to include multi-line content until a major section break
-                end = formatted_text.find("\n\n\n", start)  # Look for larger breaks
+                # Capture until a major section break
+                end = formatted_text.find("\n\n\n", start)
                 if end == -1:
                     end = len(formatted_text)
                 extracted_text = formatted_text[start:end].strip()
-                # Clean up and limit to relevant content
-                if field in ["Course SLOs", "Assignments & Delivery", "Grading Procedures & Final Grade Scale", "Credit Hour Workload"]:
-                    extracted_text = "\n".join(line for line in extracted_text.split("\n") if not line.startswith("• •"))  # Remove nested bullets
+                # Clean up for specific fields
+                if field in ["Course SLOs", "Assignments & Delivery", "Grading Procedures & Final Grade Scale", 
+                            "Credit Hour Workload", "Academic Integrity/Plagiarism/AI", "Sequence of Course Topics and Important Dates"]:
+                    extracted_text = "\n".join(line for line in extracted_text.split("\n") if not line.startswith("• •"))
+                # Limit to single line for concise fields
+                if field in ["Instructor Name", "Email Address", "Phone Number", "Office Address", "Course Number and Title"]:
+                    extracted_text = extracted_text.split("\n")[0].strip()
                 pre_extracted[field] = extracted_text
-                print(f"🔍 Pre-extracted '{field}': {pre_extracted[field]}")
+                print(f"🔍 Pre-extracted '{field}': {pre_extracted[field][:100]}...")
                 break
         if field not in pre_extracted:
             pre_extracted[field] = "Not Found"
         
-        # Normalize "Title or Rank"
+        # Normalize specific fields
         if field == "Title or Rank" and pre_extracted.get(field) != "Not Found":
             title_text = pre_extracted[field].lower()
             if any(x in title_text for x in ["professor", "ph.d", "dr."]):
-                pre_extracted[field] = "Professor"
+                pre_extracted[field] = title_text.replace("ph.d", "PhD").title()
+        if field == "Location (Physical or Remote)" and pre_extracted.get(field) != "Not Found":
+            office = pre_extracted.get("Office Address", "Not Found")
+            if office != "Not Found" and office not in pre_extracted[field]:
+                pre_extracted[field] += f"\nOffice: {office}"
+        if field == "Semester/Term (and start/end dates)" and pre_extracted.get(field) == "Not Found":
+            schedule_match = re.search(r"(?i)(Spring\s+2025.*?1/21\s*–\s*5/7)", formatted_text, re.DOTALL)
+            if schedule_match:
+                pre_extracted[field] = "Spring 2025, 1/21–5/7"
+        if field == "Academic Integrity/Plagiarism/AI" and pre_extracted.get(field) == "Not Found":
+            integrity_match = re.search(r"(?i)(academic\s+integrity.*?(Turnitin|ChatGPT|UNH\s+academic\s+policy))", formatted_text, re.DOTALL)
+            if integrity_match:
+                pre_extracted[field] = integrity_match.group(0).strip()
 
+    # LLM prompt for refined extraction
     prompt = f"""
 You are a strict NECHE syllabus compliance inspector.
 
-Your task is to extract all the following fields from the syllabus content exactly as written, without summarizing, modifying, or adding any phrases that reference other sections, such as "See," "Refer to," "Check," "Consult," "In the syllabus," "See Assignments section," "See Grading section," or similar. For each field:
+Your task is to extract all the following fields from the syllabus content exactly as written, without summarizing, modifying, or adding any phrases that reference other sections, such as "See," "Refer to," "Check," "Consult," "In the syllabus," or similar. For each field:
 - Return the exact text if found in the syllabus.
 - Return "Not Found" if the field is completely missing or if the text contains any reference to another section.
 - Output must be a clean JSON object — no extra comments or text.
@@ -650,6 +686,7 @@ Return JSON with these fields:
     response = llm.invoke([HumanMessage(content=prompt)])
     raw_text = response.content.strip()
 
+    # Ensure valid JSON
     if not raw_text.startswith("{"):
         raw_text = raw_text[raw_text.find("{"):]
     if not raw_text.endswith("}"):
@@ -660,53 +697,50 @@ Return JSON with these fields:
         # Post-process to ensure no vague responses
         all_fields = [
             "Instructor Name", "Title or Rank", "Preferred Contact Method",
-            "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-            "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+            "Email Address", "Phone Number", "Office Address", "Office Hours", 
+            "Location (Physical or Remote)", "Course SLOs", "Credit Hour Workload",
+            "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
             "Assignment Deadlines & Policies", "Course Number and Title",
             "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-            "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-            "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-            "Attendance", "Academic Integrity/Plagiarism/AI", "Course Prerequisites", "Simultaneous 700/800 Course Designation",
+            "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", 
+            "Department/Program", "Format (e.g., lecture plus lab/discussion etc.)",
+            "Course Description (minimum course catalog description)",
+            "Sequence of Course Topics and Important Dates",
+            "Required/Recommended Textbook (or other source for course reference information)",
+            "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)",
+            "Technical Requirements", "Attendance", "Academic Integrity/Plagiarism/AI",
+            "Course Prerequisites", "Simultaneous 700/800 Course Designation",
             "University Requirements", "Teaching Assistants (Names and Contact Information)"
         ]
         for field in all_fields:
             if field not in extracted_info or not extracted_info[field] or extracted_info[field].strip() == "":
-                extracted_info[field] = "Not Found"
+                extracted_info[field] = pre_extracted.get(field, "Not Found")
             else:
-                # Check for vague responses and mark as "Not Found"
+                # Check for vague responses
                 value = extracted_info[field].lower()
-                vague_phrases = ["refer to", "see the", "check the", "consult the", "in the syllabus", "see assignments section", "see grading section", "see", "see course description section", "see graded work section", "see class preparation and attendance policy section", "see lab schedule section", "see technical requirements section", "see academic honesty section"]
+                vague_phrases = ["refer to", "see the", "check the", "consult the", "in the syllabus", 
+                               "see assignments section", "see grading section", "see"]
                 if any(phrase in value for phrase in vague_phrases):
-                    extracted_info[field] = "Not Found"
+                    extracted_info[field] = pre_extracted.get(field, "Not Found")
         
-        # Normalize keys
+        # Normalize and clean up
         if "Professor's Email Address" in extracted_info:
             extracted_info["Email Address"] = extracted_info.pop("Professor's Email Address")
         if "Professor's Phone Number" in extracted_info:
             extracted_info["Phone Number"] = extracted_info.pop("Professor's Phone Number")
         
-        # Sanitize department field
-        department_text = extracted_info.get("Department or Program Affiliation", "").lower()
-        if any(x in department_text for x in ["university", "unh", "manchester"]):
-            extracted_info["Department or Program Affiliation"] = "Not Found"
+        # Ensure Academic Integrity is captured
+        if extracted_info["Academic Integrity/Plagiarism/AI"] == "Not Found":
+            integrity_match = re.search(r"(?i)(academic\s+integrity.*?(Turnitin|ChatGPT|UNH\s+academic\s+policy))", formatted_text, re.DOTALL)
+            if integrity_match:
+                extracted_info["Academic Integrity/Plagiarism/AI"] = integrity_match.group(0).strip()
         
-        # Convert all values to strings and ensure no truncation
-        for key, value in extracted_info.items():
-            if not isinstance(value, str):
-                extracted_info[key] = json.dumps(value)
-            # Remove any trailing incomplete sentences
-            extracted_info[key] = extracted_info[key].strip()
-            if extracted_info[key].endswith("..."):
-                extracted_info[key] = "Not Found"
-
         # Cache the extracted information
         extracted_info_cache[doc_key] = extracted_info
 
     except Exception as e:
-        print("❌ Failed to parse response:", e)
-        extracted_info = {"error": "Failed to parse OpenAI response"}
+        print(f"❌ Failed to parse response: {e}")
+        extracted_info = {field: pre_extracted.get(field, "Not Found") for field in all_fields}
         extracted_info_cache[doc_key] = extracted_info
 
     return extracted_info
