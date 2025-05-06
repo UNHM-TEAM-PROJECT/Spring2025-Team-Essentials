@@ -598,6 +598,11 @@
             background-color: #f1f3f5;
             padding: 15px 25px;
         }
+        #send-button i,
+        #uploadButton i,
+        #folderUploadButton i {
+    margin-right: 8px; /* Adjust this value for desired spacing */
+}
     </style>
 </head>
 <body>
@@ -615,9 +620,9 @@
                         <div class="input-area">
                             <div class="search-container">
                                 <input type="text" id="user-input" placeholder="Ask your syllabus questions...">
-                                <button id="send-button"><i class="fas fa-paper-plane"></i> Send</button>
-                                <button id="uploadButton"><i class="fas fa-upload"></i> Upload</button>
-                                <button id="folderUploadButton"><i class="fas fa-folder-plus"></i> Folder</button>
+                                <button id="send-button"><i class="fas fa-paper-plane"></i> </button>
+                                <button id="uploadButton"><i class="fas fa-upload"></i>  Upload</button>
+                                <button id="folderUploadButton"><i> </i></i><i class="fas fa-folder-plus"></i>Folder </button>
                             </div>
                             <input type="file" id="fileInput" accept=".pdf,.docx,.zip" style="display: none;">
                             <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
@@ -825,24 +830,27 @@
             });
 
             folderInput.addEventListener("change", function (e) {
-                const files = e.target.files;
-                if (!files.length) return;
+    const files = e.target.files;
+    if (!files.length) return;
 
-                const validFiles = Array.from(files).filter(file =>
-                    file.type === "application/pdf" ||
-                    file.name.endsWith(".docx") ||
-                    file.name.endsWith(".zip")
-                );
+    const validFiles = Array.from(files).filter(file =>
+        file.type === "application/pdf" ||
+        file.name.endsWith(".docx") ||
+        file.name.endsWith(".zip")
+    );
 
-                if (validFiles.length === 0) {
-                    addHTMLMessage("No valid PDF, DOCX, or ZIP files found in the folder.", false);
-                    folderInput.value = "";
-                    return;
-                }
+    if (validFiles.length === 0) {
+        addHTMLMessage("No valid PDF, DOCX, or ZIP files found in the folder.", false);
+        folderInput.value = "";
+        return;
+    }
 
-                addHTMLMessage(`<strong>Uploaded Folder:</strong> Containing ${validFiles.length} valid file(s)`, true);
-                handleFileUpload(validFiles);
-            });
+    // Extract folder name from the first file's webkitRelativePath
+    const folderName = validFiles[0].webkitRelativePath.split('/')[0];
+
+    addHTMLMessage(`<strong>Uploaded "${folderName}" Folder:</strong> Containing ${validFiles.length} valid file(s)`, true);
+    handleFileUpload(validFiles);
+});
 
             uploadArea.addEventListener("dragover", (e) => {
                 e.preventDefault();
@@ -1075,284 +1083,286 @@
         });
     };
 }
+function downloadSingleReport(data, filename) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-            function downloadSingleReport(data, filename) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
 
-                const requiredFields = [
-                    "Instructor Name", "Title or Rank", "Preferred Contact Method",
-                    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-                    "Assignment Deadlines & Policies"
-                ];
+    const minimumFields = [
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
 
-                const minimumFields = [
-                    "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-                    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-                    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-                    "Attendance", "Academic Integrity/Plagiarism/AI"
-                ];
+    const optionalFields = [
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ];
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
 
-                const optionalFields = [
-                    "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
-                    "Teaching Assistants (Names and Contact Information)"
-                ];
-                const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+    let courseTitleRaw = data["Course Number and Title"] || "Not Found";
+    let courseId = "";
+    let courseName = courseTitleRaw;
+    if (courseTitleRaw !== "Not Found") {
+        const parts = courseTitleRaw.split(" ");
+        if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
+            courseId = parts[0] + " " + parts[1];
+            courseName = parts.slice(2).join(" ");
+        } else {
+            courseId = courseTitleRaw;
+        }
+    }
+    let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
+    if (semester !== "Not Found") {
+        semester = semester.split(" ")[0];
+    }
+    let instructor = data["Instructor Name"] || "Not Found";
 
-                let courseTitleRaw = data["Course Number and Title"] || "Not Found";
-                let courseId = "";
-                let courseName = courseTitleRaw;
-                if (courseTitleRaw !== "Not Found") {
-                    const parts = courseTitleRaw.split(" ");
-                    if (parts.length >= 2 && /^[A-Z]{2,}\d{2,}/.test(parts[0] + parts[1])) {
-                        courseId = parts[0] + " " + parts[1];
-                        courseName = parts.slice(2).join(" ");
-                    } else {
-                        courseId = courseTitleRaw;
-                    }
-                }
-                let semester = data["Semester/Term (and start/end dates)"] || "Not Found";
-                if (semester !== "Not Found") {
-                    semester = semester.split(" ")[0];
-                }
-                let instructor = data["Instructor Name"] || "Not Found";
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const maxWidth = pageWidth - 2 * margin;
+    const title = "Syllabus Compliance Report";
+    const splitTitle = doc.splitTextToSize(title, maxWidth);
+    let yPosition = 15;
+    splitTitle.forEach((line, index) => {
+        const textWidth = doc.getTextWidth(line);
+        const xPosition = (pageWidth - textWidth) / 2;
+        doc.text(line, xPosition, yPosition + (index * 8));
+    });
 
-                doc.setFontSize(20);
-                doc.setFont("helvetica", "bold");
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const margin = 10;
-                const maxWidth = pageWidth - 2 * margin;
-                const title = "Syllabus Compliance Report";
-                const splitTitle = doc.splitTextToSize(title, maxWidth);
-                let yPosition = 15;
-                splitTitle.forEach((line, index) => {
-                    const textWidth = doc.getTextWidth(line);
-                    const xPosition = (pageWidth - textWidth) / 2;
-                    doc.text(line, xPosition, yPosition + (index * 8));
-                });
+    yPosition += splitTitle.length * 8 + 10;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    let courseDetails = [];
+    if (courseId !== "Not Found") {
+        courseDetails.push(`Course ID: ${courseId}`);
+    }
+    if (courseName !== "Not Found") {
+        courseDetails.push(`Course Name: ${courseName}`);
+    }
+    if (semester !== "Not Found") {
+        courseDetails.push(`Semester: ${semester}`);
+    }
+    if (instructor !== "Not Found") {
+        courseDetails.push(`Instructor Name: ${instructor}`);
+    }
 
-                yPosition += splitTitle.length * 8 + 10;
-                doc.setFontSize(12);
-                doc.setFont("helvetica", "normal");
-                let courseDetails = [];
-                if (courseId !== "Not Found") {
-                    courseDetails.push(`Course ID: ${courseId}`);
-                }
-                if (courseName !== "Not Found") {
-                    courseDetails.push(`Course Name: ${courseName}`);
-                }
-                if (semester !== "Not Found") {
-                    courseDetails.push(`Semester: ${semester}`);
-                }
-                if (instructor !== "Not Found") {
-                    courseDetails.push(`Instructor Name: ${instructor}`);
-                }
+    if (courseDetails.length > 0) {
+        courseDetails.forEach((detail, index) => {
+            const textWidth = doc.getTextWidth(detail);
+            const xPosition = (pageWidth - textWidth) / 2;
+            doc.text(detail, xPosition, yPosition + (index * 6));
+        });
+        yPosition += courseDetails.length * 6 + 10;
+    } else {
+        const noDetails = "No course details available";
+        const textWidth = doc.getTextWidth(noDetails);
+        const xPosition = (pageWidth - textWidth) / 2;
+        doc.text(noDetails, xPosition, yPosition);
+        yPosition += 10;
+    }
 
-                if (courseDetails.length > 0) {
-                    courseDetails.forEach((detail, index) => {
-                        const textWidth = doc.getTextWidth(detail);
-                        const xPosition = (pageWidth - textWidth) / 2;
-                        doc.text(detail, xPosition, yPosition + (index * 6));
-                    });
-                    yPosition += courseDetails.length * 6 + 10;
+    const tableColumn = ["Syllabus Items", "Syllabus Details"];
+    const tableRows = [];
+
+    allFields.forEach(field => {
+        let value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
+        if (isOptional && value === "Not Found") return;
+
+        value = value.replace(/[\u2022\u25CF\u2023\u25C6\u25C7\u25A0\u25A1]/g, "- "); // Replace various bullet points
+
+        let displayField = field;
+        if (requiredFields.includes(field)) {
+            displayField = `**${field}**`;
+        } else if (optionalFields.includes(field)) {
+            displayField = `***${field}***`;
+        }
+
+        const displayValue = value === "Not Found" ? "Not Found" : value;
+        tableRows.push([displayField, displayValue]);
+    });
+
+    doc.autoTable({
+        startY: yPosition,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: {
+            fillColor: [0, 53, 145],
+            textColor: [255, 255, 255],
+            fontSize: 14,
+            font: "Segoe UI",
+            fontStyle: "bold",
+            cellPadding: 3,
+        },
+        styles: {
+            font: "Segoe UI",
+            fontSize: 14,
+            cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+            lineColor: [221, 221, 221],
+            lineWidth: 0.3,
+        },
+        columnStyles: {
+            0: { fillColor: [245, 245, 245], cellWidth: 80 },
+            1: { fillColor: [255, 255, 255], cellWidth: 100 },
+        },
+        didParseCell: function (data) {
+            if (data.column.index === 0) {
+                let text = data.cell.text[0];
+                if (text.startsWith("***") && text.endsWith("***")) {
+                    data.cell.text[0] = text.slice(3, -3);
+                    data.cell.styles.fontStyle = "italic";
+                } else if (text.startsWith("**") && text.endsWith("**")) {
+                    data.cell.text[0] = text.slice(2, -2);
+                    data.cell.styles.fontStyle = "bold";
                 } else {
-                    const noDetails = "No course details available";
-                    const textWidth = doc.getTextWidth(noDetails);
-                    const xPosition = (pageWidth - textWidth) / 2;
-                    doc.text(noDetails, xPosition, yPosition);
-                    yPosition += 10;
+                    data.cell.styles.fontStyle = "normal";
                 }
-
-                const tableColumn = ["Syllabus Items", "Syllabus Details"];
-                const tableRows = [];
-
-                allFields.forEach(field => {
-                    const value = data[field] || "Not Found";
-                    const isOptional = optionalFields.includes(field);
-                    if (isOptional && value === "Not Found") return;
-
-                    let displayField = field;
-                    if (requiredFields.includes(field)) {
-                        displayField = `**${field}**`;
-                    } else if (optionalFields.includes(field)) {
-                        displayField = `***${field}***`;
-                    }
-
-                    const displayValue = value === "Not Found" ? "Not Found" : value;
-                    tableRows.push([displayField, displayValue]);
-                });
-
-                doc.autoTable({
-                    startY: yPosition,
-                    head: [tableColumn],
-                    body: tableRows,
-                    theme: "grid",
-                    headStyles: {
-                        fillColor: [0, 53, 145],
-                        textColor: [255, 255, 255],
-                        fontSize: 14,
-                        font: "Segoe UI",
-                        fontStyle: "bold",
-                        cellPadding: 3,
-                    },
-                    styles: {
-                        font: "Segoe UI",
-                        fontSize: 14,
-                        cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
-                        lineColor: [221, 221, 221],
-                        lineWidth: 0.3,
-                    },
-                    columnStyles: {
-                        0: { fillColor: [245, 245, 245], cellWidth: 80 },
-                        1: { fillColor: [255, 255, 255], cellWidth: 100 },
-                    },
-                    didParseCell: function (data) {
-                        if (data.column.index === 0) {
-                            let text = data.cell.text[0];
-                            if (text.startsWith("***") && text.endsWith("***")) {
-                                data.cell.text[0] = text.slice(3, -3);
-                                data.cell.styles.fontStyle = "italic";
-                            } else if (text.startsWith("**") && text.endsWith("**")) {
-                                data.cell.text[0] = text.slice(2, -2);
-                                data.cell.styles.fontStyle = "bold";
-                            } else {
-                                data.cell.styles.fontStyle = "normal";
-                            }
-                        }
-
-                        if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                            data.cell.styles.textColor = [255, 0, 0];
-                            data.cell.styles.fontStyle = "bold";
-                        }
-                    }
-                });
-
-                const pageHeight = doc.internal.pageSize.getHeight();
-                doc.setFontSize(10);
-                doc.text("Formatting:", 10, pageHeight - 30);
-                doc.text("NECHE Compliance Requirements: Bold", 10, pageHeight - 25);
-                doc.text("Minimum Syllabus Requirements: Unbold & Unitalic", 10, pageHeight - 20);
-                doc.text("Optional Syllabus Requirements: Italic", 10, pageHeight - 15);
-
-                doc.save(`${filename}_NECHE_Report.pdf`);
             }
 
-            function generateReport(data, filename) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                data.cell.styles.textColor = [255, 0, 0];
+                data.cell.styles.fontStyle = "bold";
+            }
+        }
+    });
 
-                const requiredFields = [
-                    "Instructor Name", "Title or Rank",  "Preferred Contact Method",
-                    "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
-                    "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
-                    "Assignment Deadlines & Policies"
-                ];
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(10);
+    doc.text("Formatting:", 10, pageHeight - 30);
+    doc.text("NECHE Compliance Requirements: Bold", 10, pageHeight - 25);
+    doc.text("Minimum Syllabus Requirements: Unbold & Unitalic", 10, pageHeight - 20);
+    doc.text("Optional Syllabus Requirements: Italic", 10, pageHeight - 15);
 
-                const minimumFields = [
-                    "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
-                    "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
-                    "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
-                    "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
-                    "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
-                    "Attendance", "Academic Integrity/Plagiarism/AI"
-                ];
+    doc.save(`${filename}_NECHE_Report.pdf`);
+}
 
-                const optionalFields = [
-                    "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
-                    "Teaching Assistants (Names and Contact Information)"
-                ];
-                const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
-                const tableColumn = ["Syllabus Items", "Syllabus Details"];
-                const tableRows = [];
+function generateReport(data, filename) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-                allFields.forEach(field => {
-                    const value = data[field] || "Not Found";
-                    const isOptional = optionalFields.includes(field);
+    const requiredFields = [
+        "Instructor Name", "Title or Rank", "Preferred Contact Method",
+        "Email Address", "Phone Number", "Office Address", "Office Hours", "Location (Physical or Remote)",
+        "Course SLOs", "Credit Hour Workload", "Assignments & Delivery", "Grading Procedures & Final Grade Scale",
+        "Assignment Deadlines & Policies"
+    ];
 
-                    if (isOptional && value === "Not Found") return;
+    const minimumFields = [
+        "Course Number and Title", "Number of Credits/Units (include a link to the federal definition of a credit hour)",
+        "Modality/Meeting Time and Place", "Semester/Term (and start/end dates)", "Department/Program",
+        "Format (e.g., lecture plus lab/discussion etc.)", "Course Description (minimum course catalog description)",
+        "Sequence of Course Topics and Important Dates", "Required/Recommended Textbook (or other source for course reference information)",
+        "Other Required/Recommended Materials (e.g., software, clicker remote, etc.)", "Technical Requirements",
+        "Attendance", "Academic Integrity/Plagiarism/AI"
+    ];
 
-                    let displayField = field;
-                    if (requiredFields.includes(field)) {
-                        displayField = `**${field}**`;
-                    } else if (optionalFields.includes(field)) {
-                        displayField = `***${field}***`;
-                    }
+    const optionalFields = [
+        "Course Prerequisites", "Simultaneous 700/800 Course Designation", "University Requirements",
+        "Teaching Assistants (Names and Contact Information)"
+    ];
+    const allFields = [...requiredFields, ...minimumFields, ...optionalFields];
+    const tableColumn = ["Syllabus Items", "Syllabus Details"];
+    const tableRows = [];
 
-                    const displayValue = value === "Not Found" ? "Not Found" : value;
-                    tableRows.push([displayField, displayValue]);
-                });
+    allFields.forEach(field => {
+        let value = data[field] || "Not Found";
+        const isOptional = optionalFields.includes(field);
 
-                let title = "Syllabus Compliance Report";
-                const course = data["Course Number and Title"];
-                const professor = data["Instructor Name"];
+        if (isOptional && value === "Not Found") return;
 
-                const headingParts = [];
-                if (course && course !== "Not Found") headingParts.push(course);
-                if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
+        value = value.replace(/[\u2022\u25CF\u2023\u25C6\u25C7\u25A0\u25A1]/g, "- "); // Replace various bullet points
 
-                if (headingParts.length > 0) title += " – " + headingParts.join(" ");
+        let displayField = field;
+        if (requiredFields.includes(field)) {
+            displayField = `**${field}**`;
+        } else if (optionalFields.includes(field)) {
+            displayField = `***${field}***`;
+        }
 
-                doc.setFontSize(12);
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const margin = 10;
-                const maxWidth = pageWidth - 2 * margin;
-                const splitTitle = doc.splitTextToSize(title, maxWidth);
+        const displayValue = value === "Not Found" ? "Not Found" : value;
+        tableRows.push([displayField, displayValue]);
+    });
 
-                let yPosition = 15;
-                splitTitle.forEach((line, index) => {
-                    const textWidth = doc.getTextWidth(line);
-                    const xPosition = (pageWidth - textWidth) / 2;
-                    doc.text(line, xPosition, yPosition + (index * 5));
-                });
+    let title = "Syllabus Compliance Report";
+    const course = data["Course Number and Title"];
+    const professor = data["Instructor Name"];
 
-                const titleHeight = splitTitle.length * 5;
-                const tableStartY = yPosition + titleHeight + 5;
+    const headingParts = [];
+    if (course && course !== "Not Found") headingParts.push(course);
+    if (professor && professor !== "Not Found") headingParts.push(`by Professor ${professor}`);
 
-                doc.autoTable({
-                    startY: tableStartY,
-                    head: [tableColumn],
-                    body: tableRows,
-                    theme: "grid",
-                    headStyles: {
-                        fillColor: [0, 53, 145],
-                        textColor: [255, 255, 255],
-                        fontSize: 10,
-                    },
-                    styles: {
-                        fontSize: 10,
-                        cellPadding: 4,
-                    },
-                    columnStyles: {
-                        0: { fillColor: [245, 245, 245] },
-                        1: { fillColor: [255, 255, 255] },
-                    },
-                    didParseCell: function (data) {
-                        if (data.column.index === 0) {
-                            let text = data.cell.text[0];
-                            if (text.startsWith("***") && text.endsWith("***")) {
-                                data.cell.text[0] = text.slice(3, -3);
-                                data.cell.styles.fontStyle = "italic";
-                            } else if (text.startsWith("**") && text.endsWith("**")) {
-                                data.cell.text[0] = text.slice(2, -2);
-                                data.cell.styles.fontStyle = "bold";
-                            } else {
-                                data.cell.styles.fontStyle = "normal";
-                            }
-                        }
+    if (headingParts.length > 0) title += " – " + headingParts.join(" ");
 
-                        if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
-                            data.cell.styles.textColor = [255, 0, 0];
-                            data.cell.styles.fontStyle = "bold";
-                        }
-                    }
-                });
+    doc.setFontSize(12);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const maxWidth = pageWidth - 2 * margin;
+    const splitTitle = doc.splitTextToSize(title, maxWidth);
 
-                doc.save(`${filename}_NECHE_Report.pdf`);
+    let yPosition = 15;
+    splitTitle.forEach((line, index) => {
+        const textWidth = doc.getTextWidth(line);
+        const xPosition = (pageWidth - textWidth) / 2;
+        doc.text(line, xPosition, yPosition + (index * 5));
+    });
+
+    const titleHeight = splitTitle.length * 5;
+    const tableStartY = yPosition + titleHeight + 5;
+
+    doc.autoTable({
+        startY: tableStartY,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: {
+            fillColor: [0, 53, 145],
+            textColor: [255, 255, 255],
+            fontSize: 10,
+        },
+        styles: {
+            fontSize: 10,
+            cellPadding: 4,
+        },
+        columnStyles: {
+            0: { fillColor: [245, 245, 245] },
+            1: { fillColor: [255, 255, 255] },
+        },
+        didParseCell: function (data) {
+            if (data.column.index === 0) {
+                let text = data.cell.text[0];
+                if (text.startsWith("***") && text.endsWith("***")) {
+                    data.cell.text[0] = text.slice(3, -3);
+                    data.cell.styles.fontStyle = "italic";
+                } else if (text.startsWith("**") && text.endsWith("**")) {
+                    data.cell.text[0] = text.slice(2, -2);
+                    data.cell.styles.fontStyle = "bold";
+                } else {
+                    data.cell.styles.fontStyle = "normal";
+                }
             }
 
+            if (data.column.index === 1 && data.cell.text[0] === "Not Found") {
+                data.cell.styles.textColor = [255, 0, 0];
+                data.cell.styles.fontStyle = "bold";
+            }
+        }
+    });
+
+    doc.save(`${filename}_NECHE_Report.pdf`);
+}
             function showReportModal(data, filename) {
                 const requiredFields = [
                     "Instructor Name", "Title or Rank",  "Preferred Contact Method",
@@ -1550,9 +1560,7 @@
                         formattedField = `<em>${field}</em>`;
                     }
 
-                    const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/\n/g, "<br>");
-
-                    html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
+                    const displayValue = value === "Not Found" ? `<span style="color: red; font-weight: bold;">Not Found</span>` : value.replace(/[\u2022\u25CF\u2023\u25C6\u25C7\u25A0\u25A1]/g, "- ").replace(/\n/g, "<br>");                    html += `<tr><td>${formattedField}</td><td>${displayValue}</td></tr>`;
                 });
 
                 html += `</tbody></table></div>`;
@@ -1637,60 +1645,61 @@
                 }
 
                 function generateAllReports(results) {
-                    const { jsPDF } = window.jspdf;
-                    const zip = new JSZip();
+    const { jsPDF } = window.jspdf;
+    const zip = new JSZip();
 
-                    if (!jsPDF || !JSZip) {
-                        console.error("Required libraries (jsPDF or JSZip) are not loaded.");
-                        alert("⚠️ Error: Required libraries not loaded.");
-                        return;
-                    }
+    if (!jsPDF || !JSZip) {
+        console.error("Required libraries (jsPDF or JSZip) are not loaded.");
+        alert("⚠️ Error: Required libraries not loaded.");
+        return;
+    }
 
-                    results.forEach((result, index) => {
-                        const doc = new jsPDF();
-                        const filename = result.filename || `File_${index + 1}`;
-                        const reportData = result.extracted_information || {};
+    results.forEach((result, index) => {
+        const doc = new jsPDF();
+        const filename = result.filename || `File_${index + 1}`;
+        const reportData = result.extracted_information || {};
 
-                        const title = `Syllabus Compliance Report - ${filename}`;
-                        doc.setFontSize(12);
-                        doc.text(title, 10, 10);
+        const title = `Syllabus Compliance Report - ${filename}`;
+        doc.setFontSize(12);
+        doc.text(title, 10, 10);
 
-                        const tableColumn = ["Syllabus Items", "Syllabus Details"];
-                        const tableRows = [];
+        const tableColumn = ["Syllabus Items", "Syllabus Details"];
+        const tableRows = [];
 
-                        Object.keys(reportData).forEach((key) => {
-                            const value = reportData[key] || "Not Found";
-                            tableRows.push([key, value]);
-                        });
+        Object.keys(reportData).forEach((key) => {
+            let value = reportData[key] || "Not Found";
+            value = value.replace(/\u2022/g, "- "); // Replace bullet points
+            tableRows.push([key, value]);
+        });
 
-                        doc.autoTable({
-                            startY: 20,
-                            head: [tableColumn],
-                            body: tableRows,
-                            theme: "grid",
-                            headStyles: {
-                                fillColor: [0, 53, 145],
-                                textColor: [255, 255, 255],
-                                fontSize: 10,
-                            },
-                            styles: {
-                                fontSize: 10,
-                                cellPadding: 4,
-                            },
-                        });
+        doc.autoTable({
+            startY: 20,
+            head: [tableColumn],
+            body: tableRows,
+            theme: "grid",
+            headStyles: {
+                fillColor: [0, 53, 145],
+                textColor: [255, 255, 255],
+                fontSize: 10,
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 4,
+            },
+        });
 
-                        const pdfBlob = doc.output("blob");
-                        zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
-                    });
+        const pdfBlob = doc.output("blob");
+        zip.file(`${filename}_NECHE_Report.pdf`, pdfBlob);
+    });
 
-                    zip.generateAsync({ type: "blob" }).then((content) => {
-                        const zipBlob = new Blob([content], { type: "application/zip" });
-                        const link = document.createElement("a");
-                        link.href = URL.createObjectURL(zipBlob);
-                        link.download = "NECHE_Reports.zip";
-                        link.click();
-                    });
-                }
+    zip.generateAsync({ type: "blob" }).then((content) => {
+        const zipBlob = new Blob([content], { type: "application/zip" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(zipBlob);
+        link.download = "NECHE_Reports.zip";
+        link.click();
+    });
+}
             }
 
             function showCompliancePopupClean(data, filename, complianceStatus) {
